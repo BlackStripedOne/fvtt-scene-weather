@@ -1,0 +1,61 @@
+{
+  "id": "scene-weather",
+  "title": "Scene Weather",
+  "description": "Controling weather for scenes from weather model up to weather effects, with an API to be used for game systems.",
+  "library": false,
+  "manifestPlusVersion": "1.2.0",
+  "authors": [
+    {
+      "name": "BlackStripedOne",
+      "url": "https://github.com/BlackStripedOne"
+    }
+  ],
+  "compatibility": {
+    "minimum": "10",
+    "verified": "10.291",
+    "maximum": "11"
+  },
+  "relationships": {
+    "systems": [],
+    "requires": [],
+    "optional": [],
+    "flags": {
+      "optional": []
+    }
+  },
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "languages/de.json"
+    }
+  ],
+  "license": "LICENSE",
+  "readme": "README.md",
+  "esmodules": [
+    "/scripts/scene-weather.min.js"
+  ],
+  "scripts": [],
+  "styles": [
+    "/styles/scene-weather.css"
+  ],
+  "media": [
+    {
+      "type": "icon",
+      "url": "https://avatars.githubusercontent.com/u/123573329?v=4"
+    }
+  ],
+  "protected": false,
+  "coreTranslation": false,
+  "packs": [],
+  "socket": false,
+  "version": "THIS IS AUTO-REPLACED",
+  "url": "THIS IS AUTO-REPLACED",
+  "manifest": "THIS IS AUTO-REPLACED",
+  "download": "THIS IS AUTO-REPLACED"
+}

@@ -1,0 +1,21 @@
+.sceneWeather-collapsibleModeOption {
+  display: none;
+}
+
+.sceneWeather-collapsibleModeOption.active {
+  display: block;
+}
+
+.key {
+  padding: 5px 10px;
+  border: 3px solid var(--color-text-light-6);
+  border-radius: 5px;
+  font-size: 0.6em;
+  text-align: center;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-rendering: auto;
+  vertical-align: middle;
+}

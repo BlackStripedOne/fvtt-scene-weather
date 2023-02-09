@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "debug": {
+      "hint": "Debug Ausgabe für die Konsole aktivieren",
+      "name": "Debugging Aktivieren"
+    }
+  }
+}

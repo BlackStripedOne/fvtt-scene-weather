@@ -1,0 +1,219 @@
+<form class="flexcol">
+  <p>Configure the regions specific climate parameters.</p>
+
+  <h1>General Environment</h1>
+  <div class="form-group">
+    <label for="elevation">Average Elevation (meter aMSL)</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="3000" step="100" value="{{elevation}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="elevation"
+        placeholder="{{elevation}}" value="{{elevation}}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="vegetation">Average Vegetation amount (%)</label>
+    <p><i>(100% deep rainforest jungle / 0% arid ice-, deser-, wasteland/ocean, rocky mountaintop)</i></p>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{vegetation}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="vegetation"
+        placeholder="{{vegetation}}" value="{{vegetation}}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="waterAmount">Waterbodies</label>
+    <div class="form-fields">
+      <select name="waterAmount" data-dtype="Number">
+        {{selectOptions waterAmounts selected=waterAmount nameAttr="id" labelAttr="name" localize=true}}
+      </select>
+    </div>
+  </div>
+
+  <h1>Summer</h1>
+  <h2>Temperatrue</h2>
+  <p>Temperature in degrees celsius</p>
+  <div class="form-group">
+    <label for="summer.temperature.max">Maximum Temperature in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.max}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.max"
+        placeholder="{{summer.temperature.max}}" value="{{summer.temperature.max}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.temperature.avg">Average Temperature in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.avg"
+        placeholder="{{summer.temperature.avg}}" value="{{summer.temperature.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.temperature.min">Minimum Temperature in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.min}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.min"
+        placeholder="{{summer.temperature.min}}" value="{{summer.temperature.min}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.temperature.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="20" step="1" value="{{summer.temperature.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.var"
+        placeholder="{{summer.temperature.var}}" value="{{summer.temperature.var}}">
+    </div>
+  </div>
+
+  <h2>Humidity</h2>
+  <p>Relative Humidity in %</p>
+  <div class="form-group">
+    <label for="summer.humidity.max">Maximum Humidity in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.max}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.max"
+        placeholder="{{summer.humidity.max}}" value="{{summer.humidity.max}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.humidity.avg">Average Humidity in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.avg"
+        placeholder="{{summer.humidity.avg}}" value="{{summer.humidity.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.humidity.min">Minimum Humidity in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.min}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.min"
+        placeholder="{{summer.humidity.min}}" value="{{summer.humidity.min}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.humidity.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{summer.humidity.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.var"
+        placeholder="{{summer.humidity.var}}" value="{{summer.humidity.var}}">
+    </div>
+  </div>
+
+  <h2>Windspeed</h2>
+  <p>Windspeed in m/s.</p>
+  <div class="form-group">
+    <label for="summer.wind.avg">Average Windspeed in Summer</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="70" step="1" value="{{summer.wind.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.wind.avg"
+        placeholder="{{summer.wind.avg}}" value="{{summer.wind.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.wind.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{summer.wind.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.wind.var"
+        placeholder="{{summer.wind.var}}" value="{{summer.wind.var}}">
+    </div>
+  </div>
+
+
+  <h1>Winter</h1>
+  <h2>Temperatrue</h2>
+  <p>Temperature in degrees celsius</p>
+  <div class="form-group">
+    <label for="winter.temperature.max">Maximum Temperature in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.max}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.max"
+        placeholder="{{winter.temperature.max}}" value="{{winter.temperature.max}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.temperature.avg">Average Temperature in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.avg"
+        placeholder="{{winter.temperature.avg}}" value="{{winter.temperature.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.temperature.min">Minimum Temperature in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.min}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.min"
+        placeholder="{{winter.temperature.min}}" value="{{winter.temperature.min}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.temperature.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="20" step="1" value="{{winter.temperature.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.var"
+        placeholder="{{winter.temperature.var}}" value="{{winter.temperature.var}}">
+    </div>
+  </div>
+
+  <h2>Humidity</h2>
+  <p>Relative Humidity in %</p>
+  <div class="form-group">
+    <label for="winter.humidity.max">Maximum Humidity in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.max}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.max"
+        placeholder="{{winter.humidity.max}}" value="{{winter.humidity.max}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.humidity.avg">Average Humidity in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.avg"
+        placeholder="{{winter.humidity.avg}}" value="{{winter.humidity.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.humidity.min">Minimum Humidity in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.min}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.min"
+        placeholder="{{winter.humidity.min}}" value="{{winter.humidity.min}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.humidity.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{winter.humidity.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.var"
+        placeholder="{{winter.humidity.var}}" value="{{winter.humidity.var}}">
+    </div>
+  </div>
+
+  <h2>Windspeed</h2>
+  <p>Windspeed in m/s.</p>
+  <div class="form-group">
+    <label for="winter.wind.avg">Average Windspeed in Winter</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="70" step="1" value="{{winter.wind.avg}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.wind.avg"
+        placeholder="{{winter.wind.avg}}" value="{{winter.wind.avg}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="winter.wind.var">Variation Amount</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{winter.wind.var}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.wind.var"
+        placeholder="{{winter.wind.var}}" value="{{winter.wind.var}}">
+    </div>
+  </div>
+
+  <footer class="sheet-footer flexrow">
+    <button type="submit" name="submit">
+      <i class="fa fa-check"></i> OK
+    </button>
+  </footer>
+</form>

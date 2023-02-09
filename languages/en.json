@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "debug": {
+      "hint": "Enable debug logging in the console",
+      "name": "Enable Debugging"
+    }
+  }
+}

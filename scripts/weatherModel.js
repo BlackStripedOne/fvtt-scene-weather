@@ -134,7 +134,7 @@ export class WeatherModel {
         },
         'clouds': {
           'coverage': 0,
-          'bottom': Utils.clamp(Math.abs(WeatherModel._liftedCondensationLevel(regionBaseValues.baseTemp, regionBaseValues.baseHumidity)), 0, 20000),  // // LCL in altitude meters above sea level on ICAO standard atmosphere up to 20km
+          'bottom': Utils.clamp(Math.abs(WeatherModel._liftedCondensationLevel(regionBaseValues.baseTemp, regionBaseValues.baseHumidity)), 0, 20000),  // LCL in altitude meters above sea level on ICAO standard atmosphere up to 20km
           'top': 0,
           'type': 0 // 0: none, 1:groundfog, 2:cirrus, 3:cumulus, 4:cumulunimbus
         },
@@ -456,7 +456,8 @@ export class WeatherModel {
    * @private
    */
   static _liftedCondensationLevel(temperature, humidity) {
-    return 125 * (temperature - WeatherModel._dewPoint(temperature, humidity))
+    let Td = temperature - ((100 - humidity)/5)
+    return 125 * (temperature - Td)
   }
 
 }

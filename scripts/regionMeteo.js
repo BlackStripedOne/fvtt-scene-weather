@@ -58,6 +58,7 @@ export class RegionMeteo {
 
   /**
    * Region Automatic lets you set RegionMeteo. uses TimeOfDy/DayInYear
+   * 
    * @param {*} templateId 
    */
   constructor(templateId) {
@@ -66,14 +67,17 @@ export class RegionMeteo {
       // TOOD set parameters from template
       this.regionData = RegionMeteo.templates[templateId]
     } else {
-      // TODO set parameters from scene config of if none found, from game defaults
+      // TODO set parameters from scene config or if none found, from game defaults
       this.regionData = canvas.scene.getFlag(MODULE.ID, 'regionSettings')
     }
+    // TODO use configurable seed
     this._noise = Noise.createNoise2D(0)
+    this.update()
   }
 
   /**
   * TODO
+  * 
   * @returns - array of dictionaries containing 'id' and 'name'
   */
   static getTemplates() {
@@ -84,12 +88,12 @@ export class RegionMeteo {
         'name': RegionMeteo.templates[id].name
       })
     }
-    Logger.debug('getTemplates', { 'res': res })
     return res
   }
 
   /**
    * Region Template sets specific RegionMeteo as well as given TimeOfDay/SeasonInYear
+   * 
    * @param {*} templateId 
    * @returns 
    */
@@ -103,58 +107,18 @@ export class RegionMeteo {
   update() {
     // update on potentially changed settings on the scene or default values
     // TODO
-    // TODO invalidate cache
+
+    // initialize cache
+    this._cache = {}
   }
 
   /**
-   * Day of year as percentile
+   * Calculate base values of the region based on date and time with optional offset
+   * 
+   * @param {*} dayDelta 
+   * @param {*} hourDelta 
+   * @returns 
    */
-  _doyPct(dayOfYear) {
-    // Summer solstice is around June 20th or 21st
-    const summerSolstice = TimeProvider.config.summerSolstice % TimeProvider.config.daysInYear
-    // Winter solstice is around December 21st or 22nd
-    const winterSolstice = TimeProvider.config.winterSolstice % TimeProvider.config.daysInYear
-    let wSb = winterSolstice
-    let wSa = winterSolstice
-    if (winterSolstice < summerSolstice) {
-      // winter solstice is at the beginning of the year
-      wSa = winterSolstice + TimeProvider.config.daysInYear
-    } else {
-      // winter solstice is at the end of the year
-      wSb = winterSolstice - TimeProvider.config.daysInYear // may be negative
-    }
-    if (dayOfYear > wSa) dayOfYear -= TimeProvider.config.daysInYear
-    let pct
-    if (dayOfYear == summerSolstice) {
-      pct = 1
-    } else if (dayOfYear < summerSolstice) {
-      pct = (dayOfYear - wSb) / (summerSolstice - wSb)
-    } else {
-      pct = 1 - ((dayOfYear - summerSolstice) / (wSa - summerSolstice))
-    }
-    return pct // TODO use sine
-  }
-
-  /**
-   * Hour on days as percentile
-   */
-  _hodPct(hourOfDay) {
-    // Normalize hour value to the range [0, 24)
-    hourOfDay = hourOfDay % 24;
-    return (Math.sin(((hourOfDay / 12) - 0.5) * (Math.PI)) + 1) / 2	// TODO may use sinetable for speed
-  }
-
-  _getNoisedValue(timeHash, mainAmpli, baseValue, variation) {
-    timeHash = timeHash / mainAmpli
-    let e = 1 * this._noise(1 * timeHash, 1 * timeHash) +
-      0.5 * this._noise(2 * timeHash, 2 * timeHash) +
-      0.25 * this._noise(4 * timeHash, 4 * timeHash)
-    let n = e / (1 + 0.5 + 0.25)
-    return baseValue + ((variation * n * 2) - variation)
-  }
-
-  
-  // Calculate base values of the region based on date and time with optional offset
   getRegionBase(dayDelta = 0, hourDelta = 0) {
     if (dayDelta === undefined) dayDelta = 0
     if (hourDelta === undefined) hourDelta = 0
@@ -193,6 +157,10 @@ export class RegionMeteo {
 
     let timeHash = TimeProvider.getTimeHash(dayOfYear, hourOfDay)
 
+    if (this._cache[timeHash] !== undefined) {
+      return this._cache[timeHash]
+    }
+
     // TODO implement cashing for calculated timeHash
 
     let baseValues = {
@@ -202,8 +170,8 @@ export class RegionMeteo {
       'timeHash': timeHash
     }
 
-    let timeRelative = this._hodPct(hourOfDay) // 0.0 = midnight, 1.0 = noon
-    let dateRelative = this._doyPct(dayOfYear) // 0.0 = winter solstice, 1.0 = summer solstice
+    let timeRelative = RegionMeteo._hodPct(hourOfDay) // 0.0 = midnight, 1.0 = noon
+    let dateRelative = RegionMeteo._doyPct(dayOfYear) // 0.0 = winter solstice, 1.0 = summer solstice
 
     // calculate today's temperatures
     let todayTempDay = (this.regionData.summer.temperature.day - this.regionData.winter.temperature.day) * dateRelative + this.regionData.winter.temperature.day
@@ -251,9 +219,76 @@ export class RegionMeteo {
     baseValues.wind = Utils.clamp(this._getNoisedValue(timeHash + 978, 16, factor * todayWindAvg, todayWindVar), 0, 80) // Maximum 80 m/s wind. Maybe overthink this.
     baseValues.gusts = Utils.clamp(baseValues.wind + this._getNoisedValue(timeHash + 12, 8, factor * todayWindVar, todayWindVar), 0, 80)
 
-    Logger.debug('RegionMeteo.getRegionBase', { 'DoY': dayOfYear, 'HoD': hourOfDay, 'values': baseValues })
+    this._cache[timeHash] = baseValues
     return baseValues
   }
 
+  /**
+   * TODO
+   * 
+   * @param {*} timeHash 
+   * @param {*} mainAmpli 
+   * @param {*} baseValue 
+   * @param {*} variation 
+   * @returns 
+   * 
+   * @protected
+   */
+  _getNoisedValue(timeHash, mainAmpli, baseValue, variation) {
+    timeHash = timeHash / mainAmpli
+    let e = 1 * this._noise(1 * timeHash, 1 * timeHash) +
+      0.5 * this._noise(2 * timeHash, 2 * timeHash) +
+      0.25 * this._noise(4 * timeHash, 4 * timeHash)
+    let n = e / (1 + 0.5 + 0.25)
+    return baseValue + ((variation * n * 2) - variation)
+  }
+
+  /**
+     * Hour on days as percentile
+     * 
+     * @param {*} hourOfDay 
+     * @returns 
+     * 
+     * @private
+     */
+  static _hodPct(hourOfDay) {
+    // Normalize hour value to the range [0, 24)
+    hourOfDay = hourOfDay % 24;
+    return (Math.sin(((hourOfDay / 12) - 0.5) * (Math.PI)) + 1) / 2	// TODO may use sinetable for speed
+  }
+
+  /**
+   * Day of year as percentile
+   * 
+   * @param {*} dayOfYear 
+   * @returns {number} - [0,1]
+   * 
+   * @private
+   */
+  static _doyPct(dayOfYear) {
+    // Summer solstice is around June 20th or 21st
+    const summerSolstice = TimeProvider.config.summerSolstice % TimeProvider.config.daysInYear
+    // Winter solstice is around December 21st or 22nd
+    const winterSolstice = TimeProvider.config.winterSolstice % TimeProvider.config.daysInYear
+    let wSb = winterSolstice
+    let wSa = winterSolstice
+    if (winterSolstice < summerSolstice) {
+      // winter solstice is at the beginning of the year
+      wSa = winterSolstice + TimeProvider.config.daysInYear
+    } else {
+      // winter solstice is at the end of the year
+      wSb = winterSolstice - TimeProvider.config.daysInYear // may be negative
+    }
+    if (dayOfYear > wSa) dayOfYear -= TimeProvider.config.daysInYear
+    let pct
+    if (dayOfYear == summerSolstice) {
+      pct = 1
+    } else if (dayOfYear < summerSolstice) {
+      pct = (dayOfYear - wSb) / (summerSolstice - wSb)
+    } else {
+      pct = 1 - ((dayOfYear - summerSolstice) / (wSa - summerSolstice))
+    }
+    return pct // TODO use sine
+  }
 
 }

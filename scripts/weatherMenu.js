@@ -1,4 +1,5 @@
 import { Logger, Utils } from './utils.js'
+import { WeatherUi } from './weatherUi.js'
 
 /**
  * Menu class for the weather layer
@@ -15,12 +16,12 @@ export class WeatherMenu {
 
     Hooks.on("getSceneControlButtons", btns => {
       const weatherOptions = [{
-        name: "Toggle Weather Effects",
-        title: 'Toggle Weather Effects',
-        icon: "fas fa-regular fa-meteor",
+        name: "Toggle Weather UI",
+        title: 'Toggle Weather UI',
+        icon: "fas fa-solid fa-eye",
         button: true,
         onClick: () => {
-          // TODO
+          WeatherUi.toggleAppVis('toggle');
         }
       },
       {

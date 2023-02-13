@@ -53,7 +53,8 @@ export const loadHandlebars = function () {
   // register templates parts  
   loadTemplates({
     'manualTime': 'modules/' + MODULE.ID + '/templates/manualTime.hbs',
-    'manualSeason': 'modules/' + MODULE.ID + '/templates/manualSeason.hbs'
+    'manualSeason': 'modules/' + MODULE.ID + '/templates/manualSeason.hbs',
+    'weatherMeteogram': 'modules/' + MODULE.ID + '/templates/weatherMeteogram.hbs'
   });
   Logger.debug('HB partials loaded')
 

@@ -44,11 +44,8 @@ export class SceneWeather {
   /**
    * TODO
    */
-  async update() {
+  update() {
     this.weatherModel.update()
-    //this.temperatue.air = this.weatherModel.getAirTemp()
-    //this.temperatue.ground = this.weatherModel.getGroundTemp()
-    //this.temperatue.perceived = 0 // TODO with wind calculation
   }
 
   /**
@@ -61,5 +58,48 @@ export class SceneWeather {
   // disableFxOnScene()
 
   // updateFxOnScene()
+
+  getWeatherInfo(dayOffset = 0, hourOffset = 0) {
+    let modelData = this.weatherModel.getWeatherData(dayOffset, hourOffset)
+    let weatherInfo = {
+      'temperature': modelData.temp.air.toFixed(2),
+      'humidity': Math.round(modelData.humidity),
+      'wind': {
+        'speed': Math.round(modelData.wind.speed),
+        'gusts': Math.round(modelData.wind.gusts),
+        'direction': 0
+      },
+      'clouds': {
+        'amount': 0,
+        'type': 'none'
+      },
+      'sun': Math.round(modelData.sun.amount),
+      'precipitation': {
+        'amount': 0,
+        'type': 'none'
+      }
+    }
+    return weatherInfo
+  }
+
+  /**
+ * Convert temperature in fahrenheit to celsius.
+ *
+ * @param Tf temperature in fahrenheit
+ * @returns {number}
+ */
+  fahrenheitToCelsius(Tf) {
+    return (Tf - 32) / 1.8;
+  }
+
+  /**
+   * Convert temperature in celsius to fahrenheit.
+   *
+   * @param Tc temperature in celsius
+   * @returns {number}
+   */
+  celsiusToFahrenheit(Tc) {
+    return (Tc * 1.8) + 32;
+  }
 
 }

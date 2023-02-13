@@ -33,6 +33,13 @@ export class Logger {
 export class Utils {
 
   /**
+TODO
+*/
+  static clamp(number, min, max) {
+    return Math.min(Math.max(number, min), max)
+  }
+
+  /**
    * Round a number to the given number of decimals.
    * @param {number} number   The number to round
    * @param {number} decimals The number of decimals to round to

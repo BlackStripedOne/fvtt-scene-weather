@@ -75,6 +75,42 @@ export const registerSettings = function () {
   // Add all default values for new scenes...
   // TODO
 
+  game.settings.register(MODULE.ID, 'uiVisible', {
+    name: Utils.i18n('settings.uiVisible.name'),
+    hint: Utils.i18n('settings.uiVisible.hint'),
+    scope: 'client',
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: (value) => {
+      onChangeFunction(value)
+    }
+  })
+
+  game.settings.register(MODULE.ID, 'uiPosition', {
+    name: Utils.i18n('settings.uiPosition.name'),
+    hint: Utils.i18n('settings.uiPosition.hint'),
+    scope: 'client',
+    config: false,
+    type: Object,
+    default: { top: 440, left: 15 },
+    onChange: (value) => {
+      onChangeFunction(value)
+    }
+  });
+
+  game.settings.register(MODULE.ID, 'uiPinned', {
+    name: Utils.i18n('settings.uiPinned.name'),
+    hint: Utils.i18n('settings.uiPinned.hint'),
+    scope: 'client',
+    config: false,
+    type: Boolean,
+    default: true,
+    onChange: (value) => {
+      onChangeFunction(value)
+    }
+  });
+
   game.settings.register(MODULE.ID, 'debug', {
     name: Utils.i18n('settings.debug.name'),
     hint: Utils.i18n('settings.debug.hint'),

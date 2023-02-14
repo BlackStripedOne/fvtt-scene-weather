@@ -29,6 +29,29 @@ export class TimeProvider {
     return hash
   }
 
+  static getDayOfYearFromTimeHash(timeHash) {
+    return Math.trunc(timeHash / TimeProvider.config.hoursInDay) + 1
+  }
+
+  static getMonthOfYearFromTimeHash(timeHash) {
+    let dayOfYear = TimeProvider.getDayOfYearFromTimeHash(timeHash)
+    for (let m = 0; m < TimeProvider.config.monthOffset.length; m++) {
+      if (dayOfYear < TimeProvider.config.monthOffset[m]) {
+        return m
+      }
+    }
+    return TimeProvider.config.monthOffset.length
+  }
+
+  static getDayOfMonthFromTimeHash(timeHash) {
+    let monthOfYear = TimeProvider.getMonthOfYearFromTimeHash(timeHash)
+    return TimeProvider.getDayOfYearFromTimeHash(timeHash) - TimeProvider.config.monthOffset[monthOfYear - 1]
+  }
+
+  static getTimeOfDayFromTimeHash(timeHash) {
+    return timeHash % TimeProvider.config.hoursInDay
+  }
+
   static getDayOfYear() {
     if (game.modules.get('foundryvtt-simple-calendar')?.active && TimeProvider._getTimeProvider() === 'simple-calendar') {
       let scInstance = SimpleCalendar.api.timestampToDate(game.time.worldTime)

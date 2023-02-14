@@ -21,6 +21,10 @@ Hooks.once('setup', () => {
 // account for the date display, if showing.
 Hooks.on('renderWeatherUi', () => {
   Logger.debug('Hook:renderWeatherUi')
+
+  game.sceneWeather.debugChart = undefined // DEBUG only
+
+  SceneWeatherApi.updateWeather()
 })
 
 Hooks.once("init", () => {
@@ -55,6 +59,20 @@ Hooks.on('canvasReady', async () => {
 
     // Registers hooks
     // TODO
+
+    Hooks.on('preUpdateScene', async (scene, deltaData, options, id) => {
+      if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] != undefined) {
+        Logger.debug('preUpdateScene-> ', { 'deltaData': deltaData, 'options': options })
+        SceneWeatherApi.updateWeather(deltaData._id, true)
+      }
+    })
+
+    Hooks.on('updateScene', async (scene, deltaData, options, id) => {
+      if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] != undefined) {
+        Logger.debug('preUpdateScene-> ', { 'deltaData': deltaData, 'options': options })
+        SceneWeatherApi.updateWeather(deltaData._id, true)
+      }
+    })
 
   })
 

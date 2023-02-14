@@ -22,11 +22,12 @@ export class WeatherModel {
       'clouds': {
         'coverage': 0,
         'bottom': 0,
-        'top': 0
+        'top': 0,
+        'type': 0
       },
       'precipitation': {
         'amount': 0,
-        'type': 'none'
+        'type': 0
       },
       'sun': {
         'amount': 0.5,
@@ -114,14 +115,14 @@ export class WeatherModel {
     } else {
       let regionBaseValues = this.regionMeteo.getRegionBase(dayOffset, hourOffset)
 
-      // TODO implement caching for already calculated regionBaseValues.timeHash
+      // implement caching for already calculated regionBaseValues.timeHash
       if (this._cache[regionBaseValues.timeHash] !== undefined) {
-        Logger.debug('WeatherModel.getWeatherData -> cacheHit')
         this.weatherData = this._cache[regionBaseValues.timeHash]
         return this._cache[regionBaseValues.timeHash]
       }
 
       this.weatherData = {
+        'name': regionBaseValues.name,
         'temp': {
           'ground': this._groundTemp(3, 3, dayOffset, hourOffset),
           'air': regionBaseValues.baseTemp,
@@ -186,21 +187,21 @@ export class WeatherModel {
       this.weatherData.precipitation.amount = Utils.clamp(this.weatherData.clouds.coverage * 1.4 - 0.4, 0, 1) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 8, 0.8, 0.2)
 
       // Recalculate gusts depending on rain amount
-      this.weatherData.wind.gusts = this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 1.5)
+      this.weatherData.wind.gusts = this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 2.5 + 0.5)
 
       // Recalculate wind speed depending on rain amount
-      this.weatherData.wind.speed = this.weatherData.wind.speed + (this.weatherData.precipitation.amount * 1.2) * this.weatherData.wind.speed
+      this.weatherData.wind.speed = this.weatherData.wind.speed + (this.weatherData.precipitation.amount * 2.2) * this.weatherData.wind.speed
 
       // Recalculate sun amount based on cloud coverage
       this.weatherData.sun.amount = this.weatherData.sun.amount * (1 - this.weatherData.clouds.coverage)
 
       // Recalculate ground temperature based on sun, rain and wind
-      this.weatherData.temp.air = this.weatherData.temp.air - (this.weatherData.wind.speed * 0.3) + (this.weatherData.sun.amount * Math.max(2, this.weatherData.temp.ground * 0.6))
+      this.weatherData.temp.air = this.weatherData.temp.air - (this.weatherData.wind.speed * 0.03) + (this.weatherData.sun.amount * Math.max(2, this.weatherData.temp.ground * 0.6))
       this.weatherData.temp.percieved = WeatherModel._apparentTemperature(this.weatherData.temp.air, this.weatherData.wind.speed, this.weatherData.humidity, WeatherModel._heightToPressure(regionBaseValues.elevation))
 
       // set cloud altitudes to hight in meters based on the scene's elevation
-      this.weatherData.clouds.top = Math.max(0, this.weatherData.clouds.top - regionBaseValues.elevation)
-      this.weatherData.clouds.bottom = Math.max(0, this.weatherData.clouds.bottom - regionBaseValues.elevation)
+      this.weatherData.clouds.top = Math.max(0, this.weatherData.clouds.top - regionBaseValues.elevation) * 3
+      this.weatherData.clouds.bottom = Math.max(0, this.weatherData.clouds.bottom - regionBaseValues.elevation) * 3
 
       // Calculate ptecipitation type
       this.weatherData.precipitation.type = WeatherModel._calcPrecipitationType(this.weatherData)
@@ -309,7 +310,7 @@ export class WeatherModel {
    */
   static _heatIndex(temperature, humidity, pressure) {
     if (pressure < 16) return temperature
-    if (temperature < 27 || R < 0.40 || WeatherModel._dewPoint(temperature, humidity) < 12) return temperature
+    if (temperature < 27 || METEO.R < 0.40 || WeatherModel._dewPoint(temperature, humidity) < 12) return temperature
 
     const c1 = -8.784695
     const c2 = 1.61139411
@@ -372,16 +373,16 @@ export class WeatherModel {
    * @returns 
    */
   static _calcPrecipitationType(weatherData) {
-    if (weatherData.precipitation.amount < 10) {
+    if (weatherData.precipitation.amount < 0.10) {
       // less then 10% amount, we assume it is not raining at all
       return 0 // none
     } else {
-      if (weatherData.clouds.type > 3 && weatherData.precipitation.amount > 70) {
+      if (weatherData.clouds.type > 3 && weatherData.precipitation.amount > 0.70) {
         // CB(4+)
         if (weatherData.temp.air < 4) {
           return 6 // blizzard
         } else {
-          if (weatherData.wind.speed > 20) {
+          if (weatherData.wind.speed > 0.20) {
             return 4 // hail
           } else {
             return 3 // downpour
@@ -390,7 +391,7 @@ export class WeatherModel {
       } else if (weatherData.clouds.type >= 3) {
         // CU(3)
         if (weatherData.temp.air < 4) {
-          if (weatherData.wind.speed > 20) {
+          if (weatherData.wind.speed > 0.20) {
             return 6 // blizzard
           } else {
             return 5 // snow  
@@ -407,11 +408,11 @@ export class WeatherModel {
         }
       } else {
         // FG(1) or NONE(0)
-        if (weatherData.precipitation.amount > 70) {
+        if (weatherData.precipitation.amount > 0.70) {
           if (weatherData.temp.air < 4) {
             return 5 // snow
           } else {
-            return 1 // drizzle              
+            return 1 // drizzle
           }
         } else {
           return 0 // none
@@ -456,7 +457,7 @@ export class WeatherModel {
    * @private
    */
   static _liftedCondensationLevel(temperature, humidity) {
-    let Td = temperature - ((100 - humidity)/5)
+    let Td = temperature - ((100 - humidity) / 5)
     return 125 * (temperature - Td)
   }
 

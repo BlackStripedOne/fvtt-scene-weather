@@ -52,7 +52,6 @@ export class WeatherMenu {
         // activeTool: 'name_of_tool_to_automatically_select
         tools: weatherOptions
       })
-      Logger.debug('Hook:getSceneControlButtons', btns)
     })
 
   }

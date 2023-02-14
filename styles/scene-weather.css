@@ -19,3 +19,111 @@
   text-rendering: auto;
   vertical-align: middle;
 }
+
+#scene-weather-app {
+  flex-wrap: nowrap;
+  /*  background: none;*/
+  height: 50;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+  opacity: 0.8;
+  animation: fadeOut 3s ease-out;
+  transition: opacity 1s;
+  transition-delay: 2s;
+  border: 0;
+  border-image-source: '';
+  border-image-width: 0;
+  z-index: 20 !important;
+  font-size: 14px;
+  pointer-events: all;
+}
+
+#scene-weather-app.pinned {
+  position: relative;
+  left: initial !important;
+  top: initial !important;
+  margin: 0 0 10px 15px;
+}
+
+#scene-weather-app:hover {
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+#scene-weather-app .window-header {
+  display: none;
+}
+
+#scene-weather-app.window-app:after {
+  content: none;
+}
+
+#scene-weather-app .window-content {
+  border-radius: 5px;
+  padding: 0;
+  /*  background: none;*/
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: none;
+  border: none;
+  background-attachment: unset;
+}
+
+#scene-weather-app .window-content>form {
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+#scene-weather-app #displayContainer {
+  /*  position: absolute;*/
+  top: 1px;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0 4px 0 4px;
+  border: 0;
+  outline: 0;
+  width: 100%;
+  background: #444;
+  height: 24px;
+  text-align: center;
+  box-shadow: inset 0 6px 8px -6px rgba(0, 0, 0, 0.6), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: var(--SMLTME-opacity);
+  }
+}
+
+@keyframes jiggle {
+  0% {
+    transform-origin: center;
+    transform: rotate(-0.5deg);
+    animation-timing-function: ease-in;
+  }
+
+  50% {
+    transform-origin: center;
+    transform: rotate(1deg);
+    animation-timing-function: ease-out;
+  }
+}
+
+@keyframes close {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}

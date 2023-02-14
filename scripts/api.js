@@ -48,10 +48,11 @@ export class SceneWeatherApi {
   /**
    * TODO
    */
-  static updateWeather(force = false) {
+  static updateWeather(forSceneId = undefined, force = false) {
     Logger.debug('API:updateWeather')
     if (force) {
       SceneWeatherApi._lastUpdate = -1
+      SceneWeatherApi.getSceneWeatherProvider(forSceneId, true).update() // Update from configs
     }
     let currentTimeHash = TimeProvider.getTimeHash()
     if (SceneWeatherApi._lastUpdate === currentTimeHash) return
@@ -62,10 +63,16 @@ export class SceneWeatherApi {
   /**
    * Returns the SceneWeather for the currently active scene
    */
-  static getSceneWeatherProvider() {
+  static getSceneWeatherProvider(forSceneId = undefined, ignoreCache = false) {
     let sceneId = canvas.scene._id
+    if (forSceneId !== undefined) {
+      sceneId = forSceneId
+    }
+    if (ignoreCache) {
+      SceneWeatherApi._sceneWeather[sceneId] = undefined
+    }
     if (SceneWeatherApi._sceneWeather[sceneId] !== undefined) {
-      Logger.debug('api, found in cache', { 'sceneId': sceneId, 'sw': SceneWeatherApi._sceneWeather[sceneId] })
+      Logger.debug('api, found in cache', { 'sceneId': sceneId, 'sceneWeather': SceneWeatherApi._sceneWeather[sceneId] })
       return SceneWeatherApi._sceneWeather[sceneId]
     }
     let weatherMode = canvas.scene.getFlag(MODULE.ID, 'weatherMode')
@@ -74,13 +81,13 @@ export class SceneWeatherApi {
       case 'weatherTemplate':
         // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic
         let weatherTemplateId = canvas.scene.getFlag(MODULE.ID, 'weatherTemplate')
-        Logger.debug('getSceneWeatherProvider:weatherTemplate', { 'weatherTemplate': weatherTemplateId })
+        Logger.debug('getSceneWeatherProvider:weatherTemplate', { 'weatherTemplate': weatherTemplateId, 'sceneId': sceneId, 'noCache': ignoreCache })
         SceneWeatherApi._sceneWeather[sceneId] = new SceneWeather(WeatherModel.fromTemplate(weatherTemplateId))
         break
       case 'regionTemplate':
         // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
         let regionTemplateId = canvas.scene.getFlag(MODULE.ID, 'regionTemplate')
-        Logger.debug('getSceneWeatherProvider:regionTemplate', { 'regionTemplate': regionTemplateId })
+        Logger.debug('getSceneWeatherProvider:regionTemplate', { 'regionTemplate': regionTemplateId, 'sceneId': sceneId, 'noCache': ignoreCache })
         SceneWeatherApi._sceneWeather[sceneId] = new SceneWeather(WeatherModel.fromRegion(RegionMeteo.fromTemplate(regionTemplateId)))
         break
       case 'regionAuto':

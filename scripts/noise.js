@@ -28,7 +28,7 @@ export class Noise {
    * @returns 
    */
   static getMulberry32(seed) {
-    return function() {
+    return function () {
       var t = seed += 0x6D2B79F5;
       t = Math.imul(t ^ t >>> 15, t | 1);
       t ^= t + Math.imul(t ^ t >>> 7, t | 61);
@@ -38,20 +38,20 @@ export class Noise {
 
   static grad2 = new Float64Array(
     [1, 1,
-    -1, 1,
-    1, -1,
+      -1, 1,
+      1, -1,
 
-    -1, -1,
-    1, 0,
-    -1, 0,
+      -1, -1,
+      1, 0,
+      -1, 0,
 
-    1, 0,
-    -1, 0,
-    0, 1,
+      1, 0,
+      -1, 0,
+      0, 1,
 
-    0, -1,
-    0, 1,
-    0, -1]
+      0, -1,
+      0, 1,
+      0, -1]
   )
 
   /**

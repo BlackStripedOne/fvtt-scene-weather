@@ -9,47 +9,723 @@ import { Noise } from './noise.js'
 export class RegionMeteo {
 
   static templates = {
-    'plains': {
-      'name': 'Plains',
+    'rainforest': {
+      'name': 'Tropical Rainforest',
+      'description': 'Dense forest with high amounts of rainfall and high biodiversity.', // Regenwald: Dichter Wald mit hohen Niederschlagsmengen und hoher Artenvielfalt.
+      'elevation': 200,
+      'vegetation': 100,
+      'waterAmount': 80,
+      'summer': {
+        'temperature': {
+          'day': 32.5,
+          "night": 22.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 90,
+          'night': 80,
+          'var': 10
+        },
+        'wind': {
+          'avg': 5,
+          'var': 5
+        },
+        'sun': {
+          'hours': 12
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 32.5,
+          "night": 22.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 80,
+          'night': 70,
+          'var': 10
+        },
+        'wind': {
+          'avg': 5,
+          'var': 5
+        },
+        'sun': {
+          'hours': 12
+        }
+      }
+    },
+    'desert': {
+      'name': 'Desert',
+      'description': 'Dry region with little rainfall and high temperatures during the day, but can be cold at night.', // Wüste: Trockene Region mit wenig Niederschlag und hohen Temperaturen am Tag, kann aber nachts kalt sein.
+      'elevation': 500,
+      'vegetation': 0,
+      'waterAmount': 0,
+      'summer': {
+        'temperature': {
+          'day': 45,
+          "night": 25,
+          "var": 10
+        },
+        'humidity': {
+          'day': 10,
+          'night': 20,
+          'var': 5
+        },
+        'wind': {
+          'avg': 30,
+          'var': 10
+        },
+        'sun': {
+          'hours': 13
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 25,
+          'night': 5,
+          "var": 10
+        },
+        'humidity': {
+          'day': 30,
+          'night': 50,
+          'var': 20
+        },
+        'wind': {
+          'avg': 25,
+          'var': 10
+        },
+        'sun': {
+          'hours': 11
+        }
+      }
+    },
+    'grassland': {
+      'name': 'Grassland',
+      'description': 'Open, flat region dominated by grasses and characterized by seasonal rainfall.', // Grasland: Offene, flache Region, die von Gräsern dominiert wird und durch saisonale Niederschläge gekennzeichnet ist.
       'elevation': 200,
       'vegetation': 40,
+      'waterAmount': 20,
+      'summer': {
+        'temperature': {
+          'day': 30,
+          "night": 15,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 80,
+          'var': 5
+        },
+        'wind': {
+          'avg': 10,
+          'var': 10
+        },
+        'sun': {
+          'hours': 14
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 10,
+          "night": -5,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 60,
+          'var': 10
+        },
+        'wind': {
+          'avg': 10,
+          'var': 10
+        },
+        'sun': {
+          'hours': 10
+        }
+      }
+    },
+    'temperate': {
+      'name': 'Temperate Forest',
+      'description': 'TODO',
+      'elevation': 400,
+      'vegetation': 50,
+      'waterAmount': 10,
+      'summer': {
+        'temperature': {
+          'day': 25,
+          "night": 15,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 60,
+          'var': 10
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 15
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 10,
+          "night": 0,
+          "var": 10
+        },
+        'humidity': {
+          'day': 60,
+          'night': 65,
+          'var': 5
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 9
+        }
+      }
+    },
+    'taiga': {
+      'name': 'Boreal Forest',
+      'description': 'Dense forest of coniferous trees found in colder regions with long winters.',  // Dichter Wald aus Nadelbäumen, der in kälteren Regionen mit langen Wintern zu finden ist.
+      'elevation': 400,
+      'vegetation': 70,
+      'waterAmount': 10,
+      'summer': {
+        'temperature': {
+          'day': 20,
+          "night": 10,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 80,
+          'var': 5
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 17
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': -5,
+          "night": -25,
+          "var": 10
+        },
+        'humidity': {
+          'day': 80,
+          'night': 60,
+          'var': 5
+        },
+        'wind': {
+          'avg': 25,
+          'var': 10
+        },
+        'sun': {
+          'hours': 8
+        }
+      }
+    },
+    'tundra': {
+      'name': 'Tundra',
+      'description': 'Cold, treeless region with permafrost and a short growing season.', // Tundra: Kalte, baumlose Region mit Permafrost und einer kurzen Vegetationsperiode.
+      'elevation': 300,
+      'vegetation': 1,
       'waterAmount': 5,
       'summer': {
         'temperature': {
-          'day': 27,
-          "night": 22,
-          "var": 3
-        },
-        "humidity": {
-          "day": 80,
-          "night": 50,
-          "var": 10
-        },
-        "wind": {
-          "avg": 5,
+          'day': 7.5,
+          "night": 2.5,
           "var": 5
         },
-        "sun": {
-          "hours": 8
+        'humidity': {
+          'day': 60,
+          'night': 50,
+          'var': 10
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 18
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': -15,
+          "night": -25,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 50,
+          'var': 5
+        },
+        'wind': {
+          'avg': 25,
+          'var': 10
+        },
+        'sun': {
+          'hours': 6
+        }
+      }
+    },
+    'mediterranean': {
+      'name': 'Mediterranean',
+      'description': 'Region with mild, rainy winters and hot, dry summers, known for its characteristic vegetation.', // Mediterran: Region mit milden, regnerischen Wintern und heißen, trockenen Sommern, bekannt für ihre charakteristische Vegetation.
+      'elevation': 500,
+      'vegetation': 50,
+      'waterAmount': 20,
+      'summer': {
+        'temperature': {
+          'day': 30,
+          "night": 17.5,
+          "var": 7.5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 65,
+          'var': 5
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 15
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 17.5,
+          "night": 7.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 70,
+          'night': 60,
+          'var': 10
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 9
+        }
+      }
+    },
+    'savanna': {
+      'name': 'Savanna',
+      'description': 'Open grassland region with scattered trees and distinct dry and wet seasons.', // Savanne: Offene Graslandregion mit vereinzelten Bäumen und ausgeprägten Trocken- und Regenzeiten.
+      'elevation': 300,
+      'vegetation': 30,
+      'waterAmount': 5,
+      'summer': {
+        'temperature': {
+          'day': 32.5,
+          "night": 22.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 70,
+          'var': 10
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 13
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 27.5,
+          "night": 17.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 40,
+          'night': 30,
+          'var': 10
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 11
+        }
+      }
+    },
+    'alpine': {
+      'name': 'Alpine',
+      'description': 'High-altitude region with low temperatures and often covered in snow and ice.', // Hochgebirgsregion mit niedrigen Temperaturen und oft von Schnee und Eis bedeckt.
+      'elevation': 1000,
+      'vegetation': 0,
+      'waterAmount': 0,
+      'summer': {
+        'temperature': {
+          'day': 15,
+          "night": 5,
+          "var": 7.5
+        },
+        'humidity': {
+          'day': 50,
+          'night': 60,
+          'var': 5
+        },
+        'wind': {
+          'avg': 30,
+          'var': 10
+        },
+        'sun': {
+          'hours': 14
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 0,
+          "night": -15,
+          "var": 7.5
+        },
+        'humidity': {
+          'day': 70,
+          'night': 60,
+          'var': 5
+        },
+        'wind': {
+          'avg': 40,
+          'var': 20
+        },
+        'sun': {
+          'hours': 10
+        }
+      }
+    },
+    'coastal': {
+      'name': 'Coastal',
+      'description': 'Region influenced by the ocean with relatively mild temperatures and often high humidity.', // Küstengebiet: Region, die vom Ozean beeinflusst wird, mit vergleichsweise milden Temperaturen und oft hoher Luftfeuchtigkeit.
+      'elevation': 100,
+      'vegetation': 20,
+      'waterAmount': 70,
+      'summer': {
+        'temperature': {
+          'day': 25,
+          "night": 15,
+          "var": 10
+        },
+        'humidity': {
+          'day': 80,
+          'night': 75,
+          'var': 15
+        },
+        'wind': {
+          'avg': 10,
+          'var': 25
+        },
+        'sun': {
+          'hours': 14
         }
       },
       'winter': {
         'temperature': {
           'day': 15,
-          "night": 2,
-          "var": 5
-        },
-        "humidity": {
-          "day": 60,
-          "night": 30,
+          "night": 5,
           "var": 10
         },
-        "wind": {
-          "avg": 10,
-          "var": 8
+        'humidity': {
+          'day': 75,
+          'night': 70,
+          'var': 5
         },
-        "sun": {
-          "hours": 2
+        'wind': {
+          'avg': 20,
+          'var': 25
+        },
+        'sun': {
+          'hours': 10
+        }
+      }
+    },
+    'polar': {  // https://en.wikipedia.org/wiki/Polar_climate
+      'name': 'Polar',
+      'description': 'Regions with permanently frozen water and very low temperatures.', // Polare Eiskappen: Regionen mit dauerhaft gefrorenem Wasser und sehr niedrigen Temperaturen.
+      'elevation': 0,
+      'vegetation': 0,
+      'waterAmount': 30,
+      'summer': {
+        'temperature': {
+          'day': 2.5,
+          "night": -2.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 80,
+          'night': 65,
+          'var': 10
+        },
+        'wind': {
+          'avg': 35,
+          'var': 20
+        },
+        'sun': {
+          'hours': 23
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': -15,
+          "night": -25,
+          "var": 10
+        },
+        'humidity': {
+          'day': 90,
+          'night': 70,
+          'var': 5
+        },
+        'wind': {
+          'avg': 40,
+          'var': 20
+        },
+        'sun': {
+          'hours': 1
+        }
+      }
+    },
+    'chaparral': { // https://en.wikipedia.org/wiki/Chaparral
+      'name': 'Chaparral',
+      'description': 'Dry, shrubland region with hot summers and mild, rainy winters.', // Trockene, strauchige Region mit heißen Sommern und milden, regnerischen Wintern.
+      'elevation': 1000,
+      'vegetation': 5,
+      'waterAmount': 5,
+      'summer': {
+        'temperature': {
+          'day': 32.5,
+          "night": 17.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 40,
+          'var': 5
+        },
+        'wind': {
+          'avg': 25,
+          'var': 10
+        },
+        'sun': {
+          'hours': 13
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 17.5,
+          "night": 2.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 50,
+          'var': 5
+        },
+        'wind': {
+          'avg': 30,
+          'var': 10
+        },
+        'sun': {
+          'hours': 11
+        }
+      }
+    },
+    'steppe': { // https://de.wikipedia.org/wiki/Steppe
+      'name': 'Steppe',
+      'description': 'Large, flat region with low rainfall and characteristic grasses.', // Steppe: Große, flache Region mit geringem Niederschlag und charakteristischen Gräsern.
+      'elevation': 500,
+      'vegetation': 5,
+      'waterAmount': 0,
+      'summer': {
+        'temperature': {
+          'day': 27.5,
+          "night": 15,
+          "var": 5
+        },
+        'humidity': {
+          'day': 30,
+          'night': 25,
+          'var': 5
+        },
+        'wind': {
+          'avg': 25,
+          'var': 10
+        },
+        'sun': {
+          'hours': 14
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 5,
+          "night": -5,
+          "var": 10
+        },
+        'humidity': {
+          'day': 40,
+          'night': 30,
+          'var': 10
+        },
+        'wind': {
+          'avg': 20,
+          'var': 10
+        },
+        'sun': {
+          'hours': 10
+        }
+      }
+    },
+    'wetland': {
+      'name': 'Wetland',
+      'description': 'Area with high water saturation, often with distinctive vegetation.', // Feuchtgebiete: Gebiet mit hoher Wassersättigung, oft mit charakteristischer Vegetation.
+      'elevation': 100,
+      'vegetation': 60,
+      'waterAmount': 80,
+      'summer': {
+        'temperature': {
+          'day': 25,
+          "night": 15,
+          "var": 10
+        },
+        'humidity': {
+          'day': 70,
+          'night': 80,
+          'var': 10
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 16
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 5,
+          "night": -5,
+          "var": 10
+        },
+        'humidity': {
+          'day': 60,
+          'night': 60,
+          'var': 5
+        },
+        'wind': {
+          'avg': 20,
+          'var': 5
+        },
+        'sun': {
+          'hours': 8
+        }
+      }
+    },
+    'mangrove': {  // https://en.wikipedia.org/wiki/Mangrove
+      'name': 'Mangrove',
+      'description': 'Coastal wetland region characterized by trees and shrubs adapted to saltwater and often submerged in water.', // Mangroven: Küstennassegebiete, die von Bäumen und Sträuchern angepasst an Salzwasser und oft von Wasser bedeckt sind, gekennzeichnet sind.
+      'elevation': 0,
+      'vegetation': 80,
+      'waterAmount': 60,
+      'summer': {
+        'temperature': {
+          'day': 32.5,
+          "night": 22.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 70,
+          'var': 10
+        },
+        'wind': {
+          'avg': 10,
+          'var': 5
+        },
+        'sun': {
+          'hours': 16
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 27.5,
+          "night": 17.5,
+          "var": 5
+        },
+        'humidity': {
+          'day': 60,
+          'night': 60,
+          'var': 10
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 8
+        }
+      }
+    },
+    'littoral': { // https://en.wikipedia.org/wiki/Littoral_zone
+      'name': 'Littoral',
+      'description': 'The region where the land meets the water in a lake, river, or ocean, with unique plants and animals adapted to this interface.', // Litoralzone: Die Region, in der das Land in einem See, Fluss oder Ozean auf das Wasser trifft, mit einzigartigen Pflanzen und Tieren, die an diese Schnittstelle angepasst sind.
+      'elevation': 0,
+      'vegetation': 1,
+      'waterAmount': 50,
+      'summer': {
+        'temperature': {
+          'day': 25,
+          "night": 15,
+          "var": 10
+        },
+        'humidity': {
+          'day': 60,
+          'night': 60,
+          'var': 5
+        },
+        'wind': {
+          'avg': 10,
+          'var': 5
+        },
+        'sun': {
+          'hours': 16
+        }
+      },
+      'winter': {
+        'temperature': {
+          'day': 15,
+          "night": 5,
+          "var": 10
+        },
+        'humidity': {
+          'day': 60,
+          'night': 60,
+          'var': 10
+        },
+        'wind': {
+          'avg': 15,
+          'var': 10
+        },
+        'sun': {
+          'hours': 8
         }
       }
     }
@@ -168,6 +844,12 @@ export class RegionMeteo {
       'vegetation': this.regionData.vegetation,   // TODO diminish from fall to early spring
       'waterAmount': this.regionData.waterAmount,  // TODO set to 0 for freezing temperatures
       'timeHash': timeHash
+    }
+
+    if (this.regionData.name === undefined) {
+      baseValues.name = 'custom'
+    } else {
+      baseValues.name = this.regionData.name
     }
 
     let timeRelative = RegionMeteo._hodPct(hourOfDay) // 0.0 = midnight, 1.0 = noon

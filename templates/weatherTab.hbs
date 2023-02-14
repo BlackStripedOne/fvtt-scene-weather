@@ -1,5 +1,7 @@
 <p class="notes">Scene Weather Meteogram</p>
 
+<canvas id="meteogram" width="200" height="100"></canvas>
+
 <label for="flags.scene-weather.weatherMode">Select Scene Weather Mode:</label>
 <select name="flags.scene-weather.weatherMode" data-type="String" class="select2" style="width:100%;">
   {{selectOptions weatherModes selected=data.weatherMode nameAttr="id" labelAttr="name" localize=true}}

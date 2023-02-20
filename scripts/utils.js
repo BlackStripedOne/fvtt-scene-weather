@@ -33,10 +33,30 @@ export class Logger {
 export class Utils {
 
   /**
-TODO
-*/
+   * TODO
+   * 
+   * @param {*} number 
+   * @param {*} min 
+   * @param {*} max 
+   * @returns 
+   */
   static clamp(number, min, max) {
     return Math.min(Math.max(number, min), max)
+  }
+
+  /**
+   * TODO
+   * 
+   * @param {*} current 
+   * @param {*} inMin 
+   * @param {*} inMax 
+   * @param {*} outMin 
+   * @param {*} outMax 
+   * @returns 
+   */
+  static map(current, inMin, inMax, outMin, outMax) {
+    const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+    return Utils.clamp(mapped, outMin, outMax)
   }
 
   /**

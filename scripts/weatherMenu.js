@@ -1,6 +1,7 @@
 import { Logger, Utils } from './utils.js'
 import { WeatherUi } from './weatherUi.js'
-
+import { MeteoUi } from './meteoUi.js'
+import { WeatherEffectsLayer } from './weatherFxLayer.js'
 /**
  * Menu class for the weather layer
  */
@@ -12,14 +13,23 @@ export class WeatherMenu {
   static registerButtons() {
 
     // add weather layer
-    CONFIG.Canvas.layers.weather = { layerClass: WeatherLayer, group: "interface" }
+    CONFIG.Canvas.layers.sceneweather = {
+      layerClass: WeatherLayer,
+      group: "interface"
+    }
+    CONFIG.Canvas.layers.sceneweatherfx = {
+      layerClass: WeatherEffectsLayer,
+      group: "primary"
+    }
 
     Hooks.on("getSceneControlButtons", btns => {
       const weatherOptions = [{
         name: "Toggle Weather UI",
         title: 'Toggle Weather UI',
         icon: "fas fa-solid fa-eye",
-        button: true,
+        visible: game.user.isGM,
+        toggle: true,
+        active: WeatherUi._isOpen,
         onClick: () => {
           WeatherUi.toggleAppVis('toggle');
         }
@@ -30,7 +40,7 @@ export class WeatherMenu {
         icon: "fas fa-solid fa-arrows-rotate",
         button: true,
         onClick: () => {
-          // TODO
+          MeteoUi.toggleAppVis('toggle');
         }
       },
       {
@@ -48,7 +58,7 @@ export class WeatherMenu {
         name: "Scene Weather",
         title: "Scene Weather",
         icon: "fas fa-solid fa-cloud-bolt-sun",
-        layer: "weather",
+        layer: "sceneweather",
         // activeTool: 'name_of_tool_to_automatically_select
         tools: weatherOptions
       })
@@ -64,7 +74,7 @@ class WeatherLayer extends InteractionLayer {
 
   static get layerOptions() {
     return foundry.utils.mergeObject(super.layerOptions, {
-      name: "weather",
+      name: "sceneweather",
       canDragCreate: false,
       controllableObjects: true,
       rotatableObjects: true,

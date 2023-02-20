@@ -6,6 +6,7 @@ import { SceneWeatherApi } from './api.js'
 import { WeatherMenu } from './weatherMenu.js'
 import { WeatherTab } from './weatherTab.js'
 import { WeatherUi } from './weatherUi.js'
+import { MeteoUi } from './meteoUi.js'
 
 Hooks.on('ready', async () => {
   // TODO
@@ -21,23 +22,37 @@ Hooks.once('setup', () => {
 // account for the date display, if showing.
 Hooks.on('renderWeatherUi', () => {
   Logger.debug('Hook:renderWeatherUi')
-
-  game.sceneWeather.debugChart = undefined // DEBUG only
-
   SceneWeatherApi.updateWeather()
 })
+
+Hooks.on('renderMeteoUi', () => {
+  Logger.debug('Hook:renderMeteoUi')
+  //  MeteoUi._chart = undefined // TODO handle more nicely
+  SceneWeatherApi.updateWeather()
+})
+
+// FIX ?
+Hooks.on('tearDownWeatherEffectsLayer', (layer) => {
+  Logger.debug('tearDownWeatherEffectsLayer->', layer)
+  canvas.sceneweatherfx._tearDown()
+  // canvas.sceneweatherfx.tearDown()
+})
+// END FIX ?
 
 Hooks.once("init", () => {
   registerSettings()
   registerHbHelpers()
   loadHandlebars()
   SceneWeatherApi.registerApi()
-  Logger.debug("Init Done")
+  Hooks.callAll(MODULE.LCCNAME + 'RegisterGenerators')
+  Logger.debug("Init Done", { 'api': game.sceneWeather })
 })
 
 // Listen for changes to the worldTime from elsewhere.
 Hooks.on('updateWorldTime', () => {
   SceneWeatherApi.updateWeather()
+  canvas.sceneweatherfx._tearDown() // potential fix? The issue is when drawParticleEffects is called WITHOUT prior _tearDown
+  canvas.sceneweatherfx.drawParticleEffects()
 })
 
 // Handle toggling of time separator flash when game is paused/unpaused.
@@ -52,6 +67,8 @@ Hooks.on('simple-calendar-clock-start-stop', () => {
 
 Hooks.on('simple-calendar-date-time-change', (data) => {
   SceneWeatherApi.updateWeather()
+  canvas.sceneweatherfx._tearDown() // potential fix?
+  canvas.sceneweatherfx.drawParticleEffects()
 })
 
 Hooks.on('canvasReady', async () => {
@@ -80,6 +97,8 @@ Hooks.on('canvasReady', async () => {
   if (game.settings.get(MODULE.ID, 'uiPinned')) {
     WeatherUi.pinApp();
   }
+
+  MeteoUi.toggleAppVis('initial')
 
 })
 

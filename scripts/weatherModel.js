@@ -130,14 +130,14 @@ export class WeatherModel {
         },
         'wind': {
           'speed': regionBaseValues.wind,
-          'gusts': regionBaseValues.gusts,
+          'gusts': regionBaseValues.gusts + regionBaseValues.wind,
           'direction': 0
         },
         'clouds': {
           'coverage': 0,
           'bottom': Utils.clamp(Math.abs(WeatherModel._liftedCondensationLevel(regionBaseValues.baseTemp, regionBaseValues.baseHumidity)), 0, 20000),  // LCL in altitude meters above sea level on ICAO standard atmosphere up to 20km
           'top': 0,
-          'type': 0 // 0: none, 1:groundfog, 2:cirrus, 3:cumulus, 4:cumulunimbus
+          'type': 0 // 0: none, 1:groundfog, 2:stratus, 3:cumulus, 4:cumulunimbus
         },
         'precipitation': {
           'amount': 0,
@@ -177,14 +177,14 @@ export class WeatherModel {
           }
         }
         if (this.weatherData.clouds.type < 3) {
-          if (this.weatherData.clouds.coverage > 0.7) {
-            this.weatherData.clouds.type = 2 // Cirrus
+          if (this.weatherData.clouds.coverage > 0.3) {
+            this.weatherData.clouds.type = 2 // Stratus
           }
         }
       }
 
       // Calculate precipitation amount
-      this.weatherData.precipitation.amount = Utils.clamp(this.weatherData.clouds.coverage * 1.4 - 0.4, 0, 1) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 8, 0.8, 0.2)
+      this.weatherData.precipitation.amount = Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 8, 0.8, 0.2) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 32, 1, 0.5)
 
       // Recalculate gusts depending on rain amount
       this.weatherData.wind.gusts = this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 2.5 + 0.5)
@@ -193,7 +193,7 @@ export class WeatherModel {
       this.weatherData.wind.speed = this.weatherData.wind.speed + (this.weatherData.precipitation.amount * 2.2) * this.weatherData.wind.speed
 
       // Recalculate sun amount based on cloud coverage
-      this.weatherData.sun.amount = this.weatherData.sun.amount * (1 - this.weatherData.clouds.coverage)
+      this.weatherData.sun.amount = this.weatherData.sun.amount * Utils.clamp((1 - this.weatherData.clouds.coverage), 0.2, 1.0)
 
       // Recalculate ground temperature based on sun, rain and wind
       this.weatherData.temp.air = this.weatherData.temp.air - (this.weatherData.wind.speed * 0.03) + (this.weatherData.sun.amount * Math.max(2, this.weatherData.temp.ground * 0.6))
@@ -208,7 +208,7 @@ export class WeatherModel {
 
       // Calculate wind direction just for fanyness
       this.weatherData.wind.direction = this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 1277, 512, 180, 180)
-      this.weatherData.wind.direction = this.weatherData.wind.direction + (this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 1277, 8, 16, 16) * this.weatherData.wind.gusts)
+      this.weatherData.wind.direction = this.weatherData.wind.direction + (this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 1277, 8, 16, 16) * (this.weatherData.wind.gusts * 0.2))
       if (this.weatherData.wind.direction < 0) this.weatherData.wind.direction += 360
       if (this.weatherData.wind.direction >= 360) this.weatherData.wind.direction -= 360
 

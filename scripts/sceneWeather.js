@@ -1,6 +1,5 @@
 import { Logger, Utils } from './utils.js'
 
-
 /*
  Input:
  - WeatherModel
@@ -59,57 +58,59 @@ export class SceneWeather {
 
   // updateFxOnScene()
 
+
+
   static _getPercievedTempId(temperature) {
     if (temperature < -7) {
-      return 'freezing'
+      return 'meteo.freezing'
     } else if (temperature < -3) {
-      return 'cold'
+      return 'meteo.cold'
     } else if (temperature < 3) {
-      return 'chill'
+      return 'meteo.chill'
     } else if (temperature < 7) {
-      return 'fresh'
+      return 'meteo.fresh'
     } else if (temperature < 18) {
-      return 'moderate'
+      return 'meteo.moderate'
     } else if (temperature < 22) {
-      return 'mild'
+      return 'meteo.mild'
     } else if (temperature < 30) {
-      return 'warm'
+      return 'meteo.warm'
     } else if (temperature < 37) {
-      return 'hot'
+      return 'meteo.hot'
     } else {
-      return 'searing'
+      return 'meteo.searing'
     }
   }
 
   static _getWindDirId(direction) {
     let val = Math.floor((direction / 22.5) + 0.5)
     const arr = ["n", "nne", "ne", "ene", "e", "ese", "se", "sse", "s", "ssw", "sw", "wsw", "w", "wnw", "nw", "nnw"]
-    return arr[(val % 16)]
+    return "meteo." + arr[(val % 16)]
   }
 
   static _getCloudHightId(height) {
     if (height < 600) {
-      return 'low'
+      return 'meteo.low'
     } else if (height < 1000) {
-      return 'mid'
+      return 'meteo.mid'
     } else if (height < 4000) {
-      return 'high'
+      return 'meteo.high'
     } else {
-      return 'veryhigh'
+      return 'meteo.veryhigh'
     }
   }
 
   static _getCloudAmountId(amount) {
     const octas = [
-      'skc', // Sky Clear
-      'few', // Few Clouds
-      'few', // Few Clouds
-      'sct', // Scattered Clouds
-      'sct', // Scattered Clouds
-      'bkn', // Broken Couds
-      'bkn', // Broken Clouds
-      'bkn', // Broken Clouds
-      'ovc'  // Overcast
+      'meteo.skc', // Sky Clear
+      'meteo.few', // Few Clouds
+      'meteo.few', // Few Clouds
+      'meteo.sct', // Scattered Clouds
+      'meteo.sct', // Scattered Clouds
+      'meteo.bkn', // Broken Couds
+      'meteo.bkn', // Broken Clouds
+      'meteo.bkn', // Broken Clouds
+      'meteo.ovc'  // Overcast
     ]
     return octas[Math.round(amount * 8)]
   }
@@ -117,58 +118,58 @@ export class SceneWeather {
   static _getCloudTypeId(type) {
     switch (type) {
       case 0:
-        return 'none'
+        return 'meteo.none'
       case 1:
-        return 'fog'
+        return 'meteo.fog'
       case 2:
-        return 'stratus'
+        return 'meteo.stratus'
       case 3:
-        return 'cumulus'
+        return 'meteo.cumulus'
       case 4:
       default:
-        return 'cumulunimbus'
+        return 'meteo.cumulunimbus'
     }
   }
 
   static _getHumidityId(humidity) {
     if (humidity < 20) {
-      return 'dry'
+      return 'meteo.dry'
     } else if (humidity < 40) {
-      return 'comfortable'
+      return 'meteo.comfortable'
     } else if (humidity < 50) {
-      return 'pleasant'
+      return 'meteo.pleasant'
     } else if (humidity < 65) {
-      return 'sticky'
+      return 'meteo.sticky'
     } else if (humidity < 75) {
-      return 'humid'
+      return 'meteo.humid'
     } else {
-      return 'oppressive'
+      return 'meteo.oppressive'
     }
   }
 
   static _getSunAmountId(amount) {
-    if (amount < 0.30) {
-      return 'gloomy'
-    } else if (amount < 0.60) {
-      return 'shaded'
-    } else if (amount < 0.90) {
-      return 'normal'
+    if (amount < 0.10) {
+      return 'meteo.gloomy'
+    } else if (amount < 0.3) {
+      return 'meteo.shaded'
+    } else if (amount < 0.7) {
+      return 'meteo.normal'
     } else {
-      return 'bright'
+      return 'meteo.bright'
     }
   }
 
   static _getPrecipitationAmountId(amount) {
     if (amount < 0.20) {
-      return 'nothing'
+      return 'meteo.nothing'
     } else if (amount < 0.40) {
-      return 'slight'
+      return 'meteo.slight'
     } else if (amount < 0.70) {
-      return 'average'
+      return 'meteo.average'
     } else if (amount < 0.95) {
-      return 'heavy'
+      return 'meteo.heavy'
     } else {
-      return 'extreme'
+      return 'meteo.extreme'
     }
   }
 
@@ -176,19 +177,19 @@ export class SceneWeather {
     switch (type) {
       case 0:
       default:
-        return 'none'
+        return 'meteo.none'
       case 1:
-        return 'drizzle'
+        return 'meteo.drizzle'
       case 2:
-        return 'rain'
+        return 'meteo.rain'
       case 3:
-        return 'downpour'
+        return 'meteo.downpour'
       case 4:
-        return 'hail'
+        return 'meteo.hail'
       case 5:
-        return 'snow'
+        return 'meteo.snow'
       case 6:
-        return 'blizzard'
+        return 'meteo.blizzard'
     }
   }
 
@@ -199,30 +200,38 @@ export class SceneWeather {
       gusting = 'Gusting'
     }
     if (wind.speed < 1) {
-      return 'calm' + gusting  // Calm and Still
+      return 'meteo.calm' + gusting  // Calm and Still
     } else if (wind.speed < 5) {
-      return 'light' + gusting // Light Wind
+      return 'meteo.light' + gusting // Light Wind
     } else if (wind.speed < 11) {
-      return 'lightBreeze' + gusting // Light breeze
+      return 'meteo.lightBreeze' + gusting // Light breeze
     } else if (wind.speed < 28) {
-      return 'gentleBreeze' + gusting // Gentle breeze
+      return 'meteo.gentleBreeze' + gusting // Gentle breeze
     } else if (wind.speed < 38) {
-      return 'freshBreeze' + gusting // Fresh Breeze
+      return 'meteo.freshBreeze' + gusting // Fresh Breeze
     } else if (wind.speed < 49) {
-      return 'strongBreeze' + gusting // Strong breeze
+      return 'meteo.strongBreeze' + gusting // Strong breeze
     } else if (wind.speed < 61) {
-      return 'moderateGale' + gusting // Moderate Gale
+      return 'meteo.moderateGale' + gusting // Moderate Gale
     } else if (wind.speed < 74) {
-      return 'freshGale' + gusting // Fresh gale
+      return 'meteo.freshGale' + gusting // Fresh gale
     } else if (wind.speed < 88) {
-      return 'strongGale' + gusting // Strong gale
+      return 'meteo.strongGale' + gusting // Strong gale
     } else if (wind.speed < 102) {
-      return 'wholeGale' + gusting // WHole Gale
+      return 'meteo.wholeGale' + gusting // WHole Gale
     } else if (wind.speed < 118) {
-      return 'storm' + gusting // Storm
+      return 'meteo.storm' + gusting // Storm
     } else {
-      return 'hurricane' + gusting // Hurricane
+      return 'meteo.hurricane' + gusting // Hurricane
     }
+  }
+
+  // Return localized string of weather info
+  getPerceptiveWeatherI18n(dayOffset = 0, hourOffset = 0) {
+    const meteoData = this.getWeatherInfo(dayOffset, hourOffset)
+    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive'))
+    const weatherInfoHtml = compiledTemplate(meteoData)
+    return weatherInfoHtml
   }
 
   getWeatherInfo(dayOffset = 0, hourOffset = 0) {
@@ -243,7 +252,7 @@ export class SceneWeather {
         'speed': Math.round(modelData.wind.speed),
         'gusts': Math.round(modelData.wind.gusts),
         'speedId': SceneWeather._getWindSpeedId(modelData.wind),
-        'direction': modelData.wind.direction,
+        'direction': Math.round(modelData.wind.direction),
         'directionId': SceneWeather._getWindDirId(modelData.wind.direction)
       },
       'clouds': {
@@ -265,6 +274,24 @@ export class SceneWeather {
     }
     return weatherInfo
   }
+
+  /**
+   * TODO
+   */
+  getSceneWeatherFx() {
+    let modelData = this.weatherModel.getWeatherData()
+    let emitterConfigs = []
+    Logger.debug('SceneWeather.getSceneWeatherFx()', { 'model': modelData, 'gen': game.sceneWeather.generators })
+    game.sceneWeather.generators.forEach(generator => {
+      Logger.debug('getSceneWeatherFx for generator', { 'generator': generator })
+      let config = generator.getEmitter(modelData)
+      if (config != null) {
+        emitterConfigs.push(config)
+      }
+    })
+    return emitterConfigs
+  }
+
 
   /**
  * Convert temperature in fahrenheit to celsius.

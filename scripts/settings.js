@@ -99,6 +99,30 @@ export const registerSettings = function () {
     }
   });
 
+  game.settings.register(MODULE.ID, 'meteoVisible', {
+    name: Utils.i18n('settings.meteoVisible.name'),
+    hint: Utils.i18n('settings.meteoVisible.hint'),
+    scope: 'client',
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: (value) => {
+      onChangeFunction(value)
+    }
+  })
+
+  game.settings.register(MODULE.ID, 'meteoPosition', {
+    name: Utils.i18n('settings.meteoPosition.name'),
+    hint: Utils.i18n('settings.meteoPosition.hint'),
+    scope: 'client',
+    config: false,
+    type: Object,
+    default: { top: 440, left: 15 },
+    onChange: (value) => {
+      onChangeFunction(value)
+    }
+  });
+
   game.settings.register(MODULE.ID, 'uiPinned', {
     name: Utils.i18n('settings.uiPinned.name'),
     hint: Utils.i18n('settings.uiPinned.hint'),

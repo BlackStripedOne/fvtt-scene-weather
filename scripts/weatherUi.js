@@ -1,7 +1,5 @@
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
-import { RegionConfigDialog } from './regionConfig.js'
-
 
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
@@ -43,6 +41,8 @@ export class WeatherUi extends FormApplication {
     return mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
+      width: 200,
+      height: 100,
       submitOnChange: true,
       closeOnSubmit: false,
       minimizable: false,
@@ -198,26 +198,11 @@ export class WeatherUi extends FormApplication {
     }
   }
 
-
-
   static async update() {
     Logger.debug('Updating WeatherUI')
     if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
-      let meteoData = game.modules.get(MODULE.ID).uiApp.getData()
-      let meteogramHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherMeteogram.hbs', meteoData);
-      $('#weatherMeteogram').html(meteogramHtml);
-
-      const ctx = document.getElementById('meteogramCanvas')
-      // Region Data Debug
-      // game.sceneWeather.debug?._drawRegionData(ctx, -24, 24)
-
-      // Weather Model Debug
-      game.sceneWeather.debug()?.drawWeatherModelData('meteogramCanvas', -12, 12)
-
-      // Scene Weather Debug
-      //game.sceneWeather.debug?._drawSceneWeatherData(ctx, -24, 24)
-
+      let weatherInfoHtml = game.sceneWeather.get().getPerceptiveWeatherI18n()
+      $('#weatherInfo').html(weatherInfoHtml);
     }
   }
-
 }

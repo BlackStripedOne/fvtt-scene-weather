@@ -34,27 +34,19 @@
   <h2>Temperatrue</h2>
   <p>Temperature in degrees celsius</p>
   <div class="form-group">
-    <label for="summer.temperature.max">Maximum Temperature in Summer</label>
+    <label for="summer.temperature.day">Daytime Temperature in Summer</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.max}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.max"
-        placeholder="{{summer.temperature.max}}" value="{{summer.temperature.max}}">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.day}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.day"
+        placeholder="{{summer.temperature.day}}" value="{{summer.temperature.day}}">
     </div>
   </div>
   <div class="form-group">
-    <label for="summer.temperature.avg">Average Temperature in Summer</label>
+    <label for="summer.temperature.night">Nighttime Temperature in Summer</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.avg}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.avg"
-        placeholder="{{summer.temperature.avg}}" value="{{summer.temperature.avg}}">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="summer.temperature.min">Minimum Temperature in Summer</label>
-    <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.min}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.min"
-        placeholder="{{summer.temperature.min}}" value="{{summer.temperature.min}}">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{summer.temperature.night}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.temperature.night"
+        placeholder="{{summer.temperature.night}}" value="{{summer.temperature.night}}">
     </div>
   </div>
   <div class="form-group">
@@ -69,27 +61,19 @@
   <h2>Humidity</h2>
   <p>Relative Humidity in %</p>
   <div class="form-group">
-    <label for="summer.humidity.max">Maximum Humidity in Summer</label>
+    <label for="summer.humidity.day">Daytime Humidity in Summer</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.max}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.max"
-        placeholder="{{summer.humidity.max}}" value="{{summer.humidity.max}}">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.day}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.day"
+        placeholder="{{summer.humidity.day}}" value="{{summer.humidity.day}}">
     </div>
   </div>
   <div class="form-group">
-    <label for="summer.humidity.avg">Average Humidity in Summer</label>
+    <label for="summer.humidity.night">Nighttime Humidity in Summer</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.avg}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.avg"
-        placeholder="{{summer.humidity.avg}}" value="{{summer.humidity.avg}}">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="summer.humidity.min">Minimum Humidity in Summer</label>
-    <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.min}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.min"
-        placeholder="{{summer.humidity.min}}" value="{{summer.humidity.min}}">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{summer.humidity.night}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.humidity.night"
+        placeholder="{{summer.humidity.night}}" value="{{summer.humidity.night}}">
     </div>
   </div>
   <div class="form-group">
@@ -120,32 +104,34 @@
     </div>
   </div>
 
+  <h2>Sun</h2>
+  <p>Sunshine hours</p>
+  <div class="form-group">
+    <label for="summer.sun.hours">Average hours of sunshine</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="70" step="1" value="{{summer.sun.hours}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="summer.sun.hours"
+        placeholder="{{summer.sun.hours}}" value="{{summer.sun.hours}}">
+    </div>
+  </div>
 
   <h1>Winter</h1>
   <h2>Temperatrue</h2>
   <p>Temperature in degrees celsius</p>
   <div class="form-group">
-    <label for="winter.temperature.max">Maximum Temperature in Winter</label>
+    <label for="winter.temperature.day">Daytime Temperature in Winter</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.max}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.max"
-        placeholder="{{winter.temperature.max}}" value="{{winter.temperature.max}}">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.day}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.day"
+        placeholder="{{winter.temperature.day}}" value="{{winter.temperature.day}}">
     </div>
   </div>
   <div class="form-group">
-    <label for="winter.temperature.avg">Average Temperature in Winter</label>
+    <label for="winter.temperature.night">Nighttime Temperature in Winter</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.avg}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.avg"
-        placeholder="{{winter.temperature.avg}}" value="{{winter.temperature.avg}}">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="winter.temperature.min">Minimum Temperature in Winter</label>
-    <div class="form-fields">
-      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.min}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.min"
-        placeholder="{{winter.temperature.min}}" value="{{winter.temperature.min}}">
+      <input type="range" data-dtype="Number" min="-50" max="70" step="1" value="{{winter.temperature.night}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.temperature.night"
+        placeholder="{{winter.temperature.night}}" value="{{winter.temperature.night}}">
     </div>
   </div>
   <div class="form-group">
@@ -160,27 +146,19 @@
   <h2>Humidity</h2>
   <p>Relative Humidity in %</p>
   <div class="form-group">
-    <label for="winter.humidity.max">Maximum Humidity in Winter</label>
+    <label for="winter.humidity.day">Daytime Humidity in Winter</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.max}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.max"
-        placeholder="{{winter.humidity.max}}" value="{{winter.humidity.max}}">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.day}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.day"
+        placeholder="{{winter.humidity.day}}" value="{{winter.humidity.day}}">
     </div>
   </div>
   <div class="form-group">
-    <label for="winter.humidity.avg">Average Humidity in Winter</label>
+    <label for="winter.humidity.night">Nighttime Humidity in Winter</label>
     <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.avg}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.avg"
-        placeholder="{{winter.humidity.avg}}" value="{{winter.humidity.avg}}">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="winter.humidity.min">Minimum Humidity in Winter</label>
-    <div class="form-fields">
-      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.min}}">
-      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.min"
-        placeholder="{{winter.humidity.min}}" value="{{winter.humidity.min}}">
+      <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{winter.humidity.night}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.humidity.night"
+        placeholder="{{winter.humidity.night}}" value="{{winter.humidity.night}}">
     </div>
   </div>
   <div class="form-group">
@@ -208,6 +186,17 @@
       <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{winter.wind.var}}">
       <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.wind.var"
         placeholder="{{winter.wind.var}}" value="{{winter.wind.var}}">
+    </div>
+  </div>
+
+  <h2>Sun</h2>
+  <p>Sunshine hours</p>
+  <div class="form-group">
+    <label for="winter.sun.hours">Average hours of sunshine</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="70" step="1" value="{{winter.sun.hours}}">
+      <input type="number" data-dtype="Number" class="range-value" style="flex: 0 1 48px;" name="winter.sun.hours"
+        placeholder="{{winter.sun.hours}}" value="{{winter.sun.hours}}">
     </div>
   </div>
 

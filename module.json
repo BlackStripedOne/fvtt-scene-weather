@@ -7,6 +7,7 @@
   "authors": [
     {
       "name": "BlackStripedOne",
+      "discord": "BlackStripedOne#7257",
       "url": "https://github.com/BlackStripedOne"
     }
   ],
@@ -40,7 +41,9 @@
   "esmodules": [
     "/scripts/scene-weather.min.js"
   ],
-  "scripts": [],
+  "scripts": [
+    "/lib/chart.min.js"
+  ],
   "styles": [
     "/styles/scene-weather.css"
   ],

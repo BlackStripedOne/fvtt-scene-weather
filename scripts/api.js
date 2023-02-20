@@ -4,6 +4,7 @@ import { SceneWeather } from './sceneWeather.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
 import { WeatherUi } from './weatherUi.js'
+import { MeteoUi } from './meteoUi.js'
 import { TimeProvider } from './timeProvider.js'
 
 /**
@@ -11,8 +12,8 @@ import { TimeProvider } from './timeProvider.js'
  */
 export class SceneWeatherApi {
 
-  static _lastUpdate = 0
-  static _sceneWeather = {}
+  static _lastUpdate = 0  // last update in timeHash
+  static _sceneWeather = {}  // cached instances of sceneWeather by scene ID
 
   /**
    * Initialize the application
@@ -23,8 +24,11 @@ export class SceneWeatherApi {
     if (!game.sceneWeather) {
       game.sceneWeather = {}
       game.sceneWeather.get = SceneWeatherApi.getSceneWeatherProvider
+
       game.sceneWeather.updateSettings = SceneWeatherApi.updateSettings
       game.sceneWeather.updateWeather = SceneWeatherApi.updateWeather
+
+      game.sceneWeather.generators = []  // olds registered generators
 
       /* TODO init pattern:
       game.sceneWeather.app.SceneWeather = new SceneWeather()
@@ -57,7 +61,10 @@ export class SceneWeatherApi {
     let currentTimeHash = TimeProvider.getTimeHash()
     if (SceneWeatherApi._lastUpdate === currentTimeHash) return
     SceneWeatherApi._lastUpdate = currentTimeHash
+    // TODO only for GMs?
     WeatherUi.update()
+    MeteoUi.update()
+    
   }
 
   /**

@@ -27,17 +27,16 @@ Hooks.on('renderWeatherUi', () => {
 
 Hooks.on('renderMeteoUi', () => {
   Logger.debug('Hook:renderMeteoUi')
-  //  MeteoUi._chart = undefined // TODO handle more nicely
+//  MeteoUi._chart = undefined // TODO handle more nicely
   SceneWeatherApi.updateWeather()
 })
 
-// FIX ?
-Hooks.on('tearDownWeatherEffectsLayer', (layer) => {
-  Logger.debug('tearDownWeatherEffectsLayer->', layer)
-  canvas.sceneweatherfx._tearDown()
-  // canvas.sceneweatherfx.tearDown()
+Hooks.on('deactivateSpecialEffectsLayer', (layer) => {
+  Logger.debug('deactivateSpecialEffectsLayer  ->', layer)
+  
 })
-// END FIX ?
+
+
 
 Hooks.once("init", () => {
   registerSettings()
@@ -45,14 +44,20 @@ Hooks.once("init", () => {
   loadHandlebars()
   SceneWeatherApi.registerApi()
   Hooks.callAll(MODULE.LCCNAME + 'RegisterGenerators')
-  Logger.debug("Init Done", { 'api': game.sceneWeather })
+  Hooks.callAll(MODULE.LCCNAME + 'RegisterFilters')  
+  Logger.debug("Init Done", {'api': game.sceneWeather})
 })
 
 // Listen for changes to the worldTime from elsewhere.
 Hooks.on('updateWorldTime', () => {
+  Logger.debug('Hook:updateWorldTime()')
   SceneWeatherApi.updateWeather()
-  canvas.sceneweatherfx._tearDown() // potential fix? The issue is when drawParticleEffects is called WITHOUT prior _tearDown
-  canvas.sceneweatherfx.drawParticleEffects()
+  canvas.sceneweatherfx.drawParticleEffects({
+    soft: true
+  })
+  canvas.sceneweatherfx.drawFilterEffects({
+    soft: true
+  })
 })
 
 // Handle toggling of time separator flash when game is paused/unpaused.
@@ -66,9 +71,7 @@ Hooks.on('simple-calendar-clock-start-stop', () => {
 })
 
 Hooks.on('simple-calendar-date-time-change', (data) => {
-  SceneWeatherApi.updateWeather()
-  canvas.sceneweatherfx._tearDown() // potential fix?
-  canvas.sceneweatherfx.drawParticleEffects()
+ 
 })
 
 Hooks.on('canvasReady', async () => {
@@ -80,14 +83,20 @@ Hooks.on('canvasReady', async () => {
     Hooks.on('preUpdateScene', async (scene, deltaData, options, id) => {
       if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] != undefined) {
         Logger.debug('preUpdateScene-> ', { 'deltaData': deltaData, 'options': options })
-        SceneWeatherApi.updateWeather(deltaData._id, true)
+        SceneWeatherApi.updateWeather({
+          forSceneId: deltaData._id,
+          force: true
+        })
       }
     })
 
     Hooks.on('updateScene', async (scene, deltaData, options, id) => {
       if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] != undefined) {
         Logger.debug('preUpdateScene-> ', { 'deltaData': deltaData, 'options': options })
-        SceneWeatherApi.updateWeather(deltaData._id, true)
+        SceneWeatherApi.updateWeather({
+          forSceneId: deltaData._id,
+          force: true
+        })
       }
     })
 

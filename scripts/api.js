@@ -28,7 +28,8 @@ export class SceneWeatherApi {
       game.sceneWeather.updateSettings = SceneWeatherApi.updateSettings
       game.sceneWeather.updateWeather = SceneWeatherApi.updateWeather
 
-      game.sceneWeather.generators = []  // olds registered generators
+      game.sceneWeather.generators = []  // all registered generators
+      game.sceneWeather.filters = []  // all registered filter
 
       /* TODO init pattern:
       game.sceneWeather.app.SceneWeather = new SceneWeather()
@@ -52,7 +53,7 @@ export class SceneWeatherApi {
   /**
    * TODO
    */
-  static updateWeather(forSceneId = undefined, force = false) {
+  static updateWeather({ forSceneId = undefined, force = false, prewarm = false, fade = true} = {}) {
     Logger.debug('API:updateWeather')
     if (force) {
       SceneWeatherApi._lastUpdate = -1
@@ -61,7 +62,7 @@ export class SceneWeatherApi {
     let currentTimeHash = TimeProvider.getTimeHash()
     if (SceneWeatherApi._lastUpdate === currentTimeHash) return
     SceneWeatherApi._lastUpdate = currentTimeHash
-    // TODO only for GMs?
+// TODO only for GMs?
     WeatherUi.update()
     MeteoUi.update()
     

@@ -748,7 +748,7 @@ export class RegionMeteo {
     }
     // TODO use configurable seed
     this._noise = Noise.createNoise2D(0)
-    this.update()
+    this.updateConfig()
   }
 
   /**
@@ -780,12 +780,15 @@ export class RegionMeteo {
   /**
    * TODO
    */
-  update() {
+  updateConfig() {
+    Logger.debug('RegionMeteo.updateConfig()')
     // update on potentially changed settings on the scene or default values
     // TODO
 
     // initialize cache
     this._cache = {}
+
+    return true // TODO depending on wether there were changes. Maybe seed or other settings
   }
 
   /**

@@ -1,6 +1,13 @@
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
 
+Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+  // TODO only for GMs?
+  if (data.sceneId == canvas.scene._id && data.model !== undefined) {
+    MeteoUi.update()
+  }
+})
+
 /**
  * TODO
  */
@@ -163,7 +170,6 @@ export class MeteoUi extends FormApplication {
 
     let sceneWeather = game.sceneWeather.get()
     for (let hour = fromHr; hour < toHr; hour++) {
-      let regionData = sceneWeather.weatherModel.regionMeteo.getRegionBase(0, hour)
       let meteoData = sceneWeather.weatherModel.getWeatherData(0, hour)
 
       tempGround.data.push(meteoData.temp.ground)

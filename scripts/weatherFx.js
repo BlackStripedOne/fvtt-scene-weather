@@ -12,6 +12,22 @@ export class WeatherEffect extends ParticleEffect {
   static label = "sceneweather.fxname"
 
   /**
+   * TODO
+   */
+  static getFxEmittersForModel(modelData) {
+    // TODO check for correct modelData content
+    let emitterConfigs = []
+    game.sceneWeather.generators.forEach(generator => {
+      let config = generator.getEmitter(modelData)
+      if (config != null) {
+        emitterConfigs.push(config)
+      }
+    })
+    Logger.debug('WeatherEffect.getFxEmittersForModel()', { 'model': modelData, 'gen': game.sceneWeather.generators, 'emitters': emitterConfigs })
+    return emitterConfigs
+  }
+
+  /**
    * Begin animation for the configured emitters
    * 
    * @param {*} object may contain optional bool easeIn for making the effect slowly ease in
@@ -35,8 +51,15 @@ export class WeatherEffect extends ParticleEffect {
    * @returns Emitter[]
    */
   getParticleEmitters(options = {}) {
+    Logger.debug('WeatherEffect.getParticleEmitters(...)', { 'options': options })
     // TODO only when user has weather effects allowed via settings
-    const emitterConfigs = game.sceneWeather.get().getSceneWeatherFxEmitters()
+
+    if (options['data'] === undefined || options.data['model'] === undefined) {
+      Logger.debug('WeatherEffect.getParticleEmitters() no model data contained, no emitters.')
+      return []
+    }
+
+    const emitterConfigs = WeatherEffect.getFxEmittersForModel(options.data.model)//  game.sceneWeather.get().getSceneWeatherFxEmitters()
     let emitters = []
     // TODO order of effects ( z-ordering )
     emitterConfigs.forEach(emitterConfig => {

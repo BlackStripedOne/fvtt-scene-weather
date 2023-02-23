@@ -1,5 +1,19 @@
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
+import { SceneWeather } from './sceneWeather.js'
+
+Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+  // TODO only for GMs?
+  if (data.sceneId == canvas.scene._id && data.info !== undefined) {
+    WeatherUi.update(data.info)
+  }
+})
+
+Hooks.on('renderWeatherUi', () => {
+  Logger.debug('Hook:renderWeatherUi')
+  const weatherInfo = game.sceneWeather.get().getWeatherInfo()
+  WeatherUi.update(weatherInfo)
+})
 
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
@@ -198,10 +212,10 @@ export class WeatherUi extends FormApplication {
     }
   }
 
-  static async update() {
-    Logger.debug('Updating WeatherUI')
+  static async update(weatherInfo) {
+    Logger.debug('WeatherUi.update(...)', { 'weatherInfo': weatherInfo })
     if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
-      let weatherInfoHtml = game.sceneWeather.get().getPerceptiveWeatherI18n()
+      const weatherInfoHtml = SceneWeather.getPerceptiveWeatherI18n(weatherInfo)
       $('#weatherInfo').html(weatherInfoHtml);
     }
   }

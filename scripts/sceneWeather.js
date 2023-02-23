@@ -1,4 +1,8 @@
 import { Logger, Utils } from './utils.js'
+import { TimeProvider } from './timeProvider.js'
+import { MODULE } from './constants.js'
+import { WeatherModel } from './weatherModel.js'
+import { RegionMeteo } from './regionMeteo.js'
 
 /*
  Input:
@@ -35,29 +39,91 @@ export class SceneWeather {
    * TODO
    * @param {*} weatherModel 
    */
-  constructor(weatherModel) {
-    this.weatherModel = weatherModel
-    Logger.debug('SceneWeather:constrctor', { 'weatherModel': weatherModel })
+  constructor(scene) {
+    this.sceneId = scene._id
+    this.weatherModel = this._getWeatherModelForMode(scene)
+    Logger.debug('SceneWeather:constrctor', { 'weatherModel': this.weatherModel, 'sceneId': this.sceneId })
+  }
+
+  _getWeatherModelForMode(scene) {
+    this.weatherMode = scene.getFlag(MODULE.ID, 'weatherMode')
+    Logger.debug('SceneWeather._getWeatherModelForMode(...)', { 'scene': scene, 'weatherMode': this.weatherMode })
+    switch (this.weatherMode) {
+      case 'weatherTemplate':
+        // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic, static
+        const weatherTemplateId = scene.getFlag(MODULE.ID, 'weatherTemplate')
+        return WeatherModel.fromTemplate(weatherTemplateId)
+      case 'regionTemplate':
+        // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
+        const regionTemplateId = scene.getFlag(MODULE.ID, 'regionTemplate')
+        return WeatherModel.fromRegion(RegionMeteo.fromTemplate(regionTemplateId))
+      case 'regionAuto':
+        // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
+        return WeatherModel.fromRegion(new RegionMeteo()) // uses scene config of region and time provided by time provider
+      case 'disabled':
+      case undefined:
+      default:
+        throw new Error('Unable to instantiate new SceneWeather, while being disabled.')
+    }
   }
 
   /**
    * TODO
+   * returns true, if changed
    */
-  update() {
-    this.weatherModel.update()
+  updateConfig() {
+    Logger.debug('SceneWeather.updateConfig()', { 'sceneId': this.sceneId })
+    const scene = game.scenes.get(this.sceneId)
+    if (scene === undefined) {
+      Logger.error('Unable to instantiate SceneWeather for non existing Scene with id ' + this.sceneId)
+      throw new Error('Unable to instantiate SceneWeather for non existing Scene with id ' + this.sceneId)
+    }
+    if (scene.getFlag(MODULE.ID, 'weatherMode') != this.weatherMode) {
+      // need to set new model here
+      Logger.debug('SceneWeather.updateConfig() -> new mode', { 'sceneId': this.sceneId, 'prevMode': this.weatherMode, 'newMode': scene.getFlag(MODULE.ID, 'weatherMode') })
+
+      this.weatherModel = this._getWeatherModelForMode(scene) // TODO may throw Error
+      return true
+    } else {
+      // update existing model
+      Logger.debug('SceneWeather.updateConfig() -> unchanged mode', { 'sceneId': this.sceneId })
+      return this.weatherModel.updateConfig()
+    }
   }
 
   /**
-   * TODO invoke via layer menu buttons -> see there
+   * TODO
+   * may return undefined if disabled
    */
-  async applyFxToScene() {
-
+  static fromConfig({ sceneId = null } = {}) {
+    if (sceneId == null) {
+      sceneId = canvas.scene._id
+    }
+    const scene = game.scenes.get(sceneId)
+    if (scene === undefined) {
+      Logger.error('Unable to instantiate SceneWeather for non existing Scene with id ' + sceneId)
+      return undefined
+    }
+    try {
+      return new SceneWeather(scene)
+    } catch (e) {
+      return undefined
+    }
   }
 
-  // disableFxOnScene()
+  calculateWeather({ force = false } = {}) {
+    const currentTimeHash = TimeProvider.getCurrentTimeHash()
+    const modelData = this.weatherModel.getWeatherData()
+    const weatherInfo = this._calculateWeatherInfoFromModelData(modelData)
 
-  // updateFxOnScene()
-
+    Hooks.callAll(MODULE.LCCNAME + 'WeatherUpdated', {
+      'info': weatherInfo,
+      'model': modelData,
+      'timeHash': currentTimeHash,
+      'sceneId': this.sceneId,
+      'force': force
+    })
+  }
 
 
   static _getPercievedTempId(temperature) {
@@ -227,16 +293,14 @@ export class SceneWeather {
   }
 
   // Return localized string of weather info
-  getPerceptiveWeatherI18n(dayOffset = 0, hourOffset = 0) {
-    const meteoData = this.getWeatherInfo(dayOffset, hourOffset)
+  static getPerceptiveWeatherI18n(meteoData) {
     const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive'))
     const weatherInfoHtml = compiledTemplate(meteoData)
     return weatherInfoHtml
   }
 
-  getWeatherInfo(dayOffset = 0, hourOffset = 0) {
-    let modelData = this.weatherModel.getWeatherData(dayOffset, hourOffset)
-    let weatherInfo = {
+  _calculateWeatherInfoFromModelData(modelData) {
+    return {
       'name': modelData.name,
       'temperature': {
         'air': Math.round(modelData.temp.air),
@@ -272,25 +336,12 @@ export class SceneWeather {
         'type': SceneWeather._getPrecipitationTypeId(modelData.precipitation.type)
       }
     }
-    return weatherInfo
   }
 
-  /**
-   * TODO
-   */
-  getSceneWeatherFx() {
-    let modelData = this.weatherModel.getWeatherData()
-    let emitterConfigs = []
-    Logger.debug('SceneWeather.getSceneWeatherFx()', { 'model': modelData, 'gen': game.sceneWeather.generators })
-    game.sceneWeather.generators.forEach(generator => {
-      Logger.debug('getSceneWeatherFx for generator', { 'generator': generator })
-      let config = generator.getEmitter(modelData)
-      if (config != null) {
-        emitterConfigs.push(config)
-      }
-    })
-    return emitterConfigs
+  getWeatherInfo(dayOffset = 0, hourOffset = 0) {
+    return this._calculateWeatherInfoFromModelData(this.weatherModel.getWeatherData(dayOffset, hourOffset))
   }
+
 
 
   /**

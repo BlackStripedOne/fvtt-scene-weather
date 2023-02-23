@@ -1,5 +1,24 @@
 import { Logger } from './utils.js'
 import { WeatherEffect } from './weatherFx.js'
+import { MODULE } from './constants.js'
+
+Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+  Logger.debug('-> Hooks::WeatherUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
+
+  if (canvas['sceneweatherfx'] !== undefined) {
+    await Promise.all([canvas.sceneweatherfx.drawParticleEffects({
+      'soft': !data.force,
+      'data': data
+    }),
+    canvas.sceneweatherfx.drawFilterEffects({
+      'soft': !data.force,
+      'data': data
+    })])
+  } else {
+    Logger.debug('No canvas.sceneweatherfx') // Should not come to this.
+  }
+
+})
 
 export class WeatherEffectsLayer extends CanvasLayer {
 
@@ -33,6 +52,19 @@ export class WeatherEffectsLayer extends CanvasLayer {
   }
 
   /**
+    * TODO
+    */
+  static getFxFiltersForModel(modelData) {
+    // TODO check for correct modelData content
+    let filterConfigs = {}
+    game.sceneWeather.filters.forEach(filter => {
+      foundry.utils.mergeObject(filterConfigs, filter.getFilterConfig(modelData))
+    })
+    Logger.debug('WeatherEffectsLayer.getFxFiltersForModel()', { 'model': modelData, 'filter': filterConfigs })
+    return filterConfigs
+  }
+
+  /**
    * Define an elevation property on the ParticleEffectsLayer layer.
    * Render SceneWeather Effects above default weather effects from foundry.
    * 
@@ -55,10 +87,10 @@ export class WeatherEffectsLayer extends CanvasLayer {
 
   /**
    * Draw this layer. This will call the internal drawing
+   * TODO needed?
    */
   async _draw() {
-    await this.drawParticleEffects()
-    await this.drawFilterEffects()
+    Logger.debug('WeatherEffectsLayer._draw()', { 'this': this })
   }
 
   /**
@@ -77,7 +109,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
     // TODO teardown filters
     return super._tearDown()
   }
-  
+
   /**
    * Called game by ticker 
    */
@@ -93,7 +125,9 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * @param {object} options soft -> ease out and ease in
    * @returns 
    */
-  async drawFilterEffects({ soft = false } = {}) {
+  async drawFilterEffects(options) {
+    Logger.debug('WeatherEffectsLayer.drawFilterEffects(...)', { 'options': options })
+    options = foundry.utils.mergeObject({ 'soft': false }, options)
     if (!canvas.scene) return
 
     // Stop all existing filters
@@ -110,10 +144,14 @@ export class WeatherEffectsLayer extends CanvasLayer {
     this.activeFilters = {}
 
     // Get and initialize filters
-    const filterConfigs = game.sceneWeather.get().getSceneWeatherFxFilters()
+    if (options['data'] === undefined || options.data['model'] === undefined) {
+      Logger.debug('WeatherEffectsLayer.drawFilterEffects() no model data contained, no filters.')
+      return
+    }
+    const filterConfigs = WeatherEffectsLayer.getFxFiltersForModel(options.data.model)// game.sceneWeather.get().getSceneWeatherFxFilters() DOIWJDOWJ
     Object.entries(filterConfigs).map(([id, config]) => {
       this.activeFilters[id] = new config.type({
-        'soft': soft,
+        'soft': options.soft,
         'options': foundry.utils.mergeObject(config, { "-=type": null }, { performDeletions: true })
       })
       canvas.environment.filters.push(this.activeFilters[id])
@@ -126,16 +164,19 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * @param {object} options soft -> ease out and ease in
    * @returns 
    */
-  async drawParticleEffects({ soft = false } = {}) {
+  async drawParticleEffects(options) {
+    options = foundry.utils.mergeObject({ 'soft': false }, options)
+
     if (!canvas.scene) return
     if (!this.particleEffectsContainer) {
       this.particleEffectsContainer = this.addChild(new PIXI.Container())
     }
 
     const stopPromise = Promise.all(this.activeEffects.map(async (effect) => {
-      if (soft) {
+      if (options.soft) {
         await effect.softStop({ gracePeriod: 10 }) // Give 30s grace period for particles to die by themselves. Clouds will take longest.
       } else {
+        effect.destroy()
         effect.stop()
       }
       // Remove stopped effect from list of active effects
@@ -148,8 +189,8 @@ export class WeatherEffectsLayer extends CanvasLayer {
     const fxEnabled = true  // TODO via config and setting
 
     if (fxEnabled) {
-      const newEffect = new WeatherEffect(this.particleEffectsContainer, {})
-      newEffect.play({ easeIn: soft })
+      const newEffect = new WeatherEffect(this.particleEffectsContainer, options)
+      newEffect.play({ easeIn: options.soft })
       this.activeEffects.push(newEffect)
     }
 

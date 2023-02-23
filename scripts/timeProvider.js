@@ -23,6 +23,13 @@ export class TimeProvider {
     return 'simple-calendar'
   }
 
+  /**
+   * TODO
+   */
+  static getCurrentTimeHash() {
+    return TimeProvider.getTimeHash(TimeProvider.getDayOfYear(), TimeProvider.getHourOfDay())
+  }
+
   // Returns the unique hash for the time/day in year
   static getTimeHash(dayOfYear, hourOfDay) {
     let hash = (dayOfYear * TimeProvider.config.hoursInDay) + hourOfDay

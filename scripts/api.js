@@ -1,10 +1,5 @@
 import { Logger, Utils } from './utils.js'
-import { MODULE } from './constants.js'
 import { SceneWeather } from './sceneWeather.js'
-import { WeatherModel } from './weatherModel.js'
-import { RegionMeteo } from './regionMeteo.js'
-import { WeatherUi } from './weatherUi.js'
-import { MeteoUi } from './meteoUi.js'
 import { TimeProvider } from './timeProvider.js'
 
 /**
@@ -26,15 +21,19 @@ export class SceneWeatherApi {
       game.sceneWeather.get = SceneWeatherApi.getSceneWeatherProvider
 
       game.sceneWeather.updateSettings = SceneWeatherApi.updateSettings
-      game.sceneWeather.updateWeather = SceneWeatherApi.updateWeather
 
-      game.sceneWeather.generators = []  // all registered generators
-      game.sceneWeather.filters = []  // all registered filter
+      // Update configuration for the weather configuration models, essentially invalidating caches
+      game.sceneWeather.updateWeatherConfig = SceneWeatherApi.updateWeatherConfig
 
-      /* TODO init pattern:
-      game.sceneWeather.app.SceneWeather = new SceneWeather()
-      await game.sceneWeather.app.SceneWeather.init()
-      */
+      // Calculates the weather for the current game time and current scene and sends an event
+      game.sceneWeather.calculateWeather = SceneWeatherApi.calculateWeather
+
+      // all registered generators
+      game.sceneWeather.generators = []
+
+      // all registered filters
+      game.sceneWeather.filters = []
+
       Logger.debug('sceneWeather API registered as game.sceneWeather')
     } else {
       Logger.debug('SceneWeather API aleady registered!');
@@ -50,22 +49,45 @@ export class SceneWeatherApi {
 
   // TODO Api Functions go here
 
+
   /**
-   * TODO
+   * Calculate the current weather for the current time and scene displayed based on the
+   * configuration set by the scene's flags. Upon new weather information or changed
+   * weather the event 'WeatherUpdated' is emitted with additional data attached.
+   * 
+   * force -> true: will always calculate the weather anew, wether it was calculated
+   * already or not and emit the event.
    */
-  static updateWeather({ forSceneId = undefined, force = false, prewarm = false, fade = true} = {}) {
-    Logger.debug('API:updateWeather')
+  static calculateWeather({ force = false } = {}) {
+    Logger.debug('api::calculateWeather()')
     if (force) {
       SceneWeatherApi._lastUpdate = -1
-      SceneWeatherApi.getSceneWeatherProvider(forSceneId, true).update() // Update from configs
     }
-    let currentTimeHash = TimeProvider.getTimeHash()
-    if (SceneWeatherApi._lastUpdate === currentTimeHash) return
+
+    let currentTimeHash = TimeProvider.getCurrentTimeHash()
+    if (SceneWeatherApi._lastUpdate == currentTimeHash) return
     SceneWeatherApi._lastUpdate = currentTimeHash
-// TODO only for GMs?
-    WeatherUi.update()
-    MeteoUi.update()
-    
+
+    const provider = SceneWeatherApi.getSceneWeatherProvider()
+    provider.calculateWeather({
+      'force': force
+    })
+  }
+
+  /**
+   * Update the weather provider's configuration and internal precalculations as well as
+   * invalidating the internal caches of the cascading weather modesla and region providers
+   * if applicable.
+   * 
+   */
+  static updateWeatherConfig({ forSceneId = undefined, force = false, prewarm = false, fade = true } = {}) {
+    Logger.debug('API:updateWeatherConfig()')
+    // Update from configs
+    if (SceneWeatherApi.getSceneWeatherProvider(forSceneId, force).updateConfig()) {
+      SceneWeatherApi.calculateWeather({
+        force: true
+      })
+    }
   }
 
   /**
@@ -76,38 +98,20 @@ export class SceneWeatherApi {
     if (forSceneId !== undefined) {
       sceneId = forSceneId
     }
+
+    Logger.debug('API.getSceneWeatherProvider()', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache })
+
     if (ignoreCache) {
       SceneWeatherApi._sceneWeather[sceneId] = undefined
     }
     if (SceneWeatherApi._sceneWeather[sceneId] !== undefined) {
-      Logger.debug('api, found in cache', { 'sceneId': sceneId, 'sceneWeather': SceneWeatherApi._sceneWeather[sceneId] })
       return SceneWeatherApi._sceneWeather[sceneId]
     }
-    let weatherMode = canvas.scene.getFlag(MODULE.ID, 'weatherMode')
-    // TODO check when weatherMode is undefined, use 'disabled'
-    switch (weatherMode) {
-      case 'weatherTemplate':
-        // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic
-        let weatherTemplateId = canvas.scene.getFlag(MODULE.ID, 'weatherTemplate')
-        Logger.debug('getSceneWeatherProvider:weatherTemplate', { 'weatherTemplate': weatherTemplateId, 'sceneId': sceneId, 'noCache': ignoreCache })
-        SceneWeatherApi._sceneWeather[sceneId] = new SceneWeather(WeatherModel.fromTemplate(weatherTemplateId))
-        break
-      case 'regionTemplate':
-        // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
-        let regionTemplateId = canvas.scene.getFlag(MODULE.ID, 'regionTemplate')
-        Logger.debug('getSceneWeatherProvider:regionTemplate', { 'regionTemplate': regionTemplateId, 'sceneId': sceneId, 'noCache': ignoreCache })
-        SceneWeatherApi._sceneWeather[sceneId] = new SceneWeather(WeatherModel.fromRegion(RegionMeteo.fromTemplate(regionTemplateId)))
-        break
-      case 'regionAuto':
-        // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
-        SceneWeatherApi._sceneWeather[sceneId] = new SceneWeather(WeatherModel.fromRegion(new RegionMeteo())) // uses scene config of region and time provided by time provider		
-        break
-      case 'disabled':
-      default:
-        Logger.debug('getSceneWeatherProvider:disabled')
-        SceneWeatherApi._sceneWeather[sceneId] = undefined
-        break
-    }
+
+    SceneWeatherApi._sceneWeather[sceneId] = SceneWeather.fromConfig({
+      'sceneId': sceneId
+    })  // May also be undefined
+
     return SceneWeatherApi._sceneWeather[sceneId]
   }
 

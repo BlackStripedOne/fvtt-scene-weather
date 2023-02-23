@@ -48,7 +48,7 @@ export class WeatherModel {
       this.weatherData = WeatherModel.templates[templateId]
     } else {
       this.regionMeteo = regionMeteo
-      this.update()
+      this.updateConfig()
     }
   }
 
@@ -89,16 +89,18 @@ export class WeatherModel {
   /**
    * TODO
    */
-  update() {
+  updateConfig() {
     // update on potentially changed settings on the scene or default values
     // TODO    
     if (this.regionMeteo !== undefined) {
+      Logger.debug('WeatherModel.updateConfig() -> invalidating cache, invoking on regionMeteo...')
       // invalidate cache
       this._cache = {}
       // update with new settings
-      this.regionMeteo.update()
+      return this.regionMeteo.updateConfig()
     } else {
-      Logger.debug('WeatherModel.update -> nothing to do.')
+      Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
+      return false
     }
   }
 

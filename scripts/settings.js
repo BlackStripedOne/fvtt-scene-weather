@@ -3,7 +3,7 @@ import { Logger, Utils } from './utils.js'
 import { RegionConfigDialog } from './regionConfig.js'
 
 function onChangeFunction(value) {
-  if (game[MODULE.LCCNAME]) game[MODULE.LCCNAME].updateSettings()
+  Hooks.callAll(MODULE.LCCNAME + 'SettingsUpdated', value)
 }
 
 export const registerSettings = function () {
@@ -75,40 +75,83 @@ export const registerSettings = function () {
   // Add all default values for new scenes...
   // TODO
 
-  game.settings.register(MODULE.ID, 'uiVisible', {
-    name: Utils.i18n('settings.uiVisible.name'),
-    hint: Utils.i18n('settings.uiVisible.hint'),
+  game.settings.register(MODULE.ID, 'enableFx', {
+    name: Utils.i18n('settings.enableFx.name'),
+    hint: Utils.i18n('settings.enableFx.hint'),
     scope: 'client',
     config: true,
     type: Boolean,
-    default: false,
+    default: true,
     onChange: (value) => {
-      onChangeFunction(value)
+      onChangeFunction({
+        'id': 'enableFx',
+        'value': value
+      })
     }
   })
 
+  game.settings.register(MODULE.ID, 'cloudsAlpha', {
+    name: Utils.i18n('settings.cloudsAlpha.name'),
+    hint: Utils.i18n('settings.cloudsAlpha.hint'),
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 0,
+      max: 100,
+      step: 5
+    },
+    default: 100,
+    onChange: (value) => {
+      onChangeFunction({
+        'id': 'cloudsAlpha',
+        'value': value
+      })
+    }
+  })
+
+  game.settings.register(MODULE.ID, 'precipitationAlpha', {
+    name: Utils.i18n('settings.precipitationAlpha.name'),
+    hint: Utils.i18n('settings.precipitationAlpha.hint'),
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 0,
+      max: 100,
+      step: 5
+    },
+    default: 100,
+    onChange: (value) => {
+      onChangeFunction({
+        'id': 'precipitationAlpha',
+        'value': value
+      })
+    }
+  })
+
+  game.settings.register(MODULE.ID, 'uiVisible', {
+    name: 'settings.uiVisible.name',
+    scope: 'client',
+    config: false,
+    type: Boolean,
+    default: false
+  })
+
   game.settings.register(MODULE.ID, 'uiPosition', {
-    name: Utils.i18n('settings.uiPosition.name'),
-    hint: Utils.i18n('settings.uiPosition.hint'),
+    name: 'settings.uiPosition.name',
     scope: 'client',
     config: false,
     type: Object,
-    default: { top: 440, left: 15 },
-    onChange: (value) => {
-      onChangeFunction(value)
-    }
-  });
+    default: { top: 440, left: 15 }
+  })
 
   game.settings.register(MODULE.ID, 'meteoVisible', {
-    name: Utils.i18n('settings.meteoVisible.name'),
-    hint: Utils.i18n('settings.meteoVisible.hint'),
+    name: 'settings.meteoVisible.name',
     scope: 'client',
-    config: true,
+    config: false,
     type: Boolean,
-    default: false,
-    onChange: (value) => {
-      onChangeFunction(value)
-    }
+    default: false
   })
 
   game.settings.register(MODULE.ID, 'meteoPosition', {
@@ -117,11 +160,8 @@ export const registerSettings = function () {
     scope: 'client',
     config: false,
     type: Object,
-    default: { top: 440, left: 15 },
-    onChange: (value) => {
-      onChangeFunction(value)
-    }
-  });
+    default: { top: 440, left: 15 }
+  })
 
   game.settings.register(MODULE.ID, 'uiPinned', {
     name: Utils.i18n('settings.uiPinned.name'),
@@ -129,11 +169,8 @@ export const registerSettings = function () {
     scope: 'client',
     config: false,
     type: Boolean,
-    default: true,
-    onChange: (value) => {
-      onChangeFunction(value)
-    }
-  });
+    default: false
+  })
 
   game.settings.register(MODULE.ID, 'debug', {
     name: Utils.i18n('settings.debug.name'),
@@ -141,10 +178,7 @@ export const registerSettings = function () {
     scope: 'client',
     config: true,
     type: Boolean,
-    default: false,
-    onChange: (value) => {
-      onChangeFunction(value)
-    }
+    default: false
   })
 
   Logger.debug("Settings Registered");

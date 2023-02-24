@@ -3,40 +3,36 @@ import { Logger, Utils } from '../utils.js'
 import { MODULE } from '../constants.js'
 
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
-  Logger.debug('registered generator for rain')
+  Logger.debug('registered generator for cumulus')
   game.sceneWeather.generators.push({
-    'name': 'rain',
+    'name': 'cumulus',
     'getEmitter': function (modelData) {
 
-      /* precipitation type:
-        0: none
-        1: drizzle
-        2: rain
-        3: downpour
-        4: hail
-        5: snow
-        6: blizzard
-      */
-      if (![1, 2, 3, 4].includes(modelData.precipitation.type)) return null
-
-      const generatorOptions = {
-        direction: (Math.round(modelData.wind.direction) + 90) % 360,               // 0..359 via Winddirection
-        speed: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.6, 2.0),      // 0.6 drizzle, 2.0 heavy rain 
-        scale: 1,
-        lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.5),   // 1 drizzle, 0.5 heavy rain
-        density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.1, 4.0),    // 0.1 drizzle, 4: heavy rain
-        tint: null
+      if (Utils.getSetting('cloudsAlpha', 100) < 2) {
+        return undefined
       }
 
-      const rainConfig = foundry.utils.deepClone({
-        lifetime: {
-          min: 0.5,
-          max: 0.5
-        },
-        pos: {
-          x: 0,
-          y: 0
-        },
+      /*
+       cloud types:
+       0: none
+       1: groundfog
+       2: stratus
+       3: cumulus
+       4: cumulunimbus
+      */
+      if (modelData.clouds.type != 4) return null
+
+      let generatorOptions = {
+        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
+        direction: (Math.round(modelData.wind.direction) + 90) % 360,         // 0..359 via Winddirection
+        speed: Utils.map(modelData.wind.speed, 10, 70, 0.2, 3.0),  // 0.2 nearly no wind, 4 much wind, 5 storm
+        scale: Utils.map(modelData.clouds.coverage, 0.3, 1, 0.8, 1),          // 1 few clouds, 2 overcast
+        lifetime: 1,
+        density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.005, 0.02),   // 0.01 few clouds, 0.1 overcast
+        tint: null                                                            // 250,250,250 few clouds  180,180,180 overcast
+      }
+
+      const nimbusConfig = foundry.utils.deepClone({
         behaviors: [
           {
             type: 'alpha',
@@ -44,12 +40,20 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
               alpha: {
                 list: [
                   {
-                    time: 0,
-                    value: 0.7
+                    value: 0,
+                    time: 0
                   },
                   {
-                    time: 1,
-                    value: 0.1
+                    value: 0.5,
+                    time: 0.05
+                  },
+                  {
+                    value: 0.5,
+                    time: 0.95
+                  },
+                  {
+                    value: 0,
+                    time: 1
                   }
                 ]
               }
@@ -58,34 +62,36 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
           {
             type: 'moveSpeedStatic',
             config: {
-              min: 2800,
-              max: 3500
+              min: 30,
+              max: 100
             }
           },
           {
             type: 'scaleStatic',
             config: {
-              min: 0.8,
-              max: 1
+              min: 2.08,
+              max: 2.8
             }
           },
           {
             type: 'rotationStatic',
             config: {
-              min: 89,
-              max: 91
+              min: 90,
+              max: 90
             }
           },
           {
-            type: 'textureSingle',
+            type: 'textureRandom',
             config: {
-              texture: 'ui/particles/rain.png'
+              textures: Array.fromRange(4).map(
+                (n) => 'modules/' + MODULE.ID + `/assets/tcu${n + 1}.webp`
+              )
             }
           }
         ]
       })
-      Generators.applyGeneratorToEmitterConfig(generatorOptions, rainConfig)
-      return rainConfig
+      Generators.applyGeneratorToEmitterConfig(generatorOptions, nimbusConfig)
+      return nimbusConfig
     }
   })
 })

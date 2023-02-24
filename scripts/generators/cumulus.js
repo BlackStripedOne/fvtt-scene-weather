@@ -8,6 +8,10 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
     'name': 'cumulus',
     'getEmitter': function (modelData) {
 
+      if (Utils.getSetting('cloudsAlpha', 100) < 2) {
+        return undefined
+      }
+
       /*
        cloud types:
        0: none
@@ -19,8 +23,9 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       if (![3, 4].includes(modelData.clouds.type)) return null
 
       let generatorOptions = {
+        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
         direction: (Math.round(modelData.wind.direction) + 90) % 360,         // 0..359 via Winddirection
-        speed: Utils.map(modelData.precipitation.amount, 10, 100, 0.2, 5.0),  // 0.2 nearly no wind, 4 much wind, 5 storm
+        speed: Utils.map(modelData.wind.speed, 10, 70, 0.2, 3.0),  // 0.2 nearly no wind, 4 much wind, 5 storm
         scale: Utils.map(modelData.clouds.coverage, 0.3, 1, 0.8, 1),          // 1 few clouds, 2 overcast
         lifetime: 1,
         density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.005, 0.02),   // 0.01 few clouds, 0.1 overcast

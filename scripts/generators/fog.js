@@ -1,5 +1,5 @@
 import { Generators } from './generators.js'
-import { Logger } from '../utils.js'
+import { Logger, Utils } from '../utils.js'
 import { MODULE } from '../constants.js'
 
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
@@ -7,6 +7,10 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   game.sceneWeather.generators.push({
     'name': 'fog',
     'getEmitter': function (modelData) {
+
+      if (Utils.getSetting('cloudsAlpha', 100) < 2) {
+        return undefined
+      }
 
       /*
        cloud types:
@@ -19,11 +23,12 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       if (modelData.clouds.type != 1) return null
 
       const generatorOptions = {
+        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
         direction: 0,
         speed: 1,
         scale: 1,
         lifetime: 1,
-        density: 0.1,
+        density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.01, 1),
         tint: null
       }
 
@@ -86,11 +91,11 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
               scale: {
                 list: [
                   {
-                    value: 1.5,
+                    value: 2.5,
                     time: 0
                   },
                   {
-                    value: 1,
+                    value: 2,
                     time: 1
                   }
                 ]
@@ -125,7 +130,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
         ]
       })
 
-      Generators.applyGeneratorOptionsToEmitterConfig(generatorOptions, fogConfig)
+      Generators.applyGeneratorToEmitterConfig(generatorOptions, fogConfig)
       return fogConfig
     }
   })

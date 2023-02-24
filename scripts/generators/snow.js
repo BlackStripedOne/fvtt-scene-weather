@@ -2,11 +2,16 @@ import { Generators } from './generators.js'
 import { Logger, Utils } from '../utils.js'
 import { MODULE } from '../constants.js'
 
+// https://pixijs.io/particle-emitter/examples/snow.html
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   Logger.debug('registered generator for snow')
   game.sceneWeather.generators.push({
     'name': 'snow',
     'getEmitter': function (modelData) {
+
+      if (Utils.getSetting('precipitationAlpha', 100) < 2) {
+        return undefined
+      }
 
       /* precipitation type:
         0: none
@@ -19,16 +24,37 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       */
       if (![5, 6].includes(modelData.precipitation.type)) return null
 
+      let snowDirection = 90
+      const snowMode = modelData.precipitation.mode ?? 'winddir'
+      switch (snowMode) {
+        case 'winddir':
+        default:
+          // 0..359 via Winddirection
+          snowDirection = (Math.round(modelData.wind.direction) + 90) % 360
+          break
+        case 'topdown':
+          snowDirection = 90  // Top
+          break
+        case 'slanted':
+          snowDirection = 75  // Slightly from Left
+          break
+        case 'windinfluence':
+          const vecH = Math.sin(modelData.wind.direction * Math.PI / 180) * Utils.map(modelData.wind.speed, 10, 70, 10, 90) // Deflection between -90 .. 90 deg
+          snowDirection = 90 + vecH
+          break
+      }
+
       const generatorOptions = {
-        direction: (Math.round(modelData.wind.direction) + 90) % 360,               // 0..359 via Winddirection
-        speed: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.3, 5.0),      // 0.3 drizzle, 5 blizzard
+        alpha: Utils.getSetting('precipitationAlpha', 100) / 100,  // Client based percentage for precipitation transparency
+        direction: snowDirection,
+        speed: Utils.map(modelData.wind.speed, 10, 70, 0.3, 5.0),      // 0.3 drizzle, 5 blizzard
         scale: 1,
         lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.7),   // 1 drizzle, 0.7 blizzard
-        density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.1, 3.0),    // 0.1 drizzle, 3: blizzard
+        density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 3.0),    // 0.1 drizzle, 3: blizzard
         tint: null
       }
 
-      const snowConfig = foundry.utils.deepClone({
+      const snowConfig = Utils.deepClone({
         lifetime: {
           min: 4,
           max: 4

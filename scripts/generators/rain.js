@@ -2,11 +2,18 @@ import { Generators } from './generators.js'
 import { Logger, Utils } from '../utils.js'
 import { MODULE } from '../constants.js'
 
+// https://pixijs.io/particle-emitter/examples/rain.html
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   Logger.debug('registered generator for rain')
   game.sceneWeather.generators.push({
     'name': 'rain',
     'getEmitter': function (modelData) {
+
+
+      if (Utils.getSetting('precipitationAlpha', 100) < 2) {
+        return undefined
+      }
+
 
       /* precipitation type:
         0: none
@@ -19,12 +26,33 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       */
       if (![1, 2, 3, 4].includes(modelData.precipitation.type)) return null
 
+      let rainDirection = 90
+      const rainMode = modelData.precipitation.mode ?? 'winddir'
+      switch (rainMode) {
+        case 'winddir':
+        default:
+          // 0..359 via Winddirection
+          rainDirection = (Math.round(modelData.wind.direction) + 90) % 360
+          break
+        case 'topdown':
+          rainDirection = 90  // Top
+          break
+        case 'slanted':
+          rainDirection = 75  // Slightly from Left
+          break
+        case 'windinfluence':
+          const vecH = Math.sin(modelData.wind.direction * Math.PI / 180) * Utils.map(modelData.wind.speed, 10, 70, 3, 45) // Deflection between -45 .. 45 deg
+          rainDirection = 90 + vecH
+          break
+      }
+
       const generatorOptions = {
-        direction: (Math.round(modelData.wind.direction) + 90) % 360,               // 0..359 via Winddirection
+        alpha: Utils.getSetting('precipitationAlpha', 100) / 100,  // Client based percentage for precipitation transparency
+        direction: rainDirection,
         speed: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.6, 2.0),      // 0.6 drizzle, 2.0 heavy rain 
         scale: 1,
         lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.5),   // 1 drizzle, 0.5 heavy rain
-        density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.1, 4.0),    // 0.1 drizzle, 4: heavy rain
+        density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 4.0),    // 0.1 drizzle, 4: heavy rain
         tint: null
       }
 

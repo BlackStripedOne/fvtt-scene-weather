@@ -116,17 +116,25 @@ export class Generators {
       })
     }
 
+    // Scale alpha values
+    if (options['alpha'] !== undefined) {
+      config.behaviors
+        .filter((behavior) => behavior.type === "alpha")
+        .forEach(({ config }) => Generators._scaleValues(config.alpha, options.alpha))
+    }
+
     // Scale spatial dimensions to scene dimensions
-    const sceneDimensionFactor = options.scale * (canvas.dimensions.size / 100)
+    let sceneDimensionFactor = options.scale * (canvas.dimensions.size / 100)
     config.behaviors
       .filter((behavior) => behavior.type === "scale")
-      .forEach(({ config }) => Generators._scaleValues(config.scale, sceneDimensionFactor));
+      .forEach(({ config }) => Generators._scaleValues(config.scale, sceneDimensionFactor))
 
     config.behaviors
       .filter((behavior) => behavior.type === "scaleStatic")
-      .forEach(({ config }) => Generators._scaleRange(config, sceneDimensionFactor));
+      .forEach(({ config }) => Generators._scaleRange(config, sceneDimensionFactor))
 
     // Scale temporal dimensions to scene dimensions
+    sceneDimensionFactor = options.speed * (canvas.dimensions.size / 100)
     config.behaviors
       .filter((behavior) => ["moveSpeed", "movePath"].includes(behavior.type))
       .forEach(({ config }) => Generators._scaleValues(config.speed, sceneDimensionFactor))

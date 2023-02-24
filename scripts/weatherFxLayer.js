@@ -1,6 +1,15 @@
 import { Logger } from './utils.js'
 import { WeatherEffect } from './weatherFx.js'
 import { MODULE } from './constants.js'
+import { SceneWeatherApi } from './api.js'
+
+Hooks.on(MODULE.LCCNAME + 'SettingsUpdated', async (data) => {
+  Logger.debug('-> Hooks::SettingsUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
+  if (data.id == 'cloudsAlpha' || data.id == 'precipitationAlpha') {
+    // Update weather to update effects
+    SceneWeatherApi.calculateWeather({ force: true })
+  }
+})
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   Logger.debug('-> Hooks::WeatherUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })

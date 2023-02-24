@@ -1,17 +1,15 @@
+import { MODULE } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { WeatherUi } from './weatherUi.js'
 import { MeteoUi } from './meteoUi.js'
 import { WeatherEffectsLayer } from './weatherFxLayer.js'
+
 /**
- * Menu class for the weather layer
+ * Layer for the scene-weather. FEATURE placeable sources and sinks on this layer
  */
-export class WeatherMenu {
+export class WeatherLayer extends InteractionLayer {
 
-  /**
-   * Register the buttons for the layer relevant menu on the sidebar
-   */
-  static registerButtons() {
-
+  static registerLayers() {
     // add weather layer
     CONFIG.Canvas.layers.sceneweather = {
       layerClass: WeatherLayer,
@@ -21,12 +19,18 @@ export class WeatherMenu {
       layerClass: WeatherEffectsLayer,
       group: "primary"
     }
+  }
+
+  /**
+   * Register the buttons for the layer relevant menu on the sidebar
+   */
+  static registerLayerButtons() {
 
     Hooks.on("getSceneControlButtons", btns => {
       const weatherOptions = [{
         name: "Toggle Weather UI",
         title: 'Toggle Weather UI',
-        icon: "fas fa-solid fa-eye",
+        icon: "fas fa-solid fa-window-maximize",
         visible: game.user.isGM,
         toggle: true,
         active: WeatherUi._isOpen,
@@ -35,18 +39,36 @@ export class WeatherMenu {
         }
       },
       {
-        name: "Update clients",
-        title: 'Update clients',
-        icon: "fas fa-solid fa-arrows-rotate",
-        button: true,
+        name: "Toggle Meteogram",
+        title: 'Toggle Meteogram',
+        icon: "fas fa-solid fa-chart-line",
+        visible: game.user.isGM && ['regionTemplate', 'regionAuto'].includes(Utils.getSceneFlag('weatherMode', 'disabled')),
+        toggle: true,
+        active: MeteoUi._isOpen,
         onClick: () => {
           MeteoUi.toggleAppVis('toggle');
         }
       },
       {
-        name: "Remove All Weather",
-        title: 'Remove All Weather',
-        icon: "fas fa-solid fa-trash",
+        name: "Weather Effects Enabled",
+        title: 'Weather Effects Enabled',
+        icon: "fas fa-solid fa-eye",
+        toggle: true,
+        active: Utils.getSetting('enableFx', true),
+        onClick: () => {
+          // Toggle FX Enabled
+          const enabled = (!Utils.getSetting('enableFx', true))
+          Utils.setSetting('enableFx', enabled)
+          Hooks.callAll(MODULE.LCCNAME + 'SettingsUpdated', {
+            'id': 'enableFx',
+            'value': enabled
+          })
+        }
+      },
+      {
+        name: "Some Button",
+        title: 'Some Button',
+        icon: "fas fa-solid fa-square-xmark",
         button: true,
         onClick: () => {
           //TODO
@@ -65,12 +87,6 @@ export class WeatherMenu {
     })
 
   }
-}
-
-/**
- * Layer for the scene-weather. FEATURE placeable sources and sinks on this layer
- */
-class WeatherLayer extends InteractionLayer {
 
   static get layerOptions() {
     return foundry.utils.mergeObject(super.layerOptions, {

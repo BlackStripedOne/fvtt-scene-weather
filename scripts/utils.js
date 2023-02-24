@@ -34,6 +34,13 @@ export class Utils {
 
   /**
    * TODO
+   */
+  static getApi() {
+    return game.sceneWeather
+  }
+
+  /**
+   * TODO
    * 
    * @param {*} number 
    * @param {*} min 
@@ -57,6 +64,19 @@ export class Utils {
   static map(current, inMin, inMax, outMin, outMax) {
     const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
     return Utils.clamp(mapped, outMin, outMax)
+  }
+
+  /**
+   * TODO
+   */
+  static mapColorHex(current, inMin, inMax, hexMin, hexMax) {
+    const { r: redMin, g: greenMin, b: blueMin } = foundry.utils.Color.from(hexMin)
+    const { r: redMax, g: greenMax, b: blueMax } = foundry.utils.Color.from(hexMax)
+    return foundry.utils.Color.fromRGB([
+      Utils.map(current, inMin, inMax, redMin, redMax),
+      Utils.map(current, inMin, inMax, greenMin, greenMax),
+      Utils.map(current, inMin, inMax, blueMin, blueMax)
+    ]).toString()
   }
 
   /**
@@ -203,6 +223,23 @@ export class Utils {
     } else {
       Logger.debug(`GameConfig '${key}' not found`)
     }
+  }
+
+  /**
+   * Get scene flag value
+   * 
+   * @param {string} key               The scene flag key
+   * @param {string=null} defaultValue The scene flag default value
+   * @returns {*}                      The scene flag value or defaultValue, null as fallback
+   */
+  static getSceneFlag(key, defaultValue = null) {
+    let value = defaultValue ?? null
+    try {
+      value = canvas.scene?.getFlag(MODULE.ID, key) ?? defaultValue
+    } catch {
+      Logger.debug(`SceneFlag '${key}' not found on current scene`)
+    }
+    return value
   }
 
   /**

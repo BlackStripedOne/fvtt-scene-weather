@@ -6,36 +6,6 @@ import { METEO } from './constants.js'
  */
 export class WeatherModel {
 
-  static templates = {
-    'default': {
-      'name': 'Default',
-      'temp': {
-        'ground': 14,
-        'air': 18,
-        'percieved': 18
-      },
-      'wind': {
-        'speed': 0,
-        'gusts': 0,
-        'direction': 0
-      },
-      'clouds': {
-        'coverage': 0,
-        'bottom': 0,
-        'top': 0,
-        'type': 0
-      },
-      'precipitation': {
-        'amount': 0,
-        'type': 0
-      },
-      'sun': {
-        'amount': 0.5,
-      },
-      'humidity': 0
-    }
-  }
-
   /**
    * TODO
    * @param {*} param0 
@@ -45,7 +15,13 @@ export class WeatherModel {
     this._cache = {}
     if (regionMeteo === undefined) {
       this.regionMeteo = undefined
-      this.weatherData = WeatherModel.templates[templateId]
+      this.weatherData = Utils.getApi().weatherTemplates.find(template => template.id == templateId)
+      if (this.weatherData === undefined) {
+        this.weatherData = Utils.getApi().weatherTemplates[0]
+        canvas.scene.setFlag(MODULE.ID, 'weatherTemplate', this.weatherData.id)
+        Logger.error('Unable to set weather template with id [' + templateId + '] reverting to [' + this.weatherData.id + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
+      }
+      this.weatherData.precipitation.mode = Utils.getSceneFlag('rainMode', 'winddir')
     } else {
       this.regionMeteo = regionMeteo
       this.updateConfig()
@@ -58,12 +34,12 @@ export class WeatherModel {
    */
   static getTemplates() {
     let res = []
-    for (let id in WeatherModel.templates) {
+    Utils.getApi().weatherTemplates.forEach(template => {
       res.push({
-        'id': id,
-        'name': WeatherModel.templates[id].name
+        'id': template.id,
+        'name': template.name
       })
-    }
+    })
     return res
   }
 
@@ -85,7 +61,6 @@ export class WeatherModel {
     return new WeatherModel({ 'regionMeteo': regionMeteo })
   }
 
-
   /**
    * TODO
    */
@@ -99,8 +74,13 @@ export class WeatherModel {
       // update with new settings
       return this.regionMeteo.updateConfig()
     } else {
-      Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
-      return false
+      if (this.weatherData.precipitation.mode == Utils.getSceneFlag('rainMode', 'winddir')) {
+        Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
+        return false
+      } else {
+        this.weatherData.precipitation.mode = Utils.getSceneFlag('rainMode', 'winddir')
+        return true
+      }
     }
   }
 
@@ -143,7 +123,8 @@ export class WeatherModel {
         },
         'precipitation': {
           'amount': 0,
-          'type': 0 // 0: none, 1:drizzle, 2:rain, 3:downpour, 4:hail, 5:snow, 6:blizzard
+          'type': 0, // 0: none, 1:drizzle, 2:rain, 3:downpour, 4:hail, 5:snow, 6:blizzard
+          'mode': Utils.getSceneFlag('rainMode', 'winddir') // default to mode:winddir
         },
         'sun': {
           'amount': regionBaseValues.sunAmount,

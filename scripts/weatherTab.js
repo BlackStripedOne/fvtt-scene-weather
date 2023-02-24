@@ -75,6 +75,24 @@ export class WeatherTab {
         }
 
       ],
+      'rainModes': [
+        {
+          'id': 'winddir',
+          'name': 'Same as winddirection'
+        },
+        {
+          'id': 'topdown',
+          'name': 'Always straight from top to bottom'
+        },
+        {
+          'id': 'slanted',
+          'name': 'Always slanted, from top to bottom'
+        },
+        {
+          'id': 'windinfluence',
+          'name': 'Direction influenced by winddirection and speed'
+        }
+      ],
       'weatherModes': [
         {
           'id': 'disabled',
@@ -93,7 +111,7 @@ export class WeatherTab {
         },
         {
           'id': 'regionAuto',
-          'name': 'Auto generate via region template (generated)',
+          'name': 'Manual region settings (dynamic)',
           'hint': 'Let the weather be generated based on set attributes for the scene like mean temperature or elevation. The weather is dependant on a current time/date that needs to be provided to generate the dynamic weather based on all those parameters.'
         }
       ],
@@ -130,6 +148,7 @@ export class WeatherTab {
 
     // initial selection
     jQ.find('div[id="sceneWeather.mode.' + selectedMode + '"]').addClass('active')
+    jQ.find('div[id="not_sceneWeather.mode.' + selectedMode + '"]').removeClass('active')
 
     // action on click for region config button
     jQ.find('button[data-key="flags.scene-weather.regionConfig"]').on('click', function () {
@@ -142,10 +161,18 @@ export class WeatherTab {
     jQ.find('select[name="flags.scene-weather.weatherMode"]').on('change', function () {
       let modeId = $(this).find(":selected").val()
       jQ.find('div.sceneWeather-collapsibleModeOption').each(function () {
-        if ($(this).attr('id') == 'sceneWeather.mode.' + modeId) {
-          $(this).addClass('active')
+        if ($(this).attr('id').startsWith('not_sceneWeather.mode.')) {
+          if ($(this).attr('id') == 'not_sceneWeather.mode.' + modeId) {
+            $(this).removeClass('active')
+          } else {
+            $(this).addClass('active')
+          }
         } else {
-          $(this).removeClass('active')
+          if ($(this).attr('id') == 'sceneWeather.mode.' + modeId) {
+            $(this).addClass('active')
+          } else {
+            $(this).removeClass('active')
+          }
         }
       })// each
       app.setPosition({ height: 'auto' });

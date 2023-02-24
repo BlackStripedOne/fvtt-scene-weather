@@ -12,6 +12,16 @@
     Ambience.</p>
 </div>
 
+<div id="not_sceneWeather.mode.disabled" class="sceneWeather-collapsibleModeOption active">
+  <p class="notes">TODO Text</p>
+  <label for="flags.scene-weather.rainMode">Precipitation Mode</label>
+  <div class="form-fields">
+    <select name="flags.scene-weather.rainMode" data-dtype="String">
+      {{selectOptions rainModes selected=data.rainMode nameAttr="id" labelAttr="name" localize=true}}
+    </select>
+  </div>
+</div>
+
 <div id="sceneWeather.mode.weatherTemplate" class="sceneWeather-collapsibleModeOption">
   <p class="notes">Set a weather for the scene from a select choice of templates. The weather is static and will remain
     like that unless manually changed.</p>

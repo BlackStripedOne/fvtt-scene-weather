@@ -16,3 +16,21 @@ export const METEO = {
   'R': 8.3144598, // universal gas constant: 8.3144598 J/(mol·K)'
   'Tzero': 237.7 // saturation vapor pressure in Kelvin, over a flat surface of water
 }
+
+export const PRECI_TYPE = {
+  'none': 0,
+  'drizzle': 1,
+  'rain': 2,
+  'downpour': 3,
+  'hail': 4,
+  'snow': 5,
+  'blizzard': 6
+}
+
+export const CLOUD_TYPE = {
+  'none': 0,
+  'fog': 1,
+  'stratus': 2,
+  'cumulus': 3,
+  'cumulunimbus': 4
+}

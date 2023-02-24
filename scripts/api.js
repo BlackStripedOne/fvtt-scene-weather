@@ -18,7 +18,7 @@ export class SceneWeatherApi {
     // If no application instance exists, create a new instance of SceneWeather and initialize it
     if (!game.sceneWeather) {
       game.sceneWeather = {}
-      game.sceneWeather.get = SceneWeatherApi.getSceneWeatherProvider
+      game.sceneWeather.get = SceneWeatherApi.getSceneWeatherProvider // TODO remove api access to provider
 
       game.sceneWeather.updateSettings = SceneWeatherApi.updateSettings
 
@@ -34,6 +34,12 @@ export class SceneWeatherApi {
       // all registered filters
       game.sceneWeather.filters = []
 
+      // all region templates
+      game.sceneWeather.regionTemplates = []
+
+      // all static weather templates
+      game.sceneWeather.weatherTemplates = []
+
       Logger.debug('sceneWeather API registered as game.sceneWeather')
     } else {
       Logger.debug('SceneWeather API aleady registered!');
@@ -44,6 +50,7 @@ export class SceneWeatherApi {
    * Update Scene Weather following change to module settings
    */
   static async updateSettings() {
+    Logger.debug('api::updateSettings')
     // TODO ? game.sceneWeather.app.SceneWeather?.updateSettings()
   }
 
@@ -58,8 +65,15 @@ export class SceneWeatherApi {
    * force -> true: will always calculate the weather anew, wether it was calculated
    * already or not and emit the event.
    */
-  static calculateWeather({ force = false } = {}) {
-    Logger.debug('api::calculateWeather()')
+  static calculateWeather({ force = false, sceneId = undefined } = {}) {
+    Logger.debug('api::calculateWeather(...)', { 'sceneId': sceneId, 'force': force })
+    if (sceneId === undefined) sceneId = canvas.scene._id
+
+    if (sceneId != canvas.scene._id) {
+      Logger.debug('Not calculating weather for non current scene...')
+      return
+    }
+
     if (force) {
       SceneWeatherApi._lastUpdate = -1
     }
@@ -68,7 +82,7 @@ export class SceneWeatherApi {
     if (SceneWeatherApi._lastUpdate == currentTimeHash) return
     SceneWeatherApi._lastUpdate = currentTimeHash
 
-    const provider = SceneWeatherApi.getSceneWeatherProvider()
+    const provider = SceneWeatherApi.getSceneWeatherProvider(sceneId)
     provider.calculateWeather({
       'force': force
     })
@@ -81,10 +95,11 @@ export class SceneWeatherApi {
    * 
    */
   static updateWeatherConfig({ forSceneId = undefined, force = false, prewarm = false, fade = true } = {}) {
-    Logger.debug('API:updateWeatherConfig()')
+    Logger.debug('api::updateWeatherConfig(...)', { 'forSceneId': forSceneId, 'force': force })
     // Update from configs
-    if (SceneWeatherApi.getSceneWeatherProvider(forSceneId, force).updateConfig()) {
+    if (SceneWeatherApi.getSceneWeatherProvider(forSceneId, force).updateConfig() || force) {
       SceneWeatherApi.calculateWeather({
+        sceneId: forSceneId,
         force: true
       })
     }
@@ -99,7 +114,7 @@ export class SceneWeatherApi {
       sceneId = forSceneId
     }
 
-    Logger.debug('API.getSceneWeatherProvider()', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache })
+    Logger.debug('api::getSceneWeatherProvider()', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache })
 
     if (ignoreCache) {
       SceneWeatherApi._sceneWeather[sceneId] = undefined

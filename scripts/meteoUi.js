@@ -1,5 +1,6 @@
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
+import { SceneWeatherApi } from './api.js'
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   // TODO only for GMs?
@@ -168,9 +169,9 @@ export class MeteoUi extends FormApplication {
     let sunAmount = { label: 'sunAmount', data: [], borderWidth: 1, pointRadius: 0, backgroundColor: 'rgba(255, 255, 0, 0.6)', fill: true, yAxisID: 'y2' }
     let humidity = { label: 'humidity', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#9999ff', yAxisID: 'y2' }
 
-    let sceneWeather = game.sceneWeather.get()
+    const sceneWeather = SceneWeatherApi.getSceneWeatherProvider()
     for (let hour = fromHr; hour < toHr; hour++) {
-      let meteoData = sceneWeather.weatherModel.getWeatherData(0, hour)
+      const meteoData = sceneWeather.weatherModel.getWeatherData(0, hour)
 
       tempGround.data.push(meteoData.temp.ground)
       tempAir.data.push(meteoData.temp.air)

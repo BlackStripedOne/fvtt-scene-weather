@@ -1,11 +1,11 @@
-import { Logger } from './utils.js'
+import { Logger, Utils } from './utils.js'
 import { WeatherEffect } from './weatherFx.js'
 import { MODULE } from './constants.js'
 import { SceneWeatherApi } from './api.js'
 
 Hooks.on(MODULE.LCCNAME + 'SettingsUpdated', async (data) => {
   Logger.debug('-> Hooks::SettingsUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
-  if (data.id == 'cloudsAlpha' || data.id == 'precipitationAlpha') {
+  if (['cloudsAlpha', 'precipitationAlpha', 'maxParticles', 'enableFx'].includes(data.id)) {
     // Update weather to update effects
     SceneWeatherApi.calculateWeather({ force: true })
   }
@@ -95,8 +95,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
   }
 
   /**
-   * Draw this layer. This will call the internal drawing
-   * TODO needed?
+   * Draw this layer. All drawing will be handled via the draw*Effects methods.
    */
   async _draw() {
     Logger.debug('WeatherEffectsLayer._draw()', { 'this': this })
@@ -114,8 +113,6 @@ export class WeatherEffectsLayer extends CanvasLayer {
     }))
     this.activeEffects = []
     this.particleEffectsContainer = undefined
-
-    // TODO teardown filters
     return super._tearDown()
   }
 
@@ -129,10 +126,12 @@ export class WeatherEffectsLayer extends CanvasLayer {
   }
 
   /**
-   * TODO Draws the emitters for particle effects
-   * 
-   * @param {object} options soft -> ease out and ease in
-   * @returns 
+   * Asynchronously draws filter effects on the canvas environment layer based on the given options.
+   * @async
+   * @param {object} options - The options object.
+   * @param {boolean} [options.soft=false] - Whether the filter effects should be "soft" faded out.
+   * @param {object} [options.data] - The data object containing the model information.
+   * @param {object} [options.data.model] - The model to use for retrieving filter configurations.
    */
   async drawFilterEffects(options) {
     Logger.debug('WeatherEffectsLayer.drawFilterEffects(...)', { 'options': options })
@@ -152,6 +151,8 @@ export class WeatherEffectsLayer extends CanvasLayer {
     }) ?? []
     this.activeFilters = {}
 
+    if (!Utils.getSetting('enableFx', true)) return
+
     // Get and initialize filters
     if (options['data'] === undefined || options.data['model'] === undefined) {
       Logger.debug('WeatherEffectsLayer.drawFilterEffects() no model data contained, no filters.')
@@ -168,10 +169,10 @@ export class WeatherEffectsLayer extends CanvasLayer {
   }
 
   /**
-   * TODO Draws the filters
-   * 
-   * @param {object} options soft -> ease out and ease in
-   * @returns 
+   * Asynchronously draws particle effects on the canvas environment layer based on the given options.
+   * @async
+   * @param {object} options - The options for the particles to add to the scene.
+   * @param {boolean} [options.soft=false] - Whether the particle effects should be "soft"-eased out.
    */
   async drawParticleEffects(options) {
     options = foundry.utils.mergeObject({ 'soft': false }, options)
@@ -195,15 +196,13 @@ export class WeatherEffectsLayer extends CanvasLayer {
       }
     }))
 
-    const fxEnabled = true  // TODO via config and setting
-
-    if (fxEnabled) {
+    if (Utils.getSetting('enableFx', true)) {
       const newEffect = new WeatherEffect(this.particleEffectsContainer, options)
       newEffect.play({ easeIn: options.soft })
       this.activeEffects.push(newEffect)
     }
 
-    Logger.debug('waiting for emitters to clean up softly', { 'effects': this.activeEffects })
+    Logger.debug('waiting for emitters to clean up (softly)', { 'effects': this.activeEffects, 'soft': options.soft })
     await stopPromise
     Logger.debug('cleaned up emitters', { 'effects': this.activeEffects })
   }

@@ -130,6 +130,26 @@ export const registerSettings = function () {
     }
   })
 
+  game.settings.register(MODULE.ID, 'maxParticles', {
+    name: Utils.i18n('settings.maxParticles.name'),
+    hint: Utils.i18n('settings.maxParticles.hint'),
+    scope: 'client',
+    config: true,
+    type: Number,
+    range: {
+      min: 200,
+      max: 32000,
+      step: 200
+    },
+    default: 3200,
+    onChange: (value) => {
+      onChangeFunction({
+        'id': 'maxParticles',
+        'value': value
+      })
+    }
+  })
+
   game.settings.register(MODULE.ID, 'uiVisible', {
     name: 'settings.uiVisible.name',
     scope: 'client',

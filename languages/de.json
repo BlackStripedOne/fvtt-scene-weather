@@ -3,14 +3,30 @@
     "fxname": "Scene Weather"
   },
   "settings": {
+    "enableFx": {
+      "hint": "Lokal die auto-visuellen Wetter Effekte der Scene, die durch SceneWeather generiert werden deaktivieren. Dies deaktiviert nur die Darstellung der Effekte auf der Scene, nicht jedoch das Wetter selbst.",
+      "name": "Wetter Effekte Aktivieren"
+    },
+    "cloudsAlpha": {
+      "hint": "Wie sichtbar sollen Wolken, Nebel oder andere Flächendeckende Effekte auf der Scene sein. 0% deaktiviert Wolken visuell.",
+      "name": "Sichtbarkeit von Wolken"
+    },
+    "precipitationAlpha": {
+      "hint": "Wie sichtbar soll die Darstellung von Niederschlägen, wie Regen, Niesel, Schnee, Hagel usw. sein. 0% deaktiviert Niederschläge visuell.",
+      "name": "Sichtbarkeit von Niederschlägen"
+    },
+    "maxParticles": {
+      "hint": "Die maximale Anzahl der dargestellten Partikel (Wolken, Regentropfen, Schneeflocken, usw.) kann begrenzt werden, falls dies die Performance auf dem Browser einschränkt. Typische Werte sind ~1000 bei einem älteren mobilen Gerät und ~28000 bei einer modernen Grafikkarte.",
+      "name": "Maximale Anzahl der dargestellten Partikel"
+    },
     "debug": {
-      "hint": "Debug Ausgabe für die Konsole aktivieren",
+      "hint": "Lokale Debug-Ausgabe für die Konsole aktivieren",
       "name": "Debugging Aktivieren"
     }
   },
   "meteo": {
     "precise": "",
-    "perceptive": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}}, {{localize clouds.type}}. Es {{localize precipitation.type}} {{localize precipitation.amountId}}.{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}({{name}}) Wind{{wind.direction}}",
+    "perceptive": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}} {{localize clouds.type}}.{{#if (ne precipitation.amountId 'meteo.nothing')}} Es {{localize precipitation.type}}{{localize precipitation.amountId}}.{{/if}}{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}<!--Template:{{name}}-->",
     "general": "",
     "iconogram": "",
     "n": "Norden",
@@ -56,14 +72,14 @@
     "dry": "trockene",
     "comfortable": "angenehme",
     "pleasant": "wohltuende",
-    "sticky": "klebrige",
+    "sticky": "satte",
     "humid": "feuchte",
     "oppressive": "drückende",
     "freezing": "eisige",
     "cold": "kalte",
     "chill": "kühle",
     "fresh": "frische",
-    "moderate": "moderate",
+    "moderate": "",
     "mild": "milde",
     "warm": "warme",
     "hot": "heisse",
@@ -71,11 +87,11 @@
     "gloomy": "trübe",
     "shaded": "bedeckte",
     "normal": "",
-    "bright": "grell",
+    "bright": "grelle",
     "skc": "wolkenlos",
     "few": "wenige",
-    "sct": "vereinzelte",
-    "bkn": "ausser mit kleinen Lücken",
+    "sct": "nur vereinzelt bewölkt",
+    "bkn": "ausser mit kleinen Lücken, bedeckt",
     "ovc": "bedeckt",
     "none": "",
     "fog": "Nebel",
@@ -87,10 +103,10 @@
     "high": "hohen",
     "veryhigh": "sehr hochragenden",
     "nothing": "",
-    "slight": "wenig",
-    "average": "mäßig",
-    "heavy": "stark",
-    "extreme": "extrem",
+    "slight": " ein wenig",
+    "average": " mäßig",
+    "heavy": " stark",
+    "extreme": " extrem",
     "drizzle": "Nieselt",
     "rain": "Regnet",
     "downpour": "Schüttet",

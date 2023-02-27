@@ -47,6 +47,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const stratusConfig = foundry.utils.deepClone({
+        weight: 0.7,
         behaviors: [
           {
             type: 'alpha',

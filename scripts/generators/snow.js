@@ -55,6 +55,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const snowConfig = Utils.deepClone({
+        weight: 0.2,
         lifetime: {
           min: 4,
           max: 4

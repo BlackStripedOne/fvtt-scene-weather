@@ -33,6 +33,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const fogConfig = foundry.utils.deepClone({
+        weight: 0.9,
         lifetime: {
           min: 10,
           max: 25

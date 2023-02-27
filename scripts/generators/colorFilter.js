@@ -35,7 +35,7 @@ export class ColorFilter extends PIXI.filters.AdjustmentFilter {
    * Stop and destroy this filter.  
    */
   async destroy() {
-    this.enabled = false    
+    this.enabled = false
     return true
   }
 

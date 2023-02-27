@@ -39,6 +39,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const cumulusConfig = foundry.utils.deepClone({
+        weight: 0.8,
         behaviors: [
           {
             type: 'alpha',

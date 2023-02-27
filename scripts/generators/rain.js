@@ -57,6 +57,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const rainConfig = foundry.utils.deepClone({
+        weight: 0.2,
         lifetime: {
           min: 0.5,
           max: 0.5

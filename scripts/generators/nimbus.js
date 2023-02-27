@@ -33,6 +33,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       }
 
       const nimbusConfig = foundry.utils.deepClone({
+        weight: 0.9,
         behaviors: [
           {
             type: 'alpha',

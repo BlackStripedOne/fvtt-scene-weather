@@ -1,8 +1,27 @@
+/*
+Copyright (c) 2023 BlackStripedOne
+This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+
+You may obtain a copy of the License at:
+https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Code written by BlackStripedOne can be found at:
+https://github.com/BlackStripedOne
+
+This source is part of the SceneWeather module for FoundryVTT virtual tabletop game that can be found at:
+https://github.com/BlackStripedOne/fvtt-scene-weather
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+*/
+
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
 import { SceneWeather } from './sceneWeather.js'
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+  Logger.debug('->Hook:WeatherUpdated -> WeatherUI.update(...)')
   // TODO only for GMs?
   if (data.sceneId == canvas.scene._id && data.info !== undefined) {
     WeatherUi.update(data.info)
@@ -10,9 +29,8 @@ Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
 })
 
 Hooks.on('renderWeatherUi', () => {
-  Logger.debug('Hook:renderWeatherUi')
-  const weatherInfo = game.sceneWeather.get().getWeatherInfo()
-  WeatherUi.update(weatherInfo)
+  Logger.debug('->Hook:renderWeatherUi')
+  WeatherUi.update()
 })
 
 /**
@@ -20,6 +38,7 @@ Hooks.on('renderWeatherUi', () => {
  */
 export class WeatherUi extends FormApplication {
   static _isOpen = false
+  static _weatherInfo = {}
 
   async _render(force = false, options = {}) {
     await super._render(force, options)
@@ -74,8 +93,9 @@ export class WeatherUi extends FormApplication {
   }
 
   getData() {
-    let sceneWeather = game.sceneWeather.get()
-    return sceneWeather.getWeatherInfo()
+    // let sceneWeather = game.sceneWeather.get()
+    // return sceneWeather.getWeatherInfo()
+    return WeatherUi._weatherInfo
   }
 
   activateListeners(html) {
@@ -212,9 +232,12 @@ export class WeatherUi extends FormApplication {
     }
   }
 
-  static async update(weatherInfo) {
+  static async update(weatherInfo = null) {
+    if (weatherInfo == null) weatherInfo = WeatherUi._weatherInfo
     Logger.debug('WeatherUi.update(...)', { 'weatherInfo': weatherInfo })
+    WeatherUi._weatherInfo = weatherInfo
     if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
+      // TODO depending on user setting for precision
       const weatherInfoHtml = SceneWeather.getPerceptiveWeatherI18n(weatherInfo)
       $('#weatherInfo').html(weatherInfoHtml);
     }

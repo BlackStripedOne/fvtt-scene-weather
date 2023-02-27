@@ -1,6 +1,24 @@
+/*
+Copyright (c) 2023 BlackStripedOne
+This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+
+You may obtain a copy of the License at:
+https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Code written by BlackStripedOne can be found at:
+https://github.com/BlackStripedOne
+
+This source is part of the SceneWeather module for FoundryVTT virtual tabletop game that can be found at:
+https://github.com/BlackStripedOne/fvtt-scene-weather
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+*/
+
 import { Generators } from './generators.js'
 import { Logger, Utils } from '../utils.js'
-import { MODULE } from '../constants.js'
+import { MODULE, CLOUD_TYPE } from '../constants.js'
 
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   Logger.debug('registered generator for cumulus')
@@ -12,20 +30,12 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
         return undefined
       }
 
-      /*
-       cloud types:
-       0: none
-       1: groundfog
-       2: stratus
-       3: cumulus
-       4: cumulunimbus
-      */
-      if (![3, 4].includes(modelData.clouds.type)) return null
+      if (![CLOUD_TYPE.cumulus, CLOUD_TYPE.cumulunimbus].includes(modelData.clouds.type)) return null
 
       let generatorOptions = {
-        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
+        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,                    // Client based percentage for cloud transparency
         direction: (Math.round(modelData.wind.direction) + 90) % 360,         // 0..359 via Winddirection
-        speed: Utils.map(modelData.wind.speed, 10, 70, 0.2, 3.0),  // 0.2 nearly no wind, 4 much wind, 5 storm
+        speed: Utils.map(modelData.wind.speed, 10, 70, 0.2, 3.0),             // 0.2 nearly no wind, 4 much wind, 5 storm
         scale: Utils.map(modelData.clouds.coverage, 0.3, 1, 0.8, 1),          // 1 few clouds, 2 overcast
         lifetime: 1,
         density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.005, 0.02),   // 0.01 few clouds, 0.1 overcast

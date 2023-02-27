@@ -1,3 +1,21 @@
+/*
+Copyright (c) 2023 BlackStripedOne
+This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+
+You may obtain a copy of the License at:
+https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Code written by BlackStripedOne can be found at:
+https://github.com/BlackStripedOne
+
+This source is part of the SceneWeather module for FoundryVTT virtual tabletop game that can be found at:
+https://github.com/BlackStripedOne/fvtt-scene-weather
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+*/
+
 import { MODULE } from './constants.js'
 
 /**
@@ -33,33 +51,43 @@ export class Logger {
 export class Utils {
 
   /**
-   * TODO
-   */
+  * Returns the SceneWeather API instance.
+  * @returns {Object} The SceneWeather API instance.
+  */
   static getApi() {
     return game.sceneWeather
   }
 
   /**
-   * TODO
+   * Clamps a number between a minimum and maximum value.
    * 
-   * @param {*} number 
-   * @param {*} min 
-   * @param {*} max 
-   * @returns 
+   * @param {number} number - The number to clamp.
+   * @param {number} min - The minimum value the number can be.
+   * @param {number} max - The maximum value the number can be.
+   * @returns {number} The clamped number.
+   * 
    */
   static clamp(number, min, max) {
     return Math.min(Math.max(number, min), max)
   }
 
   /**
-   * TODO
+   * Maps a value from one range to another range.
    * 
-   * @param {*} current 
-   * @param {*} inMin 
-   * @param {*} inMax 
-   * @param {*} outMin 
-   * @param {*} outMax 
-   * @returns 
+   * @param {number} current - The value to map.
+   * @param {number} inMin - The minimum value of the current range.
+   * @param {number} inMax - The maximum value of the current range.
+   * @param {number} outMin - The minimum value of the target range.
+   * @param {number} outMax - The maximum value of the target range.
+   * @returns {number} The mapped value.
+   * 
+   * @example
+   * const current = 50;
+   * const inMin = 0;
+   * const inMax = 100;
+   * const outMin = 0;
+   * const outMax = 1;
+   * const mappedValue = map(current, inMin, inMax, outMin, outMax); // Returns 0.5
    */
   static map(current, inMin, inMax, outMin, outMax) {
     const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
@@ -67,8 +95,14 @@ export class Utils {
   }
 
   /**
-   * TODO
-   */
+   * Maps a numeric value between two ranges to a color value between two hexadecimal values.
+   * @param {number} current - The numeric value to map.
+   * @param {number} inMin - The minimum value of the input range.
+   * @param {number} inMax - The maximum value of the input range.
+   * @param {string} hexMin - The hexadecimal color value for the minimum output.
+   * @param {string} hexMax - The hexadecimal color value for the maximum output.
+   * @returns {string} - The hexadecimal color value that corresponds to the mapped value.
+*/
   static mapColorHex(current, inMin, inMax, hexMin, hexMax) {
     const { r: redMin, g: greenMin, b: blueMin } = foundry.utils.Color.from(hexMin)
     const { r: redMax, g: greenMax, b: blueMax } = foundry.utils.Color.from(hexMax)

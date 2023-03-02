@@ -42,10 +42,12 @@
     "/scripts/scene-weather.min.js"
   ],
   "scripts": [
-    "/lib/chart.min.js"
+    "/lib/chart.min.js",
+    "/lib/nouislider.min.js"
   ],
   "styles": [
-    "/styles/scene-weather.css"
+    "/styles/scene-weather.css",
+    "/styles/nouislider.css"
   ],
   "media": [
     {

@@ -17,7 +17,9 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { METEO } from './constants.js'
+import { METEO, MODULE } from './constants.js'
+import { TimeProvider } from './timeProvider.js'
+import { Noise } from './noise.js'
 
 /**
  *  WeatherModel produces SceneWeather (which also can be set via Weather Template option)
@@ -28,21 +30,27 @@ export class WeatherModel {
    * TODO
    * @param {*} param0 
    */
-  constructor({ regionMeteo, templateId = 'default' }) {
-    Logger.debug('WeatherModel:constrctor', { 'regionMeteo': regionMeteo, 'templateId': templateId })
+  constructor({ regionMeteo, templateId = 'default', useWeatherConfig }) {
+    Logger.debug('WeatherModel:constrctor', { 'regionMeteo': regionMeteo, 'templateId': templateId, 'useWeatherConfig': useWeatherConfig })
     this._cache = {}
-    if (regionMeteo === undefined) {
+    if (regionMeteo !== undefined) {
+      this.regionMeteo = regionMeteo
+      this.useConfigSceneId = undefined
+      this.updateConfig()
+    } else if (useWeatherConfig !== undefined) {
       this.regionMeteo = undefined
+      this.useConfigSceneId = useWeatherConfig
+      this.updateConfig()
+    } else {
+      this.regionMeteo = undefined
+      this.useConfigSceneId = undefined
       this.weatherData = Utils.getApi().weatherTemplates.find(template => template.id == templateId)
       if (this.weatherData === undefined) {
         this.weatherData = Utils.getApi().weatherTemplates[0]
         canvas.scene.setFlag(MODULE.ID, 'weatherTemplate', this.weatherData.id)
-        Logger.error('Unable to set weather template with id [' + templateId + '] reverting to ['+this.weatherData.id+']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
+        Logger.error('Unable to set weather template with id [' + templateId + '] reverting to [' + this.weatherData.id + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
       }
       this.weatherData.precipitation.mode = Utils.getSceneFlag('rainMode', 'winddir')
-    } else {
-      this.regionMeteo = regionMeteo
-      this.updateConfig()
     }
   }
 
@@ -59,6 +67,10 @@ export class WeatherModel {
       })
     })
     return res
+  }
+
+  static fromSceneConfig(sceneId) {
+    return new WeatherModel({ 'useWeatherConfig': sceneId })
   }
 
   /**
@@ -82,7 +94,7 @@ export class WeatherModel {
   /**
    * TODO
    */
-  updateConfig() {    
+  updateConfig() {
     // update on potentially changed settings on the scene or default values
     // TODO    
     if (this.regionMeteo !== undefined) {
@@ -91,6 +103,65 @@ export class WeatherModel {
       this._cache = {}
       // update with new settings
       return this.regionMeteo.updateConfig()
+    } if (this.useConfigSceneId !== undefined) {
+      Logger.debug('WeatherModel.updateConfig() -> getting weatherConfig from Scene.', { 'configSceneId': this.useConfigSceneId })
+      // update weather from sceneConfig by sceneId of global
+
+      let sourceId = this.useConfigSceneId
+      let weatherConfig = game.scenes.get(this.useConfigSceneId)?.getFlag(MODULE.ID, 'weatherSettings') ?? undefined
+      Logger.debug('WeatherModel.updateConfig()', { 'weatherConfig': weatherConfig })
+
+      // if no scene data set, use game setting defaults
+      if (!weatherConfig) {
+        weatherConfig = Utils.getSetting('defaultWeatherSettings')
+        sourceId = '_GLOBAL_'
+      }
+
+      // initiate noise
+      this._noise = Noise.createNoise2D(0) // TODO use configurable seed
+
+      const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
+      const windDirection = Math.trunc(weatherConfig.wind.directionType == 1 ? WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(), windGusts) : weatherConfig.wind.direction)
+
+      let newWeatherData = {
+        'source': sourceId,
+        'name': 'custom',
+        'temp': {
+          'ground': weatherConfig.temp.ground,
+          'air': weatherConfig.temp.air,
+          'percieved': Math.trunc(WeatherModel._apparentTemperature(weatherConfig.temp.air, weatherConfig.wind.speed, weatherConfig.humidity, METEO.isaSeaLevelPa / 100))
+        },
+        'wind': {
+          'speed': weatherConfig.wind.speed,
+          'gusts': windGusts,
+          'direction': windDirection,
+          'directionType': weatherConfig.wind.directionType
+        },
+        'clouds': {
+          'coverage': weatherConfig.clouds.coverage / 100,  // we use fractions here
+          'bottom': weatherConfig.clouds.bottom,
+          'top': weatherConfig.clouds.bottom + weatherConfig.clouds.thickness,
+          'type': weatherConfig.clouds.type
+        },
+        'precipitation': {
+          'amount': weatherConfig.precipitation.amount / 100,  // we use fractions here
+          'type': weatherConfig.precipitation.type,
+          'mode': Utils.getSceneFlag('rainMode', 'winddir')
+        },
+        'sun': {
+          'amount': weatherConfig.sun.amount / 100  // we use fractions here,
+        },
+        'humidity': weatherConfig.humidity
+      }
+
+      if (foundry.utils.objectsEqual(this.weatherData, newWeatherData)) {
+        Logger.debug('WeatherModel.updateConfig() -> static from sceneConfig, no changes.')
+        return false
+      } else {
+        this.weatherData = newWeatherData
+        Logger.debug('WeatherModel.updateConfig() -> static from sceneConfig', { 'sceneId': this.useConfigSceneId, 'weatherData': this.weatherData })
+        return true
+      }
     } else {
       if (this.weatherData.precipitation.mode == Utils.getSceneFlag('rainMode', 'winddir')) {
         Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
@@ -110,9 +181,7 @@ export class WeatherModel {
    * @returns 
    */
   getWeatherData(dayOffset = 0, hourOffset = 0) {
-    if (this.regionMeteo === undefined) {
-      return this.weatherData
-    } else {
+    if (this.regionMeteo !== undefined) {
       let regionBaseValues = this.regionMeteo.getRegionBase(dayOffset, hourOffset)
 
       // implement caching for already calculated regionBaseValues.timeHash
@@ -185,7 +254,9 @@ export class WeatherModel {
       }
 
       // Calculate precipitation amount
-      this.weatherData.precipitation.amount = Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 8, 0.8, 0.2) * this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 321, 32, 1, 0.5)
+      this.weatherData.precipitation.amount = Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1)
+        * Noise.getNoisedValue(this.regionMeteo._noise, regionBaseValues.timeHash + 321, 8, 0.8, 0.2)
+        * Noise.getNoisedValue(this.regionMeteo._noise, regionBaseValues.timeHash + 321, 32, 1, 0.5)
 
       // Recalculate gusts depending on rain amount
       this.weatherData.wind.gusts = this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 2.5 + 0.5)
@@ -207,16 +278,32 @@ export class WeatherModel {
       // Calculate ptecipitation type
       this.weatherData.precipitation.type = WeatherModel._calcPrecipitationType(this.weatherData)
 
-      // Calculate wind direction just for fanyness
-      this.weatherData.wind.direction = this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 1277, 512, 180, 180)
-      this.weatherData.wind.direction = this.weatherData.wind.direction + (this.regionMeteo._getNoisedValue(regionBaseValues.timeHash + 1277, 8, 16, 16) * (this.weatherData.wind.gusts * 0.2))
-      if (this.weatherData.wind.direction < 0) this.weatherData.wind.direction += 360
-      if (this.weatherData.wind.direction >= 360) this.weatherData.wind.direction -= 360
+      // Calculate wind direction just for fancyness
+      this.weatherData.wind.direction = WeatherModel._getNoisedWindDirection(this.regionMeteo._noise, regionBaseValues.timeHash, this.weatherData.wind.gusts)
 
       // Store in cache
       this._cache[regionBaseValues.timeHash] = this.weatherData
       return this.weatherData
+    } else if (this.useConfigSceneId !== undefined) {
+      // Just update the wind direction
+      Logger.debug('Updating wind direction for weatherConfig based weatherData...', { 'this.weatherData': this.weatherData })
+      if (this.weatherData.wind.directionType == 1) {
+        this.weatherData.wind.direction = WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(dayOffset, hourOffset), this.weatherData.wind.gusts)
+      }
+      return this.weatherData
+    } else {
+      return this.weatherData
     }
+  }
+
+  /**
+   * TODO
+   */
+  static _getNoisedWindDirection(noiseFunction, timeHash, gusts) {
+    let windDirection = Noise.getNoisedValue(noiseFunction, timeHash + 1277, 512, 180, 180) + (Noise.getNoisedValue(noiseFunction, timeHash + 1277, 8, 16, 16) * (gusts * 0.2))
+    if (windDirection < 0) windDirection += 360
+    if (windDirection >= 360) windDirection -= 360
+    return windDirection
   }
 
   /**

@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and limitations 
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
 import { RegionConfigDialog } from './regionConfig.js'
+import { WeatherConfigDialog } from './weatherConfig.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
 
@@ -42,56 +43,25 @@ export class WeatherTab {
       'weatherTemplate': 'default',	// via WeatherModel
       'regionTemplate': 'plains',		// via RegionMeteo
       'timeProvider': 'manual',
-      'dateProvider': 'manual',
-      'timeHour': 0,
-      'timeSeason': 0
+      'seed': 0
     }
     mergeObject(defaultOptions, weatherFlags, { overwrite: true })
 
     let tabData = {
       'data': defaultOptions,
-      'timeSeasons': [
+      'timeProviders': [    // TODO use TimeProvider to fill list
         {
-          'id': 0,
-          'name': 'Winter'
+          'id': 'internal',
+          'name': 'Use SceneWeather as time source'
         },
         {
-          'id': 90,
-          'name': 'Spring'
-        },
-        {
-          'id': 180,
-          'name': 'Summer'
-        },
-        {
-          'id': 270,
-          'name': 'Fall'
-        }
-      ],
-      'timeProviders': [
-        {
-          'id': 'small-time',
-          'name': 'SmallTime'
+          'id': 'external',
+          'name': 'Use an external time source'
         },
         {
           'id': 'simple-calendar',
-          'name': 'Simple Calendar'
-        },
-        {
-          'id': 'manual',
-          'name': 'Manual'
+          'name': 'Use Simple Calendar as time source'
         }
-      ],
-      'dateProviders': [
-        {
-          'id': 'simple-calendar',
-          'name': 'Simple Calendar'
-        },
-        {
-          'id': 'manual',
-          'name': 'Manual'
-        }
-
       ],
       'rainModes': [
         {
@@ -123,6 +93,11 @@ export class WeatherTab {
           'hint': 'Set a weather for the scene from a select choice of templates. The weather is static and will remain like that unless manually changed.'
         },
         {
+          'id': 'weatherAuto',
+          'name': 'Manual weather settings (static)',
+          'hint': 'Set the weather for the scene from manual set individual settings. The weather is static and will remain like that unless manually changed.'
+        },
+        {
           'id': 'regionTemplate',
           'name': 'Use region template (dynamic)',
           'hint': 'Let the weather be generated based on a selected region template from a choice list. The weather will change dynamically based on given time of day and the season in the year. If an automatic calendar or time module is installed, it will change with the flow of time.'
@@ -141,9 +116,10 @@ export class WeatherTab {
     tabData.weatherTemplates = WeatherModel.getTemplates()
     // Add available region templates
     tabData.regionTemplates = RegionMeteo.getTemplates()
+
     Logger.debug('Render TabData with', { 'tabData': tabData })
 
-    let tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData);
+    const tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData);
 
     // inject the weather tab
     $('.sheet-tabs', jQ).append($('<a>').addClass('item').attr('data-tab', "weather").html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> Weather'))
@@ -172,6 +148,13 @@ export class WeatherTab {
     jQ.find('button[data-key="flags.scene-weather.regionConfig"]').on('click', function () {
       Logger.debug('Clicked Config Region for Scene', { 'sceneId': app.document._id })
       const dia = new RegionConfigDialog(app.document._id)
+      dia.render(true)
+    })
+
+    // action on click for weather config button
+    jQ.find('button[data-key="flags.scene-weather.weatherConfig"]').on('click', function () {
+      Logger.debug('Clicked Config Weather for Scene', { 'sceneId': app.document._id })
+      const dia = new WeatherConfigDialog(app.document._id)
       dia.render(true)
     })
 

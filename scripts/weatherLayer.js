@@ -16,18 +16,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE } from './constants.js'
+import { MODULE, GENERATOR_MODES } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { WeatherUi } from './weatherUi.js'
 import { MeteoUi } from './meteoUi.js'
 import { WeatherEffectsLayer } from './weatherFxLayer.js'
+import { RegionConfigDialog } from './regionConfig.js'
+import { WeatherConfigDialog } from './weatherConfig.js'
 
 /**
  * Layer for the scene-weather. FEATURE placeable sources and sinks on this layer
  */
 export class WeatherLayer extends InteractionLayer {
 
-static registerLayers() {
+  static registerLayers() {
     // add weather layer
     CONFIG.Canvas.layers.sceneweather = {
       layerClass: WeatherLayer,
@@ -60,11 +62,37 @@ static registerLayers() {
         name: "Toggle Meteogram",
         title: 'Toggle Meteogram',
         icon: "fas fa-solid fa-chart-line",
-        visible: game.user.isGM && ['regionTemplate', 'regionAuto'].includes(Utils.getSceneFlag('weatherMode', 'disabled')),
+        visible: game.user.isGM && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         toggle: true,
         active: MeteoUi._isOpen,
         onClick: () => {
           MeteoUi.toggleAppVis('toggle');
+        }
+      },
+      {
+        name: "Weather Settings",
+        title: 'Weather Settings',
+        icon: "fas fa-solid fa-sliders",
+        visible: game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
+        button: true,
+        onClick: () => {
+          if (game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+            const dia = new WeatherConfigDialog(canvas.scene._id)
+            dia.render(true)
+          }
+        }
+      },
+      {
+        name: "Region Settings",
+        title: 'Region Settings',
+        icon: "fas fa-solid fa-sliders",
+        visible: game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
+        button: true,
+        onClick: () => {
+          if (game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+            const dia = new RegionConfigDialog(canvas.scene._id)
+            dia.render(true)
+          }
         }
       },
       {

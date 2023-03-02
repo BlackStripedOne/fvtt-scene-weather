@@ -16,12 +16,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE } from './constants.js'
+import { MODULE, EVENTS } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { RegionConfigDialog } from './regionConfig.js'
+import { WeatherConfigDialog } from './weatherConfig.js'
 
 function onChangeFunction(value) {
-  Hooks.callAll(MODULE.LCCNAME + 'SettingsUpdated', value)
+  Hooks.callAll(EVENTS.SETTINGS_UPDATED, value)
 }
 
 export const registerSettings = function () {
@@ -35,17 +36,17 @@ export const registerSettings = function () {
 
   // https://foundryvtt.wiki/en/development/api/settings
   game.settings.registerMenu(MODULE.ID, "defaultRegionSettingsMenu", {
-    name: "Default Region Settings",
-    label: "Default Region Settings",      // The text label used in the button
-    hint: "A description of what will occur in the submenu dialog.",
-    icon: "fas fa-bars",               // A Font Awesome icon used in the submenu button
-    type: RegionConfigDialog,   // A FormApplication subclass
-    restricted: true                   // Restrict this submenu to gamemaster only?
-  });
+    name: Utils.i18n('settings.defaultRegionSettingsMenu.name'),
+    label: Utils.i18n('settings.defaultRegionSettingsMenu.label'),
+    hint: Utils.i18n('settings.defaultRegionSettingsMenu.hint'),
+    icon: "fas fa-bars",
+    type: RegionConfigDialog,
+    restricted: true
+  })
 
   game.settings.register(MODULE.ID, 'defaultRegionSettings', {
-    scope: 'world',     // "world" = sync to db, "client" = local storage
-    config: false,      // we will use the menu above to edit this setting
+    scope: 'world',
+    config: false, // we will use the menu above to edit this setting
     type: Object,
     default: {
       'elevation': 0,
@@ -87,8 +88,49 @@ export const registerSettings = function () {
           'var': 0
         }
       }
-    },        // can be used to set up the default structure
-  });
+    }
+  })
+
+  game.settings.registerMenu(MODULE.ID, "defaultWeatherSettingsMenu", {
+    name: Utils.i18n('settings.defaultWeatherSettingsMenu.name'),
+    label: Utils.i18n('settings.defaultWeatherSettingsMenu.label'),
+    hint: Utils.i18n('settings.defaultWeatherSettingsMenu.hint'),
+    icon: "fas fa-bars",
+    type: WeatherConfigDialog,
+    restricted: true
+  })
+
+  game.settings.register(MODULE.ID, 'defaultWeatherSettings', {
+    scope: 'world',
+    config: false, // we will use the menu above to edit this setting
+    type: Object,
+    default: {
+      'temp': {
+        'ground': 0,
+        'air': 0
+      },
+      'wind': {
+        'speed': 0,
+        'gusts': 0,
+        'direction': 0,
+        'directionType': 0
+      },
+      'clouds': {
+        'coverage': 0,
+        'bottom': 0,
+        'thickness': 0,
+        'type': 0
+      },
+      'precipitation': {
+        'amount': 0,
+        'type': 0
+      },
+      'sun': {
+        'amount': 0,
+      },
+      'humidity': 0
+    }
+  })
 
   // Add all default values for new scenes...
   // TODO

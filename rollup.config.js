@@ -6,7 +6,8 @@ export default [
     input: {
       include: [
         'scripts/*.js',
-        'scripts/*/*.js'
+        'scripts/*/*.js',
+        'scripts/*/*/*.js'
       ],
       exclude: ['scripts/scene-weather.min.js']
     },

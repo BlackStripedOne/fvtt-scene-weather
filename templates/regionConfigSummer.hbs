@@ -1,0 +1,75 @@
+<fieldset class="sceneWeather-fieldSet">
+  <legend><i class="fas fa-solid fa-temperature-sun"></i> {{localize 'dialogs.regionConfig.temperature.title'}}</legend>
+  <div class="form-group">
+    <div class="sceneweather-slider" data-min="summer.temperature.night" data-max="summer.temperature.day"
+      data-range="-30,50" data-unit="°C"></div>
+    <input type="number" data-dtype="Number" name="summer.temperature.day" value="{{summer.temperature.day}}"
+      style="display:none;">
+    <input type="number" data-dtype="Number" name="summer.temperature.night" value="{{summer.temperature.night}}"
+      style="display:none;">
+  </div>
+  <div class="form-group">
+    <label for="summer.temperature.var">{{localize 'dialogs.regionConfig.temperature.varlabel'}}</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="20" step="1" value="{{summer.temperature.var}}">
+      <input type="number" data-dtype="Number" class="range-value unit small" name="summer.temperature.var"
+        placeholder="{{summer.temperature.var}}" value="{{summer.temperature.var}}"><span>{{localize
+        'dialogs.degCelsius'}}</span>
+    </div>
+  </div>
+  <p class="hint">{{localize 'dialogs.regionConfig.temperature.hint'}}</p>
+</fieldset>
+
+<fieldset class="sceneWeather-fieldSet">
+  <legend><i class="fas fa-solid fa-droplet-percent"></i> {{localize 'dialogs.regionConfig.humidity.title'}}</legend>
+  <div class="form-group">
+    <div class="sceneweather-slider" data-min="summer.humidity.night" data-max="summer.humidity.day" data-range="0,100"
+      data-unit="%"></div>
+    <input type="hidden" data-dtype="Number" name="summer.humidity.day" value="{{summer.humidity.day}}">
+    <input type="hidden" data-dtype="Number" name="summer.humidity.night" value="{{summer.humidity.night}}">
+  </div>
+  <div class="form-group">
+    <label for="summer.humidity.var">{{localize 'dialogs.regionConfig.humidity.varlabel'}}</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{summer.humidity.var}}">
+      <input type="number" data-dtype="Number" class="range-value unit small" name="summer.humidity.var"
+        placeholder="{{summer.humidity.var}}" value="{{summer.humidity.var}}"><span>{{localize
+        'dialogs.percent'}}</span>
+    </div>
+  </div>
+  <p class="hint">{{localize 'dialogs.regionConfig.humidity.hint'}}</p>
+</fieldset>
+
+<fieldset class="sceneWeather-fieldSet">
+  <legend><i class="fas fa-solid fa-windsock"></i> {{localize 'dialogs.regionConfig.wind.title'}}</legend>
+  <div class="form-group">
+    <label for="summer.wind.avg">{{localize 'dialogs.regionConfig.wind.avglabel'}}</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="70" step="1" value="{{summer.wind.avg}}">
+      <input type="number" data-dtype="Number" class="range-value unit" name="summer.wind.avg"
+        placeholder="{{summer.wind.avg}}" value="{{summer.wind.avg}}"><span>{{localize 'dialogs.kmh'}}</span>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="summer.wind.var">{{localize 'dialogs.regionConfig.wind.varlabel'}}</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="0" max="50" step="1" value="{{summer.wind.var}}">
+      <input type="number" data-dtype="Number" class="range-value unit" name="summer.wind.var"
+        placeholder="{{summer.wind.var}}" value="{{summer.wind.var}}"><span>{{localize 'dialogs.kmh'}}</span>
+    </div>
+  </div>
+  <p class="hint">{{localize 'dialogs.regionConfig.humidity.hint'}}</p>
+</fieldset>
+
+<fieldset class="sceneWeather-fieldSet">
+  <legend><i class="fas fa-solid fa-sun"></i> {{localize 'dialogs.regionConfig.sun.title'}}</legend>
+  <div class="form-group">
+    <label for="summer.sun.hours">{{localize 'dialogs.regionConfig.sun.avglabel'}}</label>
+    <div class="form-fields">
+      <input type="range" data-dtype="Number" min="1" max="23" step="1" value="{{summer.sun.hours}}">
+      <input type="number" data-dtype="Number" class="range-value unit" name="summer.sun.hours"
+        placeholder="{{summer.sun.hours}}" value="{{summer.sun.hours}}"><span>{{localize 'dialogs.hday'}}</span>
+    </div>
+  </div>
+  <p class="hint">{{localize 'dialogs.regionConfig.sun.hint'}}</p>
+</fieldset>

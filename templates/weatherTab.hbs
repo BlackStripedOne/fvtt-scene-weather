@@ -1,28 +1,61 @@
-<p class="notes">Scene Weather Meteogram</p>
-
-<canvas id="meteogram" width="200" height="100"></canvas>
-
-<label for="flags.scene-weather.weatherMode">Select Scene Weather Mode:</label>
-<select name="flags.scene-weather.weatherMode" data-type="String" class="select2" style="width:100%;">
-  {{selectOptions weatherModes selected=data.weatherMode nameAttr="id" labelAttr="name" localize=true}}
-</select>
+<div class="form-group">
+  <label for="flags.scene-weather.weatherMode">Select Scene Weather Mode:</label>
+  <div class="form-fields">
+    <select name="flags.scene-weather.weatherMode" data-type="String" class="select2" style="width:100%;">
+      {{selectOptions weatherModes selected=data.weatherMode nameAttr="id" labelAttr="name" localize=true}}
+    </select>
+  </div>
+  <p class="notes">Set the mode in which SceneWeather should control this scene's weather.</p>
+</div>
 
 <div id="sceneWeather.mode.disabled" class="sceneWeather-collapsibleModeOption">
-  <p class="notes">Scene Weather is disabled. All ambience effects and types are set via the foundry default settings in
-    Ambience.</p>
+  <h2>Disabled</h2>
+  <p class="notes">Scene Weather is disabled. SceneWeather does not influence this scene's weather or ambience. There
+    will be no weather information available on this scene.</p>
 </div>
 
 <div id="not_sceneWeather.mode.disabled" class="sceneWeather-collapsibleModeOption active">
-  <p class="notes">TODO Text</p>
-  <label for="flags.scene-weather.rainMode">Precipitation Mode</label>
-  <div class="form-fields">
-    <select name="flags.scene-weather.rainMode" data-dtype="String">
-      {{selectOptions rainModes selected=data.rainMode nameAttr="id" labelAttr="name" localize=true}}
-    </select>
+  <h2>General Settings</h2>
+  <div class="form-group">
+    <label for="flags.scene-weather.rainMode">Precipitation Mode</label>
+    <div class="form-fields">
+      <select name="flags.scene-weather.rainMode" data-dtype="String">
+        {{selectOptions rainModes selected=data.rainMode nameAttr="id" labelAttr="name" localize=true}}
+      </select>
+    </div>
+    <p class="notes">Define how the precipitation effects are redered visually. They can statically just fall from the
+      top of the screen down, show the wind direction or be influenced by the wind direction from a top-down path.</p>
+  </div>
+
+  <div class="form-group">
+    <label for="flags.scene-weather.seed">Generator Seed</label>
+    <div class="form-fields">
+      <input type="number" data-dtype="Number" name="flags.scene-weather.seed" placeholder="{{data.seed}}"
+        value="{{data.seed}}">
+    </div>
+    <p class="notes">Seed value for the procedural generated values for this scene. The same seed on different scenes
+      will make sure the weather is exactly the
+      same if all other weather settings are equal.
+    </p>
+  </div>
+
+  <div class="form-group">
+    <label for="flags.scene-weather.timeProvider">Time Provider</label>
+    <div class="form-fields">
+      <select name="flags.scene-weather.timeProvider" data-dtype="String">
+        {{selectOptions timeProviders selected=data.timeProvider nameAttr="id" labelAttr="name" localize=true}}
+      </select>
+    </div>
+    <p class="notes">Select the time provider for dynamic weather generation. If you select SceneWeather as your time
+      provider, additional elements will be shown on the weather info window to let you advance or revert the current
+      time and day. External time providers have SceneWeather rely on another means to change the current time of the
+      game/scene.
+    </p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.weatherTemplate" class="sceneWeather-collapsibleModeOption">
+  <h2>Scene Weather</h2>
   <p class="notes">Set a weather for the scene from a select choice of templates. The weather is static and will remain
     like that unless manually changed.</p>
   <div class="form-group">
@@ -32,10 +65,26 @@
         {{selectOptions weatherTemplates selected=data.weatherTemplate nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
+    <p class="notes">Select a predefined weather by its template.</p>
+  </div>
+</div>
+
+<div id="sceneWeather.mode.weatherAuto" class="sceneWeather-collapsibleModeOption">
+  <h2>Scene Weather</h2>
+  <p class="notes">Set a weather for the scene defined by manual settings. The weather is static and will remain
+    like that unless manually changed.</p>
+  <div class="form-group submenu">
+    <label>Weather Settings for this Scene</label>
+    <button type="button" data-key="flags.scene-weather.weatherConfig">
+      <i class="fas fa-bars"></i>
+      <label>Configure Weather Settings</label>
+    </button>
+    <p class="notes">Edit this scene's specific weather configuration manually.</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.regionTemplate" class="sceneWeather-collapsibleModeOption">
+  <h2>Scene Region</h2>
   <p class="notes">Let the weather be generated based on a selected region template from a choice list. The weather will
     change dynamically based on given time of day and the season in the year. If an automatic calendar or time module is
     installed, it will change with the flow of time.</p>
@@ -46,78 +95,21 @@
         {{selectOptions regionTemplates selected=data.regionTemplate nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
-  </div>
-  <div class="form-group">
-    <label for="flags.scene-weather.timeProvider">Time Provider</label>
-    <div class="form-fields">
-      <select name="flags.scene-weather.timeProvider" data-dtype="String">
-        {{selectOptions timeProviders selected=data.timeProvider nameAttr="id" labelAttr="name" localize=true}}
-      </select>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="flags.scene-weather.dateProvider">Date Provider</label>
-    <div class="form-fields">
-      <select name="flags.scene-weather.dateProvider" data-dtype="String">
-        {{selectOptions dateProviders selected=data.dateProvider nameAttr="id" labelAttr="name" localize=true}}
-      </select>
-    </div>
+    <p class="notes">Select a predefined regional settings by its template.</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.regionAuto" class="sceneWeather-collapsibleModeOption">
+  <h2>Scene Region</h2>
   <p class="notes">Let the weather be generated based on set attributes for the scene like mean temperature or
     elevation. The weather is dependant on a current time/date that needs to be provided to generate the dynamic weather
     based on all those parameters.</p>
-  <h2>Scene Location</h2>
-
   <div class="form-group submenu">
     <label>Region Settings for this Scene</label>
     <button type="button" data-key="flags.scene-weather.regionConfig">
       <i class="fas fa-bars"></i>
       <label>Configure Region Settings</label>
     </button>
-    <p class="notes">Edit this scenes specific region configuration to have the weather generate from.</p>
+    <p class="notes">Edit this scene's specific region configuration to have the weather generate from.</p>
   </div>
-</div>
-
-<!-- FEATURE
-<div id="sceneWeather.mode.manual" class="sceneWeather-collapsibleModeOption">
-  <p>Let the weather be generated based on specific set athmosphere and ambience parameters. The resulting weather is
-    independant of the current time.</p>
-
-  <div class="form-group submenu">
-    <label>Region Settings for this Scene</label>
-    <button type="button" data-key="flags.scene-weather.regionConfig">
-      <i class="fas fa-bars"></i>
-      <label>Configure Region Settings</label>
-    </button>
-    <p class="notes">Edit this scenes specific region configuration to have the weather generate from.</p>
-  </div>
-
-  - Ground Temperature
-  - Air Temperature
-  - Perceived Temperature
-  - Windspeed
-  - Wind Gusts
-  - Wind Direction
-  - Cloud Coverage
-  - Cloud Bottoms
-  - Cloud Tops
-  - Precipitation amount
-  - Precipitation type
-  - Humidity
-</div>
--->
-
-<!-- ( only if neither is available ) -->
-<div id="sceneWeather.timeProviderManual">
-
-  {{#if (eq data.timeProvider 'manual')}}
-  {{> manualTime}}
-  {{/if}}
-  {{#if (eq data.dateProvider 'manual')}}
-  {{> manualSeason}}
-  {{/if}}
-
 </div>

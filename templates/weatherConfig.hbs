@@ -1,0 +1,154 @@
+<form class="flexcol">
+  <p>{{localize 'dialogs.weatherConfig.hint'}}</p>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.temperature.title'}}</legend>
+    <div class="form-group">
+      <label for="temp.ground">{{localize 'dialogs.weatherConfig.temperature.ground'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="-30" max="50" step="1" value="{{temp.ground}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="temp.ground"
+          placeholder="{{temp.ground}}" value="{{temp.ground}}"><span>{{localize 'dialogs.degCelsius'}}</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="temp.air">{{localize 'dialogs.weatherConfig.temperature.air'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="-30" max="50" step="1" value="{{temp.air}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="temp.air"
+          placeholder="{{temp.air}}" value="{{temp.air}}"><span>{{localize 'dialogs.degCelsius'}}</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.humidity.title'}}</legend>
+    <div class="form-group">
+      <label for="humidity">{{localize 'dialogs.weatherConfig.humidity.label'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{humidity}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="humidity"
+          placeholder="{{humidity}}" value="{{humidity}}"><span>{{localize 'dialogs.percent'}}</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.wind.title'}}</legend>
+    <div class="form-group">
+      <label for="wind.speed">{{localize 'dialogs.weatherConfig.wind.speed'}}</label>
+      <div class="form-fields">
+        <select name="wind.speed" data-dtype="Number">
+          {{selectOptions windSpeeds selected=wind.speed nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="wind.gusts">{{localize 'dialogs.weatherConfig.wind.gusts'}}</label>
+      <div class="form-fields">
+        <select name="wind.gusts" data-dtype="Number">
+          {{selectOptions windGustTypes selected=wind.gusts nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="wind.directionType">{{localize 'dialogs.weatherConfig.wind.directionType'}}</label>
+      <div class="form-fields">
+        <select name="wind.directionType" data-dtype="Number">
+          {{selectOptions directionTypes selected=wind.directionType nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div id="windTypeGrp" class="form-group disabled">
+      <label for="wind.direction">{{localize 'dialogs.weatherConfig.wind.direction'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="0" max="359" step="1" value="{{wind.direction}}">
+        <input type="number" data-dtype="Number" class="range-value unit very-small" name="wind.direction"
+          placeholder="{{wind.direction}}" value="{{wind.direction}}"><span>{{localize 'dialogs.degree'}}</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.clouds.title'}}</legend>
+    <div class="form-group">
+      <label for="clouds.type">{{localize 'dialogs.weatherConfig.clouds.type'}}</label>
+      <div class="form-fields">
+        <select name="clouds.type" data-dtype="Number">
+          {{selectOptions cloudsTypes selected=clouds.type nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div id="cloudSectionGrp" class="">
+      <div class="form-group">
+        <label for="clouds.coverage">{{localize 'dialogs.weatherConfig.clouds.coverage'}}</label>
+        <div class="form-fields">
+          <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{clouds.coverage}}">
+          <input type="number" data-dtype="Number" class="range-value unit small" name="clouds.coverage"
+            placeholder="{{clouds.coverage}}" value="{{clouds.coverage}}"><span>{{localize 'dialogs.percent'}}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="clouds.bottom">{{localize 'dialogs.weatherConfig.clouds.bottom'}}</label>
+        <div class="form-fields">
+          <input type="range" data-dtype="Number" min="0" max="10000" step="100" value="{{clouds.bottom}}">
+          <input type="number" data-dtype="Number" class="range-value unit medium" name="clouds.bottom"
+            placeholder="{{clouds.bottom}}" value="{{clouds.bottom}}"><span>{{localize 'dialogs.meters'}}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="clouds.thickness">{{localize 'dialogs.weatherConfig.clouds.thickness'}}</label>
+        <div class="form-fields">
+          <input type="range" data-dtype="Number" min="0" max="10000" step="100" value="{{clouds.thickness}}">
+          <input type="number" data-dtype="Number" class="range-value unit medium" name="clouds.thickness"
+            placeholder="{{clouds.thickness}}" value="{{clouds.thickness}}"><span>{{localize 'dialogs.meters'}}</span>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset id="preciGrp" class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.precipitation.title'}}</legend>
+
+    <div class="form-group">
+      <label for="precipitation.type">{{localize 'dialogs.weatherConfig.precipitation.type'}}</label>
+      <div class="form-fields">
+        <select name="precipitation.type" data-dtype="Number">
+          {{selectOptions precipitationTypes selected=precipitation.type nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div id="previAmtGrp" class="form-group">
+      <label for="precipitation.amount">{{localize 'dialogs.weatherConfig.precipitation.amount'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{precipitation.amount}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="precipitation.amount"
+          placeholder="{{precipitation.amount}}" value="{{precipitation.amount}}"><span>{{localize
+          'dialogs.percent'}}</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend>{{localize 'dialogs.weatherConfig.sun.title'}}</legend>
+    <div class="form-group">
+      <label for="sun.amount">{{localize 'dialogs.weatherConfig.sun.amount'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{sun.amount}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="sun.amount"
+          placeholder="{{sun.amount}}" value="{{sun.amount}}"><span>{{localize 'dialogs.percent'}}</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer class="sheet-footer flexrow">
+    <button type="submit" name="submit">
+      <i class="fa fa-check"></i> {{localize 'dialogs.ok'}}
+    </button>
+  </footer>
+</form>

@@ -1,9 +1,62 @@
+.sceneWeather-fieldSet {
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 0 15px 5px 15px;
+  display: block;
+}
+
+.sceneWeather-fieldSet>.hint {
+  font-size: var(--font-size-11);
+  font-style: italic;
+  max-width: 500px;
+  line-height: var(--line-height-12);
+  color: var(--color-text-dark-secondary);
+  margin: 3px 0;
+}
+
+
+
+.unit {
+  flex: 0 1 65px !important;
+  padding-right: 40px !important;
+  text-align: right !important;
+}
+
+.unit+span {
+  position: absolute;
+  right: 45px;
+  display: inline-block;
+}
+
+.unit.very-small {
+  flex: 0 1 44px !important;
+  padding-right: 14px !important;
+}
+
+.unit.small {
+  flex: 0 1 48px !important;
+  padding-right: 20px !important;
+}
+
+.unit.medium {
+  flex: 0 1 60px !important;
+  padding-right: 20px !important;
+}
+
+
 .sceneWeather-collapsibleModeOption {
   display: none;
 }
 
 .sceneWeather-collapsibleModeOption.active {
   display: block;
+}
+
+.disabled {
+  pointer-events: none !important;
+  opacity: 0.3;
+  tab-index: -1;
 }
 
 .key {
@@ -142,4 +195,67 @@
   to {
     opacity: 0;
   }
+}
+
+
+
+
+
+
+
+
+
+.sceneweather-slider {
+  height: 6px !important;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d !important;
+  background: #999999 !important;
+  border-radius: 3px !important;
+  border: 1px solid #111 !important;
+  margin-bottom: 22px !important;
+  /* top: -5px !important; */
+}
+
+.sceneweather-slider .noUi-connect {
+  background: #c85019;
+  cursor: ew-resize;
+}
+
+.sceneweather-slider .noUi-origin {
+  /* width: 10%; */
+  /* height: 10%; */
+}
+
+.sceneweather-slider .noUi-handle {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d !important;
+  border: 1px solid #000000 !important;
+  height: 12px !important;
+  width: 12px !important;
+  border-radius: 2px !important;
+  top: -4px !important;
+  right: -6px !important;
+  background: #c85019 !important;
+  cursor: grab !important;
+}
+
+.sceneweather-slider .noUi-tooltip {
+  display: block;
+  position: absolute;
+  border: none;
+  border-radius: 3px;
+  background: url(/ui/denim-dark-090.png) repeat;
+  color: #efefe0;
+  font-size: 0.8em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  padding: 1px 5px 1px 5px;
+  text-align: center;
+  white-space: nowrap;
+  /* transform: translate(-50%, 200%); */
+  bottom: -180% !important;
+}
+
+/* Hide markers on slider handles */
+.sceneweather-slider .noUi-handle::before,
+.sceneweather-slider .noUi-handle::after {
+  display: none;
 }

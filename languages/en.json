@@ -2,7 +2,119 @@
   "sceneweather": {
     "fxname": "Scene Weather"
   },
+  "dialogs": {
+    "degCelsius": "°C",
+    "meters": "m",
+    "degree": "°",
+    "percent": "%",
+    "kmh": "kph",
+    "hday": "h/day",
+    "ok": "Ok",
+    "weatherConfig": {
+      "title": "Static weather settings",
+      "directionTypes": {
+        "fixed": "Fixed direction",
+        "noise": "Random meandering direction"
+      },
+      "windGustTypes": {
+        "none": "No gusts",
+        "some": "Some gusts",
+        "more": "Gusting strongly"
+      },
+      "noClouds": "No clouds",
+      "noPrecipitation": "No precipitation",
+      "hint": "Configure the static weather parameters.",
+      "temperature": {
+        "title": "Temperature",
+        "ground": "Ground temperature",
+        "air": "Air temperature"
+      },
+      "humidity": {
+        "title": "Humidity",
+        "label": "Relative humidity of the air"
+      },
+      "wind": {
+        "title": "Wind",
+        "speed": "Speed",
+        "gusts": "Gusts",
+        "directionType": "Direction type",
+        "direction": "Wind direction, N=0°"
+      },
+      "clouds": {
+        "title": "Clouds",
+        "type": "Type of clouds",
+        "coverage": "Coverage",
+        "bottom": "Cloud hight above ground",
+        "thickness": "Cloud layer thickness"
+      },
+      "precipitation": {
+        "title": "Precipitation",
+        "type": "Type of precipitation",
+        "amount": "Precipitation amount"
+      },
+      "sun": {
+        "title": "Sunshine",
+        "amount": "Sunshine amount"
+      }
+    },
+    "regionConfig": {
+      "title": "Settings for the region",
+      "generic": {
+        "headline": "Generic region rettings",
+        "title": "General Environment",
+        "eletitle": "Average Elevation",
+        "elehint": "Terrain elevation affects moisture distribution, influencing cloud and fog formation by determining cloud height and ground interaction.",
+        "vegetitle": "Average Vegetation amount",
+        "vegehint": "Vegetation amount affects water vapor introduced by increased surface area. Examples: 100% rainforest, 0% arid land/ocean/mountain.",
+        "watertitle": "Waterbodies",
+        "waterhint": "The amount of open water bodies is set in percent, impacting weather generation through humidity, precipitation, and temperature fluctuations. Higher coverage increases humidity and precipitation, while lower coverage may cause extreme temperatures and dry conditions."
+      },
+      "solstice": {
+        "headline": "Season dependant region settings",
+        "summer": "Summer Solstice",
+        "winter": "Winter Solstice"
+      },
+      "temperature": {
+        "title": "Temperature",
+        "varlabel": "Variation (+/- °C)",
+        "hint": "Adjust the day-/night temperature as well as the variation of temperature over all. Large differences between day and night indicate varied climate, while temperature fluctuations signal instability. No change suggests a stable climate."
+      },
+      "humidity": {
+        "title": "Humidity",
+        "varlabel": "Variation Amount",
+        "hint": "The relative humidity affects regional climate by influencing cloud formation, precipitation, heat index. The variability of humidity levels will impact extreme weather events, cloud formation, and precipitation patterns in the procedural climate generation."
+      },
+      "wind": {
+        "title": "Windspeed",
+        "avglabel": "Average Windspeed",
+        "varlabel": "Variation Amount",
+        "hint": "Adjust wind speed and variability to impact temperature, humidity, cloud formation, and precipitation patterns in the procedural climate generation. Higher variability leads to more potential gusting during extreme weathers."
+      },
+      "sun": {
+        "title": "Sun",
+        "avglabel": "Average hours of sunshine",
+        "hint": "The amount of sunshine hours during a day will impact the amount of evaporation of moisture, cloud formation and on sunrise/sunset times generation of radion based wind buildup and heatup of the air and surfaces."
+      },
+      "waterAmounts_0": "Desert, Rocky Wasteland (0%)",
+      "waterAmounts_5": "Plains, City (5%)",
+      "waterAmounts_10": "Meadow, Shrubland (10%)",
+      "waterAmounts_25": "Marsh, Some Rivers, Forest (25%)",
+      "waterAmounts_50": "Shoreline, Huge Lake (50%)",
+      "waterAmounts_75": "Small Island (75%)",
+      "waterAmounts_100": "Ocean (100%)"
+    }
+  },
   "settings": {
+    "defaultRegionSettingsMenu": {
+      "name": "Default settings for regions",
+      "label": "Change settings",
+      "hint": "Adjust the settings for a region that will be preset as the default for Scenes when there is no data, or they are set new. These can be changed individually in the scene settings."
+    },
+    "defaultWeatherSettingsMenu": {
+      "name": "Default settings for static weather",
+      "label": "Change settings",
+      "hint": "Adjust the settings for static weather, which will be preset as the default for scenes when there is no data, or when it is reset. These can be changed individually in the scene settings."
+    },
     "enableFx": {
       "hint": "Locally disable the scene's auto-visual weather effects generated by SceneWeather. This only disables the display of the effects on the Scene, but not the weather itself.",
       "name": "Enable weather effects"
@@ -22,6 +134,18 @@
     "debug": {
       "hint": "Enable debug logging in the console",
       "name": "Enable Debugging"
+    }
+  },
+  "templates": {
+    "region": {
+      "alpine": {
+        "name": "Alpine",
+        "description": "High-altitude region with low temperatures and often covered in snow and ice."
+      },
+      "chaparral": {
+        "name": "Chaparral",
+        "description": "Dry, shrubland region with hot summers and mild, rainy winters."
+      }
     }
   },
   "meteo": {

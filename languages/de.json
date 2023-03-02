@@ -2,7 +2,119 @@
   "sceneweather": {
     "fxname": "Scene Weather"
   },
+  "dialogs": {
+    "degCelsius": "°C",
+    "meters": "m",
+    "degree": "°",
+    "percent": "%",
+    "kmh": "km/h",
+    "hday": "h/Tag",
+    "ok": "Ok",
+    "weatherConfig": {
+      "title": "Statische Wetter Einstellungen",
+      "directionTypes": {
+        "fixed": "Feste Richtung",
+        "noise": "Procedural veränderliche Richtung"
+      },
+      "windGustTypes": {
+        "none": "Keine Böen",
+        "some": "Wenige Böen",
+        "more": "Viele Böen"
+      },
+      "noClouds": "Keine Wolken",
+      "noPrecipitation": "Kein Niederschlag",
+      "hint": "Einstellungen für die statischen Wetter Parameter.",
+      "temperature": {
+        "title": "Temperatur",
+        "ground": "Boden Temperatur",
+        "air": "Luft Temperatur"
+      },
+      "humidity": {
+        "title": "Relative Luftfeuchtigkeit",
+        "label": "Relative Luftfeuchtigkeit"
+      },
+      "wind": {
+        "title": "Wind",
+        "speed": "Stärke",
+        "gusts": "Böen",
+        "directionType": "Windrichtungs-Typ",
+        "direction": "Windrichtung, N=0°"
+      },
+      "clouds": {
+        "title": "Wolken",
+        "type": "Wolkenart",
+        "coverage": "Bedeckung des Himmels",
+        "bottom": "Wolkenhöhe über Grund",
+        "thickness": "Dicke der Wolkenschicht"
+      },
+      "precipitation": {
+        "title": "Niederschlag",
+        "type": "Art des Niederschlags",
+        "amount": "Niederschlagsmenge"
+      },
+      "sun": {
+        "title": "Sonnenschein",
+        "amount": "Intensität des Sonnenscheines"
+      }
+    },
+    "regionConfig": {
+      "title": "Einstellungen der Region",
+      "generic": {
+        "headline": "Allgemeine Einstellungen für die Region",
+        "title": "Scenen Umgebung",
+        "eletitle": "Bodenhöhe",
+        "elehint": "Die Geländehöhe beeinflusst die Feuchtigkeitsverteilung und beeinflusst die Wolken- und Nebelbildung, indem sie die Wolkenhöhe und die Bodeninteraktion bestimmt.",
+        "vegetitle": "Vegetationsdichte",
+        "vegehint": "Die Vegetationsdichte beeinflusst den Wasserdampf, der durch die vergrößerte Oberfläche eingeführt wird. Beispiele: 100 % Regenwald, 0 % trockenes Land/Meer/Berge.",
+        "watertitle": "Offene Wasserflächen",
+        "waterhint": "Die Menge der offenen Gewässer beeinflusst die Wetterbildung durch Feuchtigkeit, Niederschlag und Temperaturschwankungen. Eine höhere Abdeckung erhöht Feuchtigkeit und Niederschlag, während eine geringere Abdeckung extreme Temperaturen und trockene Bedingungen verursacht."
+      },
+      "solstice": {
+        "headline": "Jahreszeiten abhängige Einstellungen",
+        "summer": "Sommer Sonnenwende",
+        "winter": "Winter Sonnenwende"
+      },
+      "temperature": {
+        "title": "Temperatur",
+        "varlabel": "Variation (+/- °C)",
+        "hint": "Passe die Tag-/Nachttemperatur sowie den Temperaturverlauf insgesamt an. Große Unterschiede zwischen Tag und Nacht bewirken ein wechselhaftes Klima, während Temperaturschwankungen Instabilität erzeugen. Keine Veränderung bewirkt ein stabiles Klima in der Generation."
+      },
+      "humidity": {
+        "title": "Feuchtigkeit",
+        "varlabel": "Variation",
+        "hint": "Die relative Luftfeuchtigkeit beeinflusst das regionale Klima, indem sie Wolkenbildung, Niederschlag und Hitzeindex beeinflusst. Die Variabilität der Feuchtigkeitswerte wird sich auf extreme Wetterereignisse, Wolkenbildung und Niederschlagsmuster in der prozeduralen Klimaerzeugung auswirken."
+      },
+      "wind": {
+        "title": "Wind",
+        "avglabel": "Geschwindigkeit",
+        "varlabel": "Variation",
+        "hint": "Passe die Windgeschwindigkeit und -variabilität an, um Temperatur, Feuchtigkeit, Wolkenbildung und Niederschlagsmuster in der prozeduralen Klimagenerierung zu beeinflussen. Eine höhere Variabilität führt zu mehr potenziellen Böen bei extremen Wetterbedingungen."
+      },
+      "sun": {
+        "title": "Sonnenschein",
+        "avglabel": "Sonnenschein Stunden",
+        "hint": "Die Anzahl der Sonnenstunden während eines Tages wirkt sich auf die Menge der Verdunstung von Feuchtigkeit, die Wolkenbildung und die Entstehung von radionbasiertem Windaufbau und der Erwärmung der Luft und der Oberflächen bei Sonnenauf- und -untergangszeiten aus."
+      },
+      "waterAmounts_0": "Wüste, felsiges Ödland (0%)",
+      "waterAmounts_5": "Ebenen, Stadt (5%)",
+      "waterAmounts_10": "Wiese, Buschland (10%)",
+      "waterAmounts_25": "Sumpf, einige Flüsse, Wald (25%)",
+      "waterAmounts_50": "Küstenlinie, riesiger See (50%)",
+      "waterAmounts_75": "Kleine Insel (75%)",
+      "waterAmounts_100": "Meer (100%)"
+    }
+  },
   "settings": {
+    "defaultRegionSettingsMenu": {
+      "name": "Standard Einstellungen für Regionen",
+      "label": "Einstellungen ändern",
+      "hint": "Die Einstellungen für eine Region anpassen, die als Standard für Scenen voreingestellt wird, sofern keine Daten vorhanden sind, oder diese neu gesetzt werden. Diese können individuell bei den Scenen Einstellungen geändert werden."
+    },
+    "defaultWeatherSettingsMenu": {
+      "name": "Standard Einstellungen für statisches Wetter",
+      "label": "Einstellungen ändern",
+      "hint": "Die Einstellungen für statisches Wetter anpassen, die als Standard für Scenen voreingestellt werden, sodern keine Daten vorhanden sind, oder diese neu gesetzt werden. Diese können individuell bei den Scenen Einstellungen geändert werden."
+    },
     "enableFx": {
       "hint": "Lokal die auto-visuellen Wetter Effekte der Scene, die durch SceneWeather generiert werden deaktivieren. Dies deaktiviert nur die Darstellung der Effekte auf der Scene, nicht jedoch das Wetter selbst.",
       "name": "Wetter Effekte Aktivieren"
@@ -22,6 +134,18 @@
     "debug": {
       "hint": "Lokale Debug-Ausgabe für die Konsole aktivieren",
       "name": "Debugging Aktivieren"
+    }
+  },
+  "templates": {
+    "region": {
+      "alpine": {
+        "name": "Gebirge",
+        "description": "Hochgebirgsregion mit niedrigen Temperaturen und oft von Schnee und Eis bedeckt."
+      },
+      "chaparral": {
+        "name": "Gebirge",
+        "description": "Trockene, strauchige Region mit heißen Sommern und milden, regnerischen Wintern."
+      }
     }
   },
   "meteo": {

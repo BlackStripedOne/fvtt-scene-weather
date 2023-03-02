@@ -39,14 +39,13 @@ export class RegionMeteo {
       if (this.regionData === undefined) {
         this.regionData = Utils.getApi().regionTemplates[0]
         canvas.scene.setFlag(MODULE.ID, 'regionTemplate', this.regionData.id)
-        Logger.error('Unable to set region template with id [' + templateId + '] reverting to ['+this.regionData.id+']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
+        Logger.error('Unable to set region template with id [' + templateId + '] reverting to [' + this.regionData.id + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
       }
     } else {
       // TODO set parameters from scene config or if none found, from game defaults
       this.regionData = canvas.scene.getFlag(MODULE.ID, 'regionSettings')
     }
-    // TODO use configurable seed
-    this._noise = Noise.createNoise2D(0)
+    this._noise = Noise.createNoise2D(0) // TODO use configurable seed
     this.updateConfig()
   }
 
@@ -162,7 +161,7 @@ export class RegionMeteo {
     let todayTempDay = (this.regionData.summer.temperature.day - this.regionData.winter.temperature.day) * dateRelative + this.regionData.winter.temperature.day
     let todayTempNight = (this.regionData.summer.temperature.night - this.regionData.winter.temperature.night) * dateRelative + this.regionData.winter.temperature.night
     let todayTempVar = (this.regionData.summer.temperature.var - this.regionData.winter.temperature.var) * dateRelative + this.regionData.winter.temperature.var
-    baseValues.baseTemp = this._getNoisedValue(timeHash + 1282, 64, (todayTempDay - todayTempNight) * timeRelative + todayTempNight, todayTempVar)
+    baseValues.baseTemp = Noise.getNoisedValue(this._noise, timeHash + 1282, 64, (todayTempDay - todayTempNight) * timeRelative + todayTempNight, todayTempVar)
 
     // set waterAmount based on temperature
     if (baseValues.baseTemp < 0) baseValues.waterAmount = 0
@@ -171,7 +170,7 @@ export class RegionMeteo {
     let todayHumiDay = (this.regionData.summer.humidity.day - this.regionData.winter.humidity.day) * dateRelative + this.regionData.winter.humidity.day
     let todayHumiNight = (this.regionData.summer.humidity.night - this.regionData.winter.humidity.night) * dateRelative + this.regionData.winter.humidity.night
     let todayHumiVar = (this.regionData.summer.humidity.var - this.regionData.winter.humidity.var) * dateRelative + this.regionData.winter.humidity.var
-    baseValues.baseHumidity = Utils.clamp(this._getNoisedValue(timeHash + 732, 64, (todayHumiDay - todayHumiNight) * timeRelative + todayHumiNight, todayHumiVar), 0, 100)
+    baseValues.baseHumidity = Utils.clamp(Noise.getNoisedValue(this._noise, timeHash + 732, 64, (todayHumiDay - todayHumiNight) * timeRelative + todayHumiNight, todayHumiVar), 0, 100)
 
     // calculate sun amount TODO better calculation needed
     let todaySunHoursHlf = ((this.regionData.summer.sun.hours - this.regionData.winter.sun.hours) * dateRelative + this.regionData.winter.sun.hours) / 2
@@ -201,31 +200,11 @@ export class RegionMeteo {
     } else {
       factor = 1.1
     }
-    baseValues.wind = Utils.clamp(this._getNoisedValue(timeHash + 978, 16, factor * todayWindAvg, todayWindVar), 0, 80) // Maximum 80 m/s wind. Maybe overthink this.
-    baseValues.gusts = Utils.clamp(baseValues.wind + this._getNoisedValue(timeHash + 12, 8, factor * todayWindVar, todayWindVar), 0, 80)
+    baseValues.wind = Utils.clamp(Noise.getNoisedValue(this._noise, timeHash + 978, 16, factor * todayWindAvg, todayWindVar), 0, 80) // Maximum 80 m/s wind. Maybe overthink this.
+    baseValues.gusts = Utils.clamp(baseValues.wind + Noise.getNoisedValue(this._noise, timeHash + 12, 8, factor * todayWindVar, todayWindVar), 0, 80)
 
     this._cache[timeHash] = baseValues
     return baseValues
-  }
-
-  /**
-   * TODO
-   * 
-   * @param {*} timeHash 
-   * @param {*} mainAmpli 
-   * @param {*} baseValue 
-   * @param {*} variation 
-   * @returns 
-   * 
-   * @protected
-   */
-  _getNoisedValue(timeHash, mainAmpli, baseValue, variation) {
-    timeHash = timeHash / mainAmpli
-    let e = 1 * this._noise(1 * timeHash, 1 * timeHash) +
-      0.5 * this._noise(2 * timeHash, 2 * timeHash) +
-      0.25 * this._noise(4 * timeHash, 4 * timeHash)
-    let n = e / (1 + 0.5 + 0.25)
-    return baseValue + ((variation * n * 2) - variation)
   }
 
   /**

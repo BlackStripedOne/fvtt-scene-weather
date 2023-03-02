@@ -25,6 +25,20 @@ export const MODULE = {
   LCCNAME: 'sceneWeather'
 }
 
+export const GENERATOR_MODES = {
+  'WEATHER_TEMPLATE': 'weatherTemplate', // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic, static
+  'WEATHER_GENERATE': 'weatherAuto', // Weather from scene or global weatherConfig
+  'REGION_TEMPLATE': 'regionTemplate', // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
+  'REGION_GENERATE': 'regionAuto', // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
+  'DISABLED': 'disabled'
+}
+
+export const EVENTS = {
+  'SETTINGS_UPDATED': MODULE.LCCNAME + 'SettingsUpdated',
+  'REG_TEMPLATE_REGION': MODULE.LCCNAME + 'RegisterRegionTemplate',
+  'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate'
+}
+
 export const METEO = {
   'isaMSLtempC': 16,  // default temperature for the ISA at mean sea level in degC
   'isaSeaLevelPa': 101325, // default air pressure for the ISA at mean sea level in Pa
@@ -105,14 +119,14 @@ export const CLOUD_HEIGHT = {
 }
 
 export const TEMP_TYPES = {
-   'freezing': -7,
-   'cold': -3,
-   'chill': 3,
-   'fresh': 7,
-   'moderate': 18, 
-   'mild': 22,
-   'warm': 30,
-   'hot': 37,
-   'searing': Infinity
+  'freezing': -7,
+  'cold': -3,
+  'chill': 3,
+  'fresh': 7,
+  'moderate': 18,
+  'mild': 22,
+  'warm': 30,
+  'hot': 37,
+  'searing': Infinity
 }
- 
+

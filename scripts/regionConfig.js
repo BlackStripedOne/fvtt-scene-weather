@@ -44,7 +44,7 @@ export class RegionConfigDialog extends FormApplication {
       popOut: true,
       template: 'modules/' + MODULE.ID + '/templates/regionConfig.hbs',
       id: 'region-settings',
-      title: 'Region Settings',
+      title: 'dialogs.regionConfig.title',
       closeOnSubmit: true,
       submitOnChange: false,
       submitOnClose: false
@@ -53,11 +53,66 @@ export class RegionConfigDialog extends FormApplication {
 
   /**
    * TODO
-   * @param {*} html 
+   * @param {jQuery} jQ 
    */
-  activateListeners(html) {
-    super.activateListeners(html);
+  activateListeners(jQ) {
+    super.activateListeners(jQ);
     Logger.debug('RegionConfigDialog:activateListeners')
+
+    // inject tabbing
+    const tabs = new Tabs({ navSelector: ".tabs", contentSelector: ".content", initial: "summer", callback: {} })
+    tabs.bind(jQ[0])
+
+    // inject noUISliders
+    jQ.find('.sceneweather-slider').each(function (id) {
+      const sliderJQ = $(this)
+      const minInput = jQ.find('input[name="' + sliderJQ.attr('data-min') + '"]')
+      const maxInput = jQ.find('input[name="' + sliderJQ.attr('data-max') + '"]')
+      const range = sliderJQ.attr('data-range') || '0,100'
+      const unitString = sliderJQ.attr('data-unit') || '%'
+      const min = Number(range.split(',')[0] || 0)
+      const max = Number(range.split(',')[1] || min)
+
+      noUiSlider.create(sliderJQ[0], {
+        start: [
+          minInput.val() || 0,
+          maxInput.val() || 0
+        ],
+        tooltips: [
+          {
+            to: function (value) {
+              return value + unitString
+            },
+            from: function (value) {
+              return Number(value.replace(unitString, ''))
+            }
+          },
+          {
+            to: function (value) {
+              return value + unitString
+            },
+            from: function (value) {
+              return Number(value.replace(unitString, ''))
+            }
+          }],
+        behaviour: 'drag-all',
+        step: 1,
+        margin: 0,
+        padding: 0,
+        connect: true,
+        range: {
+          min: min,
+          max: max
+        }
+      })
+
+      sliderJQ[0].noUiSlider.on('change', function (values, handle, unencoded, tap, positions, noUiSlider) {
+        Logger.debug('Slider Update', { 'values': values, 'noUiSlider': noUiSlider })
+        minInput.val(values[0])
+        maxInput.val(values[1])
+      })
+    })
+
   }
 
   /**
@@ -69,45 +124,45 @@ export class RegionConfigDialog extends FormApplication {
       'waterAmounts': [
         {
           'id': 0,
-          'name': 'Desert, Rocky Wasteland (0%)'
+          'name': 'dialogs.regionConfig.waterAmounts_0'
         },
         {
           'id': 5,
-          'name': 'Plains, City (5%)'
+          'name': 'dialogs.regionConfig.waterAmounts_5'
         },
         {
           'id': 10,
-          'name': 'Meadow, Shrubland (10%)'
+          'name': 'dialogs.regionConfig.waterAmounts_10'
         },
         {
           'id': 25,
-          'name': 'Marsh, Some Rivers, Forest (25%)'
+          'name': 'dialogs.regionConfig.waterAmounts_25'
         },
         {
           'id': 50,
-          'name': 'Shoreline, Huge Lake (50%)'
+          'name': 'dialogs.regionConfig.waterAmounts_50'
         },
         {
           'id': 75,
-          'name': 'Small Island (75%)'
+          'name': 'dialogs.regionConfig.waterAmounts_75'
         },
         {
           'id': 100,
-          'name': 'Ocean (100%)'
+          'name': 'dialogs.regionConfig.waterAmounts_100'
         }
       ]
     }
 
     if (this.applyToScene === undefined) {
       // Settings default region
-      mergeObject(additionalData, game.settings.get(MODULE.ID, 'defaultRegionSettings'))
+      mergeObject(additionalData, Utils.getSetting('defaultRegionSettings'))
       Logger.debug('RegionConfigDialog:getData(general)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
     } else {
       // Setting for a specific scene
-      // TODO get setting from scene or default
-      let sceneData = game.scenes.get(this.applyToScene).getFlag(MODULE.ID, 'regionSettings')
-      // TODO if no scene data set, use game setting defaults
+      let sceneData = game.scenes.get(this.applyToScene)?.getFlag(MODULE.ID, 'regionSettings') ?? undefined
+      // if no scene data set, use game setting defaults
+      if (!sceneData) sceneData = Utils.getSetting('defaultRegionSettings')
       mergeObject(additionalData, sceneData)
       Logger.debug('RegionConfigDialog:getData(scene)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
@@ -123,11 +178,12 @@ export class RegionConfigDialog extends FormApplication {
     const data = expandObject(formData);
     // TODO also have choice between setting and scene
     Logger.debug('updateObject, regionConfig', { 'data': data, 'scene': this.applyToScene })
-    // TODO use Utils for game settings, scene Flags
     if (this.applyToScene === undefined) {
-      game.settings.set(MODULE.ID, 'defaultRegionSettings', data)
+      Utils.setSetting('defaultRegionSettings', data)
     } else {
+      // TODO use Utils for game settings, scene Flags
       game.scenes.get(this.applyToScene).setFlag(MODULE.ID, 'regionSettings', data)
+      // TODO fire event
     }
   }
 }

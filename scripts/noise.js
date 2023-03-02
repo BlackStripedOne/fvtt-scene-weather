@@ -70,6 +70,26 @@ export class Noise {
   )
 
   /**
+   * TODO
+   * 
+   * @param {*} noiseFunction 
+   * @param {*} timeHash 
+   * @param {*} mainAmpli 
+   * @param {*} baseValue 
+   * @param {*} variation 
+   * @returns 
+   * 
+   */
+  static getNoisedValue(noiseFunction, timeHash, mainAmpli, baseValue, variation) {
+    timeHash = timeHash / mainAmpli
+    let e = 1 * noiseFunction(1 * timeHash, 1 * timeHash) +
+      0.5 * noiseFunction(2 * timeHash, 2 * timeHash) +
+      0.25 * noiseFunction(4 * timeHash, 4 * timeHash)
+    let n = e / (1 + 0.5 + 0.25)
+    return baseValue + ((variation * n * 2) - variation)
+  }
+
+  /**
    * Samples the noise field in two dimensions and creates a 2D noise function
    * 
    * @param x - Coordinates should be finite, bigger than -2^31 and smaller than 2^31.

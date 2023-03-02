@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { TimeProvider } from './timeProvider.js'
-import { MODULE, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from './constants.js'
+import { MODULE, GENERATOR_MODES, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from './constants.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
 
@@ -47,21 +47,20 @@ export class SceneWeather {
    * @throws {Error} Will throw an error if the weather mode is invalid.
    */
   _getWeatherModelForMode(scene) {
-    this.weatherMode = scene.getFlag(MODULE.ID, 'weatherMode')
+    this.weatherMode = scene.getFlag(MODULE.ID, 'weatherMode') || GENERATOR_MODES.DISABLED
     Logger.debug('SceneWeather._getWeatherModelForMode(...)', { 'scene': scene, 'weatherMode': this.weatherMode })
     switch (this.weatherMode) {
-      case 'weatherTemplate':
-        // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic, static
+      case GENERATOR_MODES.WEATHER_TEMPLATE:
         const weatherTemplateId = scene.getFlag(MODULE.ID, 'weatherTemplate')
         return WeatherModel.fromTemplate(weatherTemplateId)
-      case 'regionTemplate':
-        // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
+      case GENERATOR_MODES.WEATHER_GENERATE:
+        return WeatherModel.fromSceneConfig(scene._id)
+      case GENERATOR_MODES.REGION_TEMPLATE:
         const regionTemplateId = scene.getFlag(MODULE.ID, 'regionTemplate')
         return WeatherModel.fromRegion(RegionMeteo.fromTemplate(regionTemplateId))
-      case 'regionAuto':
-        // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
+      case GENERATOR_MODES.REGION_GENERATE:
         return WeatherModel.fromRegion(new RegionMeteo()) // uses scene config of region and time provided by time provider
-      case 'disabled':
+      case GENERATOR_MODES.DISABLED:
       case undefined:
       default:
         throw new Error('Unable to instantiate new SceneWeather, while being disabled.')
@@ -193,14 +192,14 @@ export class SceneWeather {
     return octas[Math.round(amount * 8)]
   }
 
- /**
-  * Given a cloud type, returns a string identifier for the type in the format "meteo.<type>".
-  * @param {string} type - A string representing the cloud type to identify.
-  * @returns {string} - A string identifier in the format "meteo.<type>".
-  */
+  /**
+   * Given a cloud type, returns a string identifier for the type in the format "meteo.<type>".
+   * @param {string} type - A string representing the cloud type to identify.
+   * @returns {string} - A string identifier in the format "meteo.<type>".
+   */
   static _getCloudTypeId(type) {
     const [suffix] = Object.entries(CLOUD_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.cumulunimbus'   
+    return suffix ? `meteo.${suffix}` : 'meteo.cumulunimbus'
   }
 
   /**
@@ -221,7 +220,7 @@ export class SceneWeather {
    * @example
    * const intensity = _getSunAmountId(0.6); // 'meteo.normal'
   */
-  static _getSunAmountId(amount) {    
+  static _getSunAmountId(amount) {
     const [id] = Object.entries(SUN_INTENSITY).find(([, level]) => amount < level)
     return `meteo.${id}`
   }
@@ -233,19 +232,19 @@ export class SceneWeather {
    * @example
    * _getPrecipitationAmountId(0.5); // 'meteo.light'
    */
-  static _getPrecipitationAmountId(amount) {    
+  static _getPrecipitationAmountId(amount) {
     const [id] = Object.entries(PRECI_AMOUNT).find(([, level]) => amount < level)
     return `meteo.${id}`
   }
 
- /**
-  * Given a precipitation type, returns a string identifier for the type in the format "meteo.<type>".
-  * @param {string} type - A string representing the precipitation type to identify.
-  * @returns {string} - A string identifier in the format "meteo.<type>".
-  */
+  /**
+   * Given a precipitation type, returns a string identifier for the type in the format "meteo.<type>".
+   * @param {string} type - A string representing the precipitation type to identify.
+   * @returns {string} - A string identifier in the format "meteo.<type>".
+   */
   static _getPrecipitationTypeId(type) {
     const [suffix] = Object.entries(PRECI_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.none'    
+    return suffix ? `meteo.${suffix}` : 'meteo.none'
   }
 
   /**

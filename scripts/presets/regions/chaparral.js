@@ -20,23 +20,43 @@ import { Logger, Utils } from '../../utils.js'
 import { EVENTS } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  Logger.debug('registered regionTemplate for alpine')
+  // https://en.wikipedia.org/wiki/Chaparral
+  Logger.debug('registered regionTemplate for chaparral')
   Utils.getApi().regionTemplates.push({
-    'id': 'alpine',
-    'name': 'templates.region.alpine.name',
-    'description': 'templates.region.alpine.description',
+    'id': 'chaparral',
+    'name': 'templates.region.chaparral.name',
+    'description': 'templates.region.chaparral.description',
     'elevation': 1000,
-    'vegetation': 0,
-    'waterAmount': 0,
+    'vegetation': 5,
+    'waterAmount': 5,
     'summer': {
       'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 7.5
+        'day': 32.5,
+        "night": 17.5,
+        "var": 5
       },
       'humidity': {
-        'day': 50,
-        'night': 60,
+        'day': 60,
+        'night': 40,
+        'var': 5
+      },
+      'wind': {
+        'avg': 25,
+        'var': 10
+      },
+      'sun': {
+        'hours': 13
+      }
+    },
+    'winter': {
+      'temperature': {
+        'day': 17.5,
+        "night": 2.5,
+        "var": 5
+      },
+      'humidity': {
+        'day': 60,
+        'night': 50,
         'var': 5
       },
       'wind': {
@@ -44,26 +64,7 @@ Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
         'var': 10
       },
       'sun': {
-        'hours': 14
-      }
-    },
-    'winter': {
-      'temperature': {
-        'day': 0,
-        "night": -15,
-        "var": 7.5
-      },
-      'humidity': {
-        'day': 70,
-        'night': 60,
-        'var': 5
-      },
-      'wind': {
-        'avg': 40,
-        'var': 20
-      },
-      'sun': {
-        'hours': 10
+        'hours': 11
       }
     }
   })

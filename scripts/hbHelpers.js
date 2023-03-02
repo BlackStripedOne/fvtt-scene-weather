@@ -70,8 +70,8 @@ export const registerHbHelpers = function () {
 export const loadHandlebars = function () {
   // register templates parts  
   loadTemplates({
-    'manualTime': 'modules/' + MODULE.ID + '/templates/manualTime.hbs',
-    'manualSeason': 'modules/' + MODULE.ID + '/templates/manualSeason.hbs'
+    'regionConfigSummer': 'modules/' + MODULE.ID + '/templates/regionConfigSummer.hbs',
+    'regionConfigWinter': 'modules/' + MODULE.ID + '/templates/regionConfigWinter.hbs'
   });
   Logger.debug('HB partials loaded')
 

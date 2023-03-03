@@ -18,9 +18,10 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { TimeProvider } from './timeProvider.js'
-import { MODULE, GENERATOR_MODES, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from './constants.js'
+import { MODULE, GENERATOR_MODES } from './constants.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
+import { WeatherPerception } from './weatherPerception.js'
 
 /**
  * This class handles weather conditions for a scene in foundry virtual tabletop.
@@ -127,207 +128,17 @@ export class SceneWeather {
   calculateWeather({ force = false } = {}) {
     const currentTimeHash = TimeProvider.getCurrentTimeHash()
     const modelData = this.weatherModel.getWeatherData()
-    const weatherInfo = this._calculateWeatherInfoFromModelData(modelData)
+    // TODO get via perception model configured for user settings
+    const perceptionId = 'perceptive'
+    const weatherInfo = WeatherPerception.getAsWeatherInfo(perceptionId, modelData)
 
     Hooks.callAll(MODULE.LCCNAME + 'WeatherUpdated', {
-      'info': weatherInfo,
+      'info': weatherInfo, // TODO may not be required. Use Perciever instead
       'model': modelData,
       'timeHash': currentTimeHash,
       'sceneId': this.sceneId,
       'force': force
     })
-  }
-
-  /**
-   * Returns the perceived temperature category based on the input temperature.
-   * @param {number} temperature - The temperature value to be categorized.
-   * @returns {string} - The category of the perceived temperature.
-   */
-  static _getPercievedTempId(temperature) {
-    const [id] = Object.entries(TEMP_TYPES).find(([, level]) => temperature < level)
-    return `meteo.${id}`
-  }
-
-  /**
-  *
-  * Returns the ID of the wind direction based on the input direction angle.
-  * @param {number} direction - The wind direction angle in degrees.
-  * @returns {string} - The ID of the wind direction in the format "meteo.[direction]" where [direction] is the abbreviated direction name.
-  * For example, if the direction is 90 degrees (east), the function will return "meteo.e".
-  */
-  static _getWindDirId(direction) {
-    let val = Math.floor((direction / 22.5) + 0.5)
-    const arr = ["n", "nne", "ne", "ene", "e", "ese", "se", "sse", "s", "ssw", "sw", "wsw", "w", "wnw", "nw", "nnw"]
-    return "meteo." + arr[(val % 16)]
-  }
-
-  /**
-   * Returns the cloud height identifier based on the provided height value.
-   *
-   * @param {number} height - The height value to determine the cloud height identifier for.
-   * @returns {string} The cloud height identifier in the format 'meteo.{identifier}'.
-  */
-  static _getCloudHightId(height) {
-    const [id] = Object.entries(CLOUD_HEIGHT).find(([, level]) => height < level)
-    return `meteo.${id}`
-  }
-
-  /**
-   * Returns the meteorological identifier for the cloud amount based on the input amount.
-   * @param {number} amount - The amount of cloud cover, a number between 0 and 1.
-   * @returns {string} - The meteorological identifier for the cloud amount.
-   */
-  static _getCloudAmountId(amount) {
-    const octas = [
-      'meteo.skc', // Sky Clear
-      'meteo.few', // Few Clouds
-      'meteo.few', // Few Clouds
-      'meteo.sct', // Scattered Clouds
-      'meteo.sct', // Scattered Clouds
-      'meteo.bkn', // Broken Couds
-      'meteo.bkn', // Broken Clouds
-      'meteo.bkn', // Broken Clouds
-      'meteo.ovc'  // Overcast
-    ]
-    return octas[Math.round(amount * 8)]
-  }
-
-  /**
-   * Given a cloud type, returns a string identifier for the type in the format "meteo.<type>".
-   * @param {string} type - A string representing the cloud type to identify.
-   * @returns {string} - A string identifier in the format "meteo.<type>".
-   */
-  static _getCloudTypeId(type) {
-    const [suffix] = Object.entries(CLOUD_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.cumulunimbus'
-  }
-
-  /**
-   * Returns the humidity id that corresponds to a given humidity level.
-   *
-   * @param {number} humidity - The humidity level (in %).
-   * @returns {string} The humidity id.
-   */
-  static _getHumidityId(humidity) {
-    const [id] = Object.entries(HUMIDITY_LEVELS).find(([, level]) => humidity < level)
-    return `meteo.${id}`
-  }
-
-  /**
-   * Returns a string representing the sun intensity level based on the input amount.
-   * @param {number} amount - A number between 0 and 1 representing the amount of sun.
-   * @returns {string} - A string representing the sun intensity level.
-   * @example
-   * const intensity = _getSunAmountId(0.6); // 'meteo.normal'
-  */
-  static _getSunAmountId(amount) {
-    const [id] = Object.entries(SUN_INTENSITY).find(([, level]) => amount < level)
-    return `meteo.${id}`
-  }
-
-  /**
-   * Returns the precipitation amount id based on the amount of precipitation
-   * @param {number} amount - The amount of precipitation
-   * @returns {string} - The id of the precipitation amount
-   * @example
-   * _getPrecipitationAmountId(0.5); // 'meteo.light'
-   */
-  static _getPrecipitationAmountId(amount) {
-    const [id] = Object.entries(PRECI_AMOUNT).find(([, level]) => amount < level)
-    return `meteo.${id}`
-  }
-
-  /**
-   * Given a precipitation type, returns a string identifier for the type in the format "meteo.<type>".
-   * @param {string} type - A string representing the precipitation type to identify.
-   * @returns {string} - A string identifier in the format "meteo.<type>".
-   */
-  static _getPrecipitationTypeId(type) {
-    const [suffix] = Object.entries(PRECI_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.none'
-  }
-
-  /**
-   * Returns the wind speed identifier for a given wind object
-   * @param {Object} wind - The wind object containing speed and gusts properties
-   * @returns {string} - The wind speed identifier
-   */
-  static _getWindSpeedId(wind) {
-    let gusting = wind.gusts > 5 ? 'Gusting' : ''
-    const [id] = Object.entries(WIND_SPEED).find(([, level]) => wind.speed < level)
-    return `meteo.${id}${gusting}`
-  }
-
-  // Return localized string of weather info
-  static getPerceptiveWeatherI18n(meteoData) {
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive'))
-    const weatherInfoHtml = compiledTemplate(meteoData)
-    return weatherInfoHtml
-  }
-
-  _calculateWeatherInfoFromModelData(modelData) {
-    return {
-      'name': modelData.name,
-      'temperature': {
-        'air': Math.round(modelData.temp.air),
-        'ground': Math.round(modelData.temp.ground),
-        'percieved': Math.round(modelData.temp.percieved),
-        'percievedId': SceneWeather._getPercievedTempId(modelData.temp.percieved)
-      },
-      'humidity': {
-        'percent': Math.round(modelData.humidity),
-        'percentId': SceneWeather._getHumidityId(modelData.humidity)
-      },
-      'wind': {
-        'speed': Math.round(modelData.wind.speed),
-        'gusts': Math.round(modelData.wind.gusts),
-        'speedId': SceneWeather._getWindSpeedId(modelData.wind),
-        'direction': Math.round(modelData.wind.direction),
-        'directionId': SceneWeather._getWindDirId(modelData.wind.direction)
-      },
-      'clouds': {
-        'height': Math.round(modelData.clouds.bottom),
-        'heightId': SceneWeather._getCloudHightId(modelData.clouds.bottom),
-        'amount': Math.round(modelData.clouds.coverage * 100),
-        'amountId': SceneWeather._getCloudAmountId(modelData.clouds.coverage),
-        'type': SceneWeather._getCloudTypeId(modelData.clouds.type)
-      },
-      'sun': {
-        'amount': Math.round(modelData.sun.amount * 100),
-        'amountId': SceneWeather._getSunAmountId(modelData.sun.amount)
-      },
-      'precipitation': {
-        'amount': Math.round(modelData.precipitation.amount * 100),
-        'amountId': SceneWeather._getPrecipitationAmountId(modelData.precipitation.amount),
-        'type': SceneWeather._getPrecipitationTypeId(modelData.precipitation.type)
-      }
-    }
-  }
-
-  getWeatherInfo(dayOffset = 0, hourOffset = 0) {
-    return this._calculateWeatherInfoFromModelData(this.weatherModel.getWeatherData(dayOffset, hourOffset))
-  }
-
-
-
-  /**
- * Convert temperature in fahrenheit to celsius.
- *
- * @param Tf temperature in fahrenheit
- * @returns {number}
- */
-  fahrenheitToCelsius(Tf) {
-    return (Tf - 32) / 1.8;
-  }
-
-  /**
-   * Convert temperature in celsius to fahrenheit.
-   *
-   * @param Tc temperature in celsius
-   * @returns {number}
-   */
-  celsiusToFahrenheit(Tc) {
-    return (Tc * 1.8) + 32;
   }
 
 }

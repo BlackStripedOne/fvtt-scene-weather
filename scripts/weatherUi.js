@@ -18,13 +18,15 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
-import { SceneWeather } from './sceneWeather.js'
+import { TimeProvider } from './timeProvider.js'
+import { WeatherPerception } from './weatherPerception.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
-  Logger.debug('->Hook:WeatherUpdated -> WeatherUI.update(...)')
+  Logger.debug('->Hook:WeatherUpdated -> WeatherUI.update(...)', { 'data': data })
   // TODO only for GMs?
   if (data.sceneId == canvas.scene._id && data.info !== undefined) {
-    WeatherUi.update(data.info)
+    WeatherUi.update(data.model)
   }
 })
 
@@ -38,8 +40,12 @@ Hooks.on('renderWeatherUi', () => {
  */
 export class WeatherUi extends FormApplication {
   static _isOpen = false
-  static _weatherInfo = {}
+  static _weatherModel = {}
+  static _perceptionId = 'perceptive' // TODO init with ''
 
+  /**
+   * TODO from Foundry VTT API
+   */
   async _render(force = false, options = {}) {
     await super._render(force, options)
     if (game.settings.get(MODULE.ID, 'uiPinned')) {
@@ -50,27 +56,39 @@ export class WeatherUi extends FormApplication {
     delete ui.windows[this.appId]
   }
 
-  // Override original #close method inherited from parent class.
+  /**
+   * Close the application and un-register references to it within UI mappings This function
+   * returns a Promise which resolves once the window closing animation concludes
+   * Override original #close method inherited from parent class.
+   * 
+   * @param {*} options 
+   * @returns {Promise} - A Promise which resolves once the application is closed
+   */
   async close(options = {}) {
     // If called by scene weather, record that it is not longer visible.
     if (options.sceneWeather) {
       WeatherUi._isOpen = false
       game.settings.set(MODULE.ID, 'uiVisible', false)
-
     }
     return super.close(options)
   }
 
+  /**
+   * TODO
+   */
   constructor() {
     super()
   }
 
+  /**
+   * Assign the default options which are supported by the document
+   * edit sheet. In addition to the default options object supported by the parent Application
+   * class, the Form Application supports the following additional keys and values:
+   * 
+   * @returns {ApplicationOptions} - The default options for this FormApplication class
+   */
   static get defaultOptions() {
-    const playerApp = document.getElementById('players')
-    // const playerAppPos = playerApp.getBoundingClientRect()
-
     this.initialPosition = game.settings.get(MODULE.ID, 'uiPosition')
-
     return mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
@@ -87,56 +105,75 @@ export class WeatherUi extends FormApplication {
     })
   }
 
+  /**
+   * This method is called upon form submission after form data is validated
+   * 
+   * @param {Event} event - The initial triggering submission event
+   * @param {Object} formData - The object of validated form data with which to update the object
+   * @returns {Promise} - A Promise which resolves once the update operation has completed
+   */
   async _updateObject(event, formData) {
     // TODO
     Logger.debug('WeatherUi._updateObjec', { 'event': event, 'formData': formData })
   }
 
+  /**
+   * An application should define the data object used to render its template. This function
+   * may either return an Object directly, or a Promise which resolves to an Object If undefined,
+   * the default implementation will return an empty object allowing only for rendering of static HTML
+   * 
+   * @returns {Object} - the data scructure to handle the handlebars rendering
+   */
   getData() {
-    // let sceneWeather = game.sceneWeather.get()
-    // return sceneWeather.getWeatherInfo()
-    return WeatherUi._weatherInfo
+    // TODO use rights management here
+
+    WeatherUi._weatherModel.hasControls = Fal.isGm()
+    WeatherUi._weatherModel.hasPerceivers = (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)
+
+    Logger.debug('WeatherUi.getData()', { '_weatherModel': WeatherUi._weatherModel })
+    return WeatherUi._weatherModel
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
+  /**
+   * TODO
+   */
+  _attachDragHandler(jQ) {
+    const dragHandle = jQ.find('#weatherHeadline')[0]
+    const drag = new Draggable(this, jQ, dragHandle, false)
 
-    const dragHandle = html.find('#dragHandle')[0];
-    const drag = new Draggable(this, html, dragHandle, false);
-
-    // Pin zone is the "jiggle area" in which the app will be locked
+    // the attachment zone is the "wiggle area" in which the app will be locked
     // to a pinned position if dropped. pinZone stores whether or not
     // we're currently in that area.
-    let pinZone = false;
+    let insideAttachZone = false
 
-    // Have to override this because of the non-standard drag handle, and
-    // also to manage the pin lock zone and animation effects.
+    // this has to be override this because of the non-standard drag
+    // handle, and also to manage the attachment lock zone and animation effects.
     drag._onDragMouseMove = function _newOnDragMouseMove(event) {
-      event.preventDefault();
+      event.preventDefault()
+      const playerApp = document.getElementById('players')
+      const playerAppPos = playerApp.getBoundingClientRect()
 
-      const playerApp = document.getElementById('players');
-      const playerAppPos = playerApp.getBoundingClientRect();
+      // maximum 60 updates per second to not stress the browser
+      const now = Date.now()
+      if (now - this._moveTime < 1000 / 60) return
+      this._moveTime = now
 
-      // Limit dragging to 60 updates per second.
-      const now = Date.now();
-      if (now - this._moveTime < 1000 / 60) return;
-      this._moveTime = now;
-
-      // When unpinning, make the drag track from the existing location in screen space
-      const { left, top } = this.element.getBoundingClientRect();
+      // after unpinning, make the drag track from the existing location in screen space
+      const { left, top } = this.element.getBoundingClientRect()
       if (WeatherUi.unPinApp()) {
-        Object.assign(this.position, { left, top });
+        Object.assign(this.position, { left, top })
       }
 
-      // Follow the mouse.
+      // attach position to the mouse
       this.app.setPosition({
         left: this.position.left + (event.clientX - this._initial.x),
-        top: this.position.top + (event.clientY - this._initial.y),
-      });
+        top: this.position.top + (event.clientY - this._initial.y)
+      })
 
-      // Defining a region above the PlayerList that will trigger the jiggle.
-      let playerAppUpperBound = playerAppPos.top - 50;
-      let playerAppLowerBound = playerAppPos.top + 50;
+      // set the attachment region above the Player's list that will
+      // trigger the wiggle
+      let playerAppUpperBound = playerAppPos.top - 50
+      let playerAppLowerBound = playerAppPos.top + 50
 
       if (
         event.clientX > playerAppPos.left &&
@@ -144,102 +181,216 @@ export class WeatherUi extends FormApplication {
         event.clientY > playerAppUpperBound &&
         event.clientY < playerAppLowerBound
       ) {
-        $('#scene-weather-app').css('animation', 'jiggle 0.2s infinite');
-        pinZone = true;
+        $('#scene-weather-app').css('animation', 'jiggle 0.2s infinite')
+        insideAttachZone = true
       } else {
-        $('#scene-weather-app').css('animation', '');
-        pinZone = false;
+        $('#scene-weather-app').css('animation', '')
+        insideAttachZone = false
       }
-    };
+    }
 
     drag._onDragMouseUp = async function _newOnDragMouseUp(event) {
-      event.preventDefault();
+      event.preventDefault()
+      window.removeEventListener(...this.handlers.dragMove)
+      window.removeEventListener(...this.handlers.dragUp)
 
-      window.removeEventListener(...this.handlers.dragMove);
-      window.removeEventListener(...this.handlers.dragUp);
+      const playerApp = document.getElementById('players')
+      const playerAppPos = playerApp.getBoundingClientRect()
+      const myOffset = playerAppPos.height + 90 // TODO Pin Offset
 
-      const playerApp = document.getElementById('players');
-      const playerAppPos = playerApp.getBoundingClientRect();
-      let myOffset = playerAppPos.height + 50; // TODO Pin Offset
-
-      // If the mouseup happens inside the Pin zone, pin the app.
-      if (pinZone) {
-        WeatherUi.pinApp();
-        await game.settings.set(MODULE.ID, 'uiPinned', true);
+      // if the mouseup is inside the attachment zone, pin the ui.
+      if (insideAttachZone) {
+        WeatherUi.pinApp()
+        // TODO use Fal here
+        await game.settings.set(MODULE.ID, 'uiPinned', true)
         this.app.setPosition({
           left: 15,
-          top: window.innerHeight - myOffset,
-        });
+          top: window.innerHeight - myOffset
+        })
       } else {
-        let windowPos = $('#scene-weather-app').position();
-        let newPos = { top: windowPos.top, left: windowPos.left };
-        await game.settings.set(MODULE.ID, 'uiPosition', newPos);
-        await game.settings.set(MODULE.ID, 'uiPinned', false);
+        const windowPos = $('#scene-weather-app').position()
+        const newPos = { top: windowPos.top, left: windowPos.left }
+        // TODO use Fal here
+        await game.settings.set(MODULE.ID, 'uiPosition', newPos)
+        await game.settings.set(MODULE.ID, 'uiPinned', false)
       }
 
-      // Kill the jiggle animation on mouseUp.
-      $('#scene-weather-app').css('animation', '');
-    };
-
-  }
-
-  // Pin the app above the Players list inside the ui-left container.
-  static async pinApp() {
-    const app = game.modules.get(MODULE.ID).uiApp;
-    if (app && !app.element.hasClass('pinned')) {
-      $('#players').before(app.element);
-      app.element.addClass('pinned');
+      // remove the wiggle animation on mouseUp.
+      $('#scene-weather-app').css('animation', '')
     }
   }
 
-  // Un-pin the app.
+  /**
+   * Attach the controls for time control / chat and clipboard to the respective
+   * html elements, if the current player is a GM and the time provider is set to
+   * internal.
+   * 
+   * @param {jQuery} jQ - the jQuery instance containing the UI window html.
+   */
+  _attachControls(jQ) {
+    if (!Fal.isGm()) return
+    jQ.find('#weatherControls li').each(function (id) {
+      const controlJQ = $(this)
+      const controlFunc = controlJQ.attr('data-func') || 'none'
+      const controlBase = Number(controlJQ.attr('data-base') || '0')
+      switch (controlFunc) {
+        case 'time':
+          // TODO only if TimeProvider is set to internal
+          controlJQ.on('click', function () {
+            TimeProvider.advanceGameTime((window.event.ctrlKey ? controlBase * 5 : controlBase))
+          })
+          break
+        case 'chatSingle':
+          controlJQ.on('click', function () {
+            Logger.debug('click()', { 'controlFunc': controlFunc })
+          })
+          break
+        case 'chatAll':
+          controlJQ.on('click', function () {
+            Logger.debug('click()', { 'controlFunc': controlFunc })
+          })
+          break
+        case 'clipboard':
+          controlJQ.on('click', async function () {
+            const weatherText = await WeatherPerception.getAsText(WeatherUi._perceptionId, WeatherUi._weatherModel)
+            Utils.copyToClipboard(weatherText)
+            Logger.info('Current weather information has been copied to the clipboard (' + WeatherUi._perceptionId + ')', true)
+          })
+          break
+      }
+    })
+  }
+
+  /**
+   * Attach the control handlers for the previous and next weather perception selections, if the
+   * current player has more then 1 potential perciever allowed.
+   * 
+   * @param {jQuery} jQ - the jQuery instance containing the UI window html.
+   */
+  _attachPerceiverControls(jQ) {
+    if (!(Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)) return
+    jQ.find('#weatherContainer .percControl').each(function (id) {
+      const controlJQ = $(this)
+      const controlFunc = controlJQ.attr('data-func') || 'none'
+      switch (controlFunc) {
+        case 'prevPerc':
+          controlJQ.on('click', function () {
+            const percieverIds = WeatherPerception.getAllowedIds(Fal.userID())
+            WeatherUi._perceptionId = Utils.arrayPrev(percieverIds, WeatherUi._perceptionId)
+            Logger.debug('click()', { 'perceiverPrev': WeatherUi._perceptionId })
+            WeatherUi.update()
+          })
+          break
+        case 'nextPerc':
+          controlJQ.on('click', function () {
+            const percieverIds = WeatherPerception.getAllowedIds(Fal.userID())
+            WeatherUi._perceptionId = Utils.arrayNext(percieverIds, WeatherUi._perceptionId)
+            Logger.debug('click()', { 'perceiverNext': WeatherUi._perceptionId })
+            WeatherUi.update()
+          })
+          break
+      }
+    })
+  }
+
+  /**
+   * Activate all listeners for the UI jQuery object given.
+   * 
+   * @param {jQuery} jQ - the jQuery instance containing the UI window html.
+   */
+  activateListeners(jQ) {
+    super.activateListeners(jQ)
+    // attach drag handler for moving the UI and pinning it to predefined positions
+    this._attachDragHandler(jQ)
+
+    // TODO use rights management here
+    if (Fal.isGm()) {
+      this._attachControls(jQ)
+    }
+
+    // TODO use rights management here
+    if (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length) {
+      this._attachPerceiverControls(jQ)
+    }
+  }
+
+  /**
+   * Pin the UI above the player's list inside the ui-left container.
+   */
+  static async pinApp() {
+    const app = game.modules.get(MODULE.ID).uiApp;
+    if (app && !app.element.hasClass('pinned')) {
+      $('#players').before(app.element)
+      app.element.addClass('pinned')
+    }
+  }
+
+  /**
+   * Un-pin the UI window.
+   * @returns true, if the UI was unpinned.
+   */
   static unPinApp() {
     const app = game.modules.get(MODULE.ID).uiApp;
     if (app && app.element.hasClass('pinned')) {
-      const element = app.element;
-      $('body').append(element);
-      element.removeClass('pinned');
-
+      const element = app.element
+      $('body').append(element)
+      element.removeClass('pinned')
       return true;
     }
   }
 
-  // Toggle visibility of the main window.
+  /**
+   * Toggle visibility of the main window, the mode is set to 'tiggle' otherwise
+   * the main window of the UI will be set visible if it is set visible in the
+   * settings.
+   * 
+   * @param {String} mode - the optional mode for setting the app visible 
+   */
   static async toggleAppVis(mode) {
     //TODO check wether player is allowed to view weather
     if (mode === 'toggle') {
       if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
         // Stop any currently-running animations, and then animate the app
         // away before close(), to avoid the stock close() animation.
-        $('#scene-weather-app').stop();
-        $('#scene-weather-app').css({ animation: 'close 0.3s', opacity: '0' });
+        $('#scene-weather-app').stop()
+        $('#scene-weather-app').css({ animation: 'close 0.3s', opacity: '0' })
         setTimeout(function () {
           // Pass an object to .close() to indicate that it came from SceneWeather
           // itself istead of an Esc keypress.
-          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true });
-        }, 200);
+          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true })
+        }, 200)
       } else {
         // Make sure there isn't already an instance of the app rendered.
         // Fire off a close() just in case, clears up some stuck states.
         if (WeatherUi._isOpen) {
-          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true });
+          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true })
         }
-        game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true);
-        game.settings.set(MODULE.ID, 'uiVisible', true);
+        game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true)
+        game.settings.set(MODULE.ID, 'uiVisible', true)
       }
     } else if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
-      game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true);
+      game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true)
     }
   }
 
-  static async update(weatherInfo = null) {
-    if (weatherInfo == null) weatherInfo = WeatherUi._weatherInfo
-    Logger.debug('WeatherUi.update(...)', { 'weatherInfo': weatherInfo })
-    WeatherUi._weatherInfo = weatherInfo
+  /**
+   * This helper is invoked by the Hook on events to update the stored weatherModel
+   * if provided. If no weatherModel is provided, the stored static on the class
+   * is used instead.
+   * 
+   * @param {Object} weatherModel - the optional weatherModel to update the UI to.
+   */
+  static async update(weatherModel = null) {
+    if (weatherModel == null) weatherModel = WeatherUi._weatherModel
+    Logger.debug('WeatherUi.update(...)', { 'weatherModel': weatherModel })
+    WeatherUi._weatherModel = weatherModel
     if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
+
       // TODO depending on user setting for precision
-      const weatherInfoHtml = SceneWeather.getPerceptiveWeatherI18n(weatherInfo)
-      $('#weatherInfo').html(weatherInfoHtml);
+      // const id = WeatherPerception.getAllowedIds(Fal.userID())      
+      const weatherInfoHtml = await WeatherPerception.getAsUiHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+
+      $('#weatherDetail').html(weatherInfoHtml)
     }
   }
 }

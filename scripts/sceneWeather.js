@@ -126,8 +126,10 @@ export class SceneWeather {
    * @param {boolean} options.force - A boolean value indicating whether the weather calculation should be forced
    */
   calculateWeather({ force = false } = {}) {
+
     const currentTimeHash = TimeProvider.getCurrentTimeHash()
     const modelData = this.weatherModel.getWeatherData()
+
     // TODO get via perception model configured for user settings
     const perceptionId = 'perceptive'
     const weatherInfo = WeatherPerception.getAsWeatherInfo(perceptionId, modelData)
@@ -137,7 +139,7 @@ export class SceneWeather {
       'model': modelData,
       'timeHash': currentTimeHash,
       'sceneId': this.sceneId,
-      'force': force
+      'force': force  // TODO rename to 'forced'
     })
   }
 

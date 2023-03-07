@@ -20,12 +20,42 @@ import { MODULE, EVENTS } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
+import { WeatherPerception } from './weatherPerception.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 function onChangeFunction(value) {
   Hooks.callAll(EVENTS.SETTINGS_UPDATED, value)
 }
 
-export const registerSettings = function () {
+export const registerSettingsPostInit = function () {
+  /*
+  TODO NAAAw.. use a matrix instead
+  
+  let perceptionIdChoices = {}
+  let defaultPerceptionId
+  WeatherPerception.getAllowedIds(Fal.userID()).forEach(id => {
+    perceptionIdChoices[id] = WeatherPerception.getInfo(id).name
+    defaultPerceptionId = id
+  })
+
+  game.settings.register(MODULE.ID, 'perceptionId', {
+    name: Utils.i18n('settings.perceptionId.name'),
+    hint: Utils.i18n('settings.perceptionId.hint'),
+    scope: 'client',
+    config: true,
+    type: String,
+    choices: perceptionIdChoices,
+    default: defaultPerceptionId,
+    onChange: (value) => {
+      onChangeFunction({
+        'id': 'perceptionId',
+        'value': value
+      })
+    }
+  })*/
+}
+
+export const registerSettingsPreInit = function () {
   game.settings.register(MODULE.ID, 'startup', {
     name: 'One-Time Startup Prompt',
     scope: 'world',

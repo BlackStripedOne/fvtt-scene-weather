@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { MODULE } from './constants.js'
 import { Logger, Utils } from './utils.js'
-
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 /**
  *  TODO
  */
@@ -30,6 +30,64 @@ export class TimeProvider {
     'winterSolstice': 355,
     'monthOffset': [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],	// Days summed up for each previous months for faster calculation
     'hoursInDay': 24
+  }
+
+  /**
+   * Returns TRUE, if this module has authority over time control
+   */
+  static hasTimeAuthority() {
+    return true
+  }
+
+  /**
+   * TODO
+   */
+  static getI18nDateString() {
+    // TODO use specific provider _getTimeInfo()
+    const scInstance = SimpleCalendar.api.timestampToDate(game.time.worldTime)
+    const timeInfo = {
+      'month': {
+        'number': scInstance.display.month,
+        'name': scInstance.display.monthName,
+        'prefix': '',
+        'suffix': ''
+      },
+      'day': {
+        'number': scInstance.display.day,
+        'name': scInstance.display.day,
+        'prefix': '',
+        'suffix': scInstance.display.daySuffix
+      },
+      'hour': {
+        'number': scInstance.hour,
+        'name': (scInstance.hour < 10) ? '0' + scInstance.hour : scInstance.hour
+      },
+      'minute': {
+        'number': scInstance.minute,
+        'name': (scInstance.minute < 10) ? '0' + scInstance.minute : scInstance.minute
+      }
+    }
+
+    // format timeInfo to localized string
+    const compiledTemplate = Handlebars.compile(Fal.i18n('time.formatted'))
+    const timeText = compiledTemplate(timeInfo)
+
+    Logger.debug('TimeProvider.getI18nDateString', { 'scInstance': scInstance, 'timeInfo': timeInfo, 'timeText': timeText })
+    return timeText
+  }
+
+  /**
+   * TODO advances the game time using the configured provider or self
+   */
+  static async advanceGameTime(deltaSeconds = 0) {
+    // TODO dependant on provider
+    if (deltaSeconds == 0) return
+
+    //Set the world time, this will trigger the updateWorldTime hook on all connected players
+    if (Fal.isGm()) {
+      const currentWorldTime = game.time.worldTime
+      const newTime = await game.time.advance(deltaSeconds)
+    }
   }
 
   static initConfig() {
@@ -44,8 +102,8 @@ export class TimeProvider {
   /**
    * TODO
    */
-  static getCurrentTimeHash() {
-    return TimeProvider.getTimeHash(TimeProvider.getDayOfYear(), TimeProvider.getHourOfDay())
+  static getCurrentTimeHash(dayOfYearOffset = 0, hourOfDayOffset = 0) {
+    return TimeProvider.getTimeHash(TimeProvider.getDayOfYear() + dayOfYearOffset, TimeProvider.getHourOfDay() + hourOfDayOffset)
   }
 
   // Returns the unique hash for the time/day in year

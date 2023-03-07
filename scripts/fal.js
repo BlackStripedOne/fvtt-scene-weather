@@ -28,27 +28,27 @@ export class FoundryAbstractionLayer {
   canDo(user = null, permission) {
     if (user === null) return false
     // return !!(user.isGM || (permissions.player && user.hasRole(1)) || (permissions.trustedPlayer && user.hasRole(2)) || (permissions.assistantGameMaster && user.hasRole(3)) || (permissions.users && permissions.users.includes(user.id? user.id : '')))
-    return FoundryAbstractionLayer.isGm()
+    return FoundryAbstractionLayer.isGm
   }
 
   /**
    * Get the ID of the current world
    */
-  static worldId() {
+  static get worldId() {
     return game.world.id
   }
 
   /**
    * Get the ID of the current system
    */
-  static systemID() {
+  static get systemID() {
     return game.system.id
   }
 
   /**
    * Get the version of the current system
    */
-  static systemVersion() {
+  static get systemVersion() {
     return game.system.version || game.system.data.version
   }
 
@@ -92,6 +92,43 @@ export class FoundryAbstractionLayer {
   }
 
   /**
+     * Get controlled tokens
+     * 
+     * @returns {array} The controlled tokens
+     */
+  static getControlledTokens() {
+    return game.canvas.tokens.controlled
+  }
+
+
+  /**
+   * Get one controlled tokens
+   * 
+   * @returns {object} The first controlled token
+   */
+  static getControlledToken() {
+    return game.canvas.tokens.controlled[0]
+  }
+
+  /**
+   * Get the user object owning and controling the given token
+   * 
+   * @param {Token} token - the token to search the owner for
+   * @returns {User} - the user owning and controling the token, undefined in case none was found
+   */
+  static getUserByToken(token) {
+    let ownerships = token.actor.ownership
+    let foundUser = undefined
+    game.users.forEach((user) => {
+      if (user.character !== null && user.active) {
+        if (ownerships[user._id] > 0) foundUser = user
+      }
+    })
+    return foundUser
+  }
+
+
+  /**
    * Gets the current version of this module
    */
   static getModuleVersion() {
@@ -103,7 +140,24 @@ export class FoundryAbstractionLayer {
   }
 
   /**
-   * TODO wrapper
+     * TODO remove at Utils
+     * Language translation
+     * 
+     * @param {string} toTranslate The value to translate
+     * @returns {string} The translated value
+     */
+  static i18n(toTranslate, defaultValue = null) {
+    let translation = game.i18n.localize(toTranslate)
+    if (translation == toTranslate) {
+      if (defaultValue === null || defaultValue === undefined) translation = toTranslate;
+      return translation;
+    } else {
+      return translation;
+    }
+  }
+
+  /**
+   * TODO wrapper move to Utils
    */
   static mergeObject(original, other = {}, options = {}, _d = 0) {
     return foundry.utils.mergeObject(original, other, options, _d)

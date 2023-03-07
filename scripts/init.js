@@ -16,11 +16,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE, EVENTS } from './constants.js'
+import { MODULE, EVENTS, GENERATOR_MODES } from './constants.js'
 import { Logger, Utils } from './utils.js'
-import { registerSettings } from './settings.js'
+import { registerSettingsPreInit, registerSettingsPostInit } from './settings.js'
 import { registerHbHelpers, loadHandlebars } from './hbHelpers.js'
-import { SceneWeatherApi } from './api.js'
+import { SceneWeatherApi, getSceneWeatherAPIv1 } from './api.js'
 import { WeatherLayer } from './weatherLayer.js'
 import { WeatherTab } from './weatherTab.js'
 import { WeatherUi } from './weatherUi.js'
@@ -38,15 +38,18 @@ import { MeteoUi } from './meteoUi.js'
  * Invoked once when foundry is loaded upon the browser
  */
 Hooks.once("init", () => {
-  registerSettings()
+  registerSettingsPreInit()
   Logger.debug('->Hook:init')  // debug is available only after registering settings
   registerHbHelpers()
   loadHandlebars()
   SceneWeatherApi.registerApi()
+  // TODO maybe use Hools.emit instead ?
   Hooks.callAll(MODULE.LCCNAME + 'RegisterGenerators')
   Hooks.callAll(MODULE.LCCNAME + 'RegisterFilters')
   Hooks.callAll(EVENTS.REG_TEMPLATE_REGION)
   Hooks.callAll(EVENTS.REG_TEMPLATE_WEATHER)
+  Hooks.callAll(EVENTS.REG_WEATHER_PERCIEVERS)
+  registerSettingsPostInit()
   Logger.debug("Init Done", { 'api': game.sceneWeather })
   Hooks.callAll(MODULE.LCCNAME + 'Initialized')
 })
@@ -54,13 +57,21 @@ Hooks.once("init", () => {
 Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
   Logger.debug('->Hook:' + MODULE.LCCNAME + 'Initialized')
 
+
   Hooks.on('updateScene', async (scene, deltaData, options, id) => {
     if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] !== undefined) {
       Logger.debug('updateScene-> ', { 'deltaData': deltaData, 'options': options })
+      if (deltaData.flags[MODULE.ID]['weatherMode'] == GENERATOR_MODES.DISABLED) {
+        // TODO now may remove... handled in modules now.
+      }
       SceneWeatherApi.updateWeatherConfig({
         forSceneId: deltaData._id,
         force: true
       })
+      if (deltaData.flags[MODULE.ID]['weatherMode'] !== undefined) {
+        Logger.debug('updateScene-> WeatherUi needs update...',)
+        WeatherUi.toggleAppVis('initial')
+      }
     }
   })
 
@@ -102,6 +113,9 @@ Hooks.on('canvasReady', async (canvasData) => {
  */
 Hooks.on('ready', async () => {
   // TODO
+
+  window.SceneWeather = getSceneWeatherAPIv1()
+
   Hooks.callAll(MODULE.LCCNAME + 'Ready')
   Logger.info("Ready")
 })

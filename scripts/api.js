@@ -19,6 +19,31 @@ See the License for the specific language governing permissions and limitations 
 import { Logger, Utils } from './utils.js'
 import { SceneWeather } from './sceneWeather.js'
 import { TimeProvider } from './timeProvider.js'
+import { WeatherPerception } from './weatherPerception.js'
+
+
+export function getSceneWeatherAPIv1() {
+
+  async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
+    SceneWeatherApi.updateWeatherConfig({
+      'forSceneId': forSceneId,
+      'force': force
+    })
+  }
+
+  async function updateWeather({ force = false } = {}) {
+    SceneWeatherApi.calculateWeather({
+      'force': force
+    })
+  }
+
+  return {
+    updateWeatherConfig: updateWeatherConfig,
+    updateWeather: updateWeather,
+    version: '1.0'
+  }
+}
+
 
 /**
  * Scene Weather's public API functions, attached to the foundry game object.
@@ -57,6 +82,8 @@ export class SceneWeatherApi {
 
       // all static weather templates
       game.sceneWeather.weatherTemplates = []
+
+      game.sceneWeather.registerPerciever = WeatherPerception.registeredPerciever
 
       Logger.debug('sceneWeather API registered as game.sceneWeather')
     } else {
@@ -101,9 +128,13 @@ export class SceneWeatherApi {
     SceneWeatherApi._lastUpdate = currentTimeHash
 
     const provider = SceneWeatherApi.getSceneWeatherProvider(sceneId)
-    provider.calculateWeather({
-      'force': force
-    })
+    if (provider !== undefined) {
+      provider.calculateWeather({
+        'force': force
+      })
+    } else {
+      Logger.debug('Not calculating weather for disabled setting...')
+    }
   }
 
   /**
@@ -115,12 +146,19 @@ export class SceneWeatherApi {
   static updateWeatherConfig({ forSceneId = undefined, force = false, prewarm = false, fade = true } = {}) {
     Logger.debug('api::updateWeatherConfig(...)', { 'forSceneId': forSceneId, 'force': force })
     // Update from configs
-    if (SceneWeatherApi.getSceneWeatherProvider(forSceneId, force).updateConfig() || force) {
-      SceneWeatherApi.calculateWeather({
-        sceneId: forSceneId,
-        force: true
-      })
+    const weatherProvider = SceneWeatherApi.getSceneWeatherProvider(forSceneId, force)
+    if (weatherProvider == undefined) {
+      // disabled
+      Logger.debug('api::updateWeatherConfig(...) -> disabled by config')
+    } else {
+      if (weatherProvider.updateConfig() || force) {
+        SceneWeatherApi.calculateWeather({
+          sceneId: forSceneId,
+          force: true
+        })
+      }
     }
+
   }
 
   /**

@@ -26,36 +26,61 @@ Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
   Utils.getApi().registerPerciever('perceptive', new PerceptivePerciever())
 })
 
+const PREFIX = 'meteo.perceptive.'
+
 class PerceptivePerciever extends WeatherPerception {
 
+  /**
+   * @override WeatherPerception.isAllowed(userId)
+   */
   isAllowed(userId) {
+    // TODO use rights management
     return true
   }
 
+  /**
+   * @override WeatherPerception.getTextFromModel(weatherModel)
+   */
   async getTextFromModel(weatherModel) {
     const weatherInfo = await this.getWeatherInfoFromModel(weatherModel)
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptiveText'))
+    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive.templates.text'))
     const weatherText = compiledTemplate(weatherInfo)
     return weatherText
   }
 
+  /**
+   * @override WeatherPerception.getUiHtmlFromModel(weatherModel)
+   */
   async getUiHtmlFromModel(weatherModel) {
     const weatherInfo = await this.getWeatherInfoFromModel(weatherModel)
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptiveUi'))
+    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive.templates.ui'))
     const weatherInfoHtml = compiledTemplate(weatherInfo)
     return weatherInfoHtml
   }
 
+  /**
+   * @override WeatherPerception.getChatHtmlFromModel(weatherModel)
+   */
+  async getChatHtmlFromModel(weatherModel) {
+    return this.getUiHtmlFromModel(weatherModel)
+  }
+
+  /**
+   * @override WeatherPerception.getWeatherInfoFromModel(weatherModel)
+   */
   async getWeatherInfoFromModel(weatherModel) {
     const weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, PerceptivePerciever._calculateWeatherInfoFromModelData(weatherModel))
     Logger.debug('PerceptivePerciever.getWeatherInfoFromModel()', { 'weatherModel': weatherModel, 'weatherInfo': weatherInfo })
     return weatherInfo
   }
 
+  /**
+   * @override WeatherPerception.getPercieverInfo()
+   */
   getPercieverInfo() {
     const info = Fal.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
       'id': 'perceptive',
-      'name': 'meteo.perceptiveName'
+      'name': PREFIX + 'name'
     })
     Logger.debug('PerceptivePerciever.getPercieverInfo()', { 'info': info })
     return info
@@ -81,7 +106,6 @@ class PerceptivePerciever extends WeatherPerception {
     return (Tc * 1.8) + 32
   }
 
-
   /**
    * Given a precipitation type, returns a string identifier for the type in the format "meteo.<type>".
    * @param {string} type - A string representing the precipitation type to identify.
@@ -89,11 +113,8 @@ class PerceptivePerciever extends WeatherPerception {
    */
   static _getPrecipitationTypeId(type) {
     const [suffix] = Object.entries(PRECI_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.none'
+    return suffix ? PREFIX + suffix : PREFIX + 'none'
   }
-
-
-
 
   /**
    * Returns the precipitation amount id based on the amount of precipitation
@@ -104,9 +125,8 @@ class PerceptivePerciever extends WeatherPerception {
    */
   static _getPrecipitationAmountId(amount) {
     const [id] = Object.entries(PRECI_AMOUNT).find(([, level]) => amount < level)
-    return `meteo.${id}`
+    return PREFIX + id
   }
-
 
   /**
    * Returns a string representing the sun intensity level based on the input amount.
@@ -117,7 +137,7 @@ class PerceptivePerciever extends WeatherPerception {
   */
   static _getSunAmountId(amount) {
     const [id] = Object.entries(SUN_INTENSITY).find(([, level]) => amount < level)
-    return `meteo.${id}`
+    return PREFIX + id
   }
 
   /**
@@ -127,9 +147,8 @@ class PerceptivePerciever extends WeatherPerception {
    */
   static _getCloudTypeId(type) {
     const [suffix] = Object.entries(CLOUD_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.${suffix}` : 'meteo.cumulunimbus'
+    return suffix ? PREFIX + suffix : PREFIX + 'cumulunimbus'
   }
-
 
   /**
    * Returns the meteorological identifier for the cloud amount based on the input amount.
@@ -138,17 +157,17 @@ class PerceptivePerciever extends WeatherPerception {
    */
   static _getCloudAmountId(amount) {
     const octas = [
-      'meteo.skc', // Sky Clear
-      'meteo.few', // Few Clouds
-      'meteo.few', // Few Clouds
-      'meteo.sct', // Scattered Clouds
-      'meteo.sct', // Scattered Clouds
-      'meteo.bkn', // Broken Couds
-      'meteo.bkn', // Broken Clouds
-      'meteo.bkn', // Broken Clouds
-      'meteo.ovc'  // Overcast
+      'skc', // Sky Clear
+      'few', // Few Clouds
+      'few', // Few Clouds
+      'sct', // Scattered Clouds
+      'sct', // Scattered Clouds
+      'bkn', // Broken Couds
+      'bkn', // Broken Clouds
+      'bkn', // Broken Clouds
+      'ovc'  // Overcast
     ]
-    return octas[Math.round(amount * 8)]
+    return PREFIX + octas[Math.round(amount * 8)]
   }
 
   /**
@@ -156,24 +175,23 @@ class PerceptivePerciever extends WeatherPerception {
    *
    * @param {number} height - The height value to determine the cloud height identifier for.
    * @returns {string} The cloud height identifier in the format 'meteo.{identifier}'.
-  */
+   */
   static _getCloudHightId(height) {
     const [id] = Object.entries(CLOUD_HEIGHT).find(([, level]) => height < level)
-    return `meteo.${id}`
+    return PREFIX + id
   }
 
-
   /**
-*
-* Returns the ID of the wind direction based on the input direction angle.
-* @param {number} direction - The wind direction angle in degrees.
-* @returns {string} - The ID of the wind direction in the format "meteo.[direction]" where [direction] is the abbreviated direction name.
-* For example, if the direction is 90 degrees (east), the function will return "meteo.e".
-*/
+   *
+   * Returns the ID of the wind direction based on the input direction angle.
+   * @param {number} direction - The wind direction angle in degrees.
+   * @returns {string} - The ID of the wind direction in the format "meteo.[direction]" where [direction] is the abbreviated direction name.
+   * For example, if the direction is 90 degrees (east), the function will return "meteo.e".
+   */
   static _getWindDirId(direction) {
     let val = Math.floor((direction / 22.5) + 0.5)
     const arr = ["n", "nne", "ne", "ene", "e", "ese", "se", "sse", "s", "ssw", "sw", "wsw", "w", "wnw", "nw", "nnw"]
-    return "meteo." + arr[(val % 16)]
+    return PREFIX + arr[(val % 16)]
   }
 
 
@@ -185,7 +203,7 @@ class PerceptivePerciever extends WeatherPerception {
   static _getWindSpeedId(wind) {
     let gusting = wind.gusts > 5 ? 'Gusting' : ''
     const [id] = Object.entries(WIND_SPEED).find(([, level]) => wind.speed < level)
-    return `meteo.${id}${gusting}`
+    return PREFIX + id + gusting
   }
 
 
@@ -197,19 +215,26 @@ class PerceptivePerciever extends WeatherPerception {
     */
   static _getHumidityId(humidity) {
     const [id] = Object.entries(HUMIDITY_LEVELS).find(([, level]) => humidity < level)
-    return `meteo.${id}`
+    return PREFIX + id
   }
 
   /**
-     * Returns the perceived temperature category based on the input temperature.
-     * @param {number} temperature - The temperature value to be categorized.
-     * @returns {string} - The category of the perceived temperature.
-     */
+   * Returns the perceived temperature category based on the input temperature.
+   * @param {number} temperature - The temperature value to be categorized.
+   * @returns {string} - The category of the perceived temperature.
+   */
   static _getPercievedTempId(temperature) {
     const [id] = Object.entries(TEMP_TYPES).find(([, level]) => temperature < level)
-    return `meteo.${id}`
+    return PREFIX + id
   }
 
+  /**
+   * Calculate the weather information based on the weather model data to a human percieved
+   * form of weather. Most strings and ids will be localizable.
+   * 
+   * @param {*} modelData - the weatherModel to use as basis for the perceptive model
+   * @returns - the augmented and changed weater model to the weather info structure
+   */
   static _calculateWeatherInfoFromModelData(modelData) {
     Logger.debug('PerceptivePerciever._calculateWeatherInfoFromModelData()', { 'modelData': modelData })
     return {

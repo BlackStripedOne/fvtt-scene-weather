@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from '../utils.js'
-import { EVENTS, MODULE } from '../constants.js'
+import { EVENTS, MODULE, CLOUD_TYPE, PRECI_TYPE } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
@@ -28,30 +28,42 @@ Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
 
 class PrecisePerciever extends WeatherPerception {
 
+  /**
+   * @override WeatherPerception.isAllowed(userId)
+   */
   isAllowed(userId) {
+    // TODO use rights management
     return Fal.isGm(userId)
   }
 
+  /**
+   * @override WeatherPerception.getTextFromModel(weatherModel)
+   */
   async getTextFromModel(weatherModel) {
+    // TODO
     return JSON.stringify(this.getWeatherInfoFromModel(weatherModel))
   }
 
-  /*
-   1 Air              humi
-   2 Ground           perAmt
-   3 Percieved        perTyp
-   4 Speed            cloudTyp
-   5 Gust             cloudAmt
-   6 Direction        sunAmt
-  */
+  /**
+   * @override WeatherPerception.getUiHtmlFromModel(weatherModel)
+   */
   async getUiHtmlFromModel(weatherModel) {
     const uiHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/precisePerceptionUi.hbs', await this.getWeatherInfoFromModel(weatherModel))
     return uiHtml
   }
 
+  /**
+   * @override WeatherPerception.getChatHtmlFromModel(weatherModel)
+   */
+  async getChatHtmlFromModel(weatherModel) {
+    return this.getUiHtmlFromModel(weatherModel)
+  }
+
+  /**
+   * @override WeatherPerception.getWeatherInfoFromModel(modelData)
+   */
   async getWeatherInfoFromModel(modelData) {
     const weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, {
-      'name': 'unknown',
       'temperature': {
         'air': modelData.temp.air.toFixed(1),
         'ground': modelData.temp.ground.toFixed(1),
@@ -68,28 +80,54 @@ class PrecisePerciever extends WeatherPerception {
       'clouds': {
         'height': Math.round(modelData.clouds.bottom),
         'amount': Math.round(modelData.clouds.coverage * 100),
-        'type': modelData.clouds.type
+        'type': modelData.clouds.type,
+        'typeId': PrecisePerciever._getCloudTypeId(modelData.clouds.type)
       },
       'sun': {
         'amount': Math.round(modelData.sun.amount * 100)
       },
       'precipitation': {
         'amount': Math.round(modelData.precipitation.amount * 100),
-        'type': modelData.precipitation.type
+        'type': modelData.precipitation.type,
+        'typeId': PrecisePerciever._getPrecipitationTypeId(modelData.precipitation.type)
       }
     })
     Logger.debug('PerceptivePerciever.getWeatherInfoFromModel()', { 'modelData': modelData, 'weatherInfo': weatherInfo })
     return weatherInfo
   }
 
-
+  /**
+   * @override WeatherPerception.getPercieverInfo()
+   */
   getPercieverInfo() {
-    const info = Fal.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
+    const info = Utils.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
       'id': 'precise',
-      'name': 'meteo.preciseName'
+      'name': 'meteo.precise.name'
     })
     Logger.debug('PrecisePerciever.getPercieverInfo()', { 'info': info })
     return info
+  }
+
+  /**
+    * Given a cloud type, returns a string identifier for the type in the format
+    * "meteo.precise.cloudTypes.<type>".
+    * @param {string} type - A string representing the cloud type to identify.
+    * @returns {string} - A string identifier in the format "meteo.precise.cloudTypes.<type>".
+    */
+  static _getCloudTypeId(type) {
+    const [suffix] = Object.entries(CLOUD_TYPE).find(([, val]) => val === type)
+    return suffix ? `meteo.precise.cloudTypes.${suffix}` : 'meteo.precise.cloudTypes.cumulunimbus'
+  }
+
+  /**
+  * Given a precipitation type, returns a string identifier for the type in the format
+  * "meteo.precise.precipitationTypes.<type>".
+  * @param {string} type - A string representing the precipitation type to identify.
+  * @returns {string} - A string identifier in the format "meteo.precise.precipitationTypes.<type>".
+  */
+  static _getPrecipitationTypeId(type) {
+    const [suffix] = Object.entries(PRECI_TYPE).find(([, val]) => val === type)
+    return suffix ? `meteo.precise.precipitationTypes.${suffix}` : 'meteo.precise.precipitationTypes.none'
   }
 
 }

@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { MODULE } from './constants.js'
+import { MODULE, GENERATOR_MODES } from './constants.js'
 import { TimeProvider } from './timeProvider.js'
 import { WeatherPerception } from './weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
@@ -35,6 +35,12 @@ Hooks.on('renderWeatherUi', () => {
   WeatherUi.update()
 })
 
+Hooks.on('updateWorldTime', () => {
+  WeatherUi._updateTimeHeadline()
+})
+
+
+
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
  */
@@ -47,6 +53,7 @@ export class WeatherUi extends FormApplication {
    * TODO from Foundry VTT API
    */
   async _render(force = false, options = {}) {
+    Logger.debug('WeatherUi._render(...)', { 'force': force, 'options': options })
     await super._render(force, options)
     if (game.settings.get(MODULE.ID, 'uiPinned')) {
       WeatherUi.pinApp()
@@ -54,6 +61,13 @@ export class WeatherUi extends FormApplication {
     WeatherUi._isOpen = true
     // Remove the window from candidates for closing via Escape.
     delete ui.windows[this.appId]
+    // hide the app when we have weather DISABLED
+    if (Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) {
+      Logger.debug('WeatherUi._render() -> hiding app, DISABLED')
+      $('#scene-weather-app').css("visibility", "hidden")
+    } else {
+      $('#scene-weather-app').css("visibility", "visible")
+    }
   }
 
   /**
@@ -78,6 +92,7 @@ export class WeatherUi extends FormApplication {
    */
   constructor() {
     super()
+    Logger.debug('WeatherUi.ctor')
   }
 
   /**
@@ -99,7 +114,7 @@ export class WeatherUi extends FormApplication {
       minimizable: false,
       template: 'modules/' + MODULE.ID + '/templates/weatherUi.hbs',
       id: 'scene-weather-app',
-      title: 'SceneWeather',
+      title: 'dialogs.weatherUi.title',
       top: this.initialPosition.top,
       left: this.initialPosition.left,
     })
@@ -118,6 +133,21 @@ export class WeatherUi extends FormApplication {
   }
 
   /**
+   * TODO
+   */
+  static _addModelFlags() {
+    // TODO use rights management here
+    WeatherUi._weatherModel.hasControls = Fal.isGm()
+    WeatherUi._weatherModel.hasPerceivers = (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)
+    WeatherUi._weatherModel.hasTimeAuthority = Fal.isGm() && TimeProvider.hasTimeAuthority() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
+    if (WeatherUi._weatherModel.hasTimeAuthority) {
+      WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
+    } else {
+      WeatherUi._weatherModel.timeHeadline = ''
+    }
+  }
+
+  /**
    * An application should define the data object used to render its template. This function
    * may either return an Object directly, or a Promise which resolves to an Object If undefined,
    * the default implementation will return an empty object allowing only for rendering of static HTML
@@ -125,10 +155,7 @@ export class WeatherUi extends FormApplication {
    * @returns {Object} - the data scructure to handle the handlebars rendering
    */
   getData() {
-    // TODO use rights management here
-
-    WeatherUi._weatherModel.hasControls = Fal.isGm()
-    WeatherUi._weatherModel.hasPerceivers = (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)
+    WeatherUi._addModelFlags()
 
     Logger.debug('WeatherUi.getData()', { '_weatherModel': WeatherUi._weatherModel })
     return WeatherUi._weatherModel
@@ -235,26 +262,42 @@ export class WeatherUi extends FormApplication {
       const controlBase = Number(controlJQ.attr('data-base') || '0')
       switch (controlFunc) {
         case 'time':
-          // TODO only if TimeProvider is set to internal
+          // TODO only if TimeProvider is set to internal          
           controlJQ.on('click', function () {
             TimeProvider.advanceGameTime((window.event.ctrlKey ? controlBase * 5 : controlBase))
           })
           break
         case 'chatSingle':
-          controlJQ.on('click', function () {
-            Logger.debug('click()', { 'controlFunc': controlFunc })
+          controlJQ.on('click', async function () {
+            const tokens = Fal.getControlledTokens()
+            if (tokens.length == 0) {
+              Logger.info(Fal.i18n('dialogs.weatherUi.chatNotice'), true)
+            } else {
+              const userIds = tokens.map(token => { return Fal.getUserByToken(token) })
+              Logger.debug('chatSingle', { 'tokens': tokens, 'userIds': userIds })
+              const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+              ChatMessage.create({
+                user: Fal.userID(),
+                whisper: userIds,
+                content: weatherChatHtml
+              })
+            }
           })
           break
         case 'chatAll':
-          controlJQ.on('click', function () {
-            Logger.debug('click()', { 'controlFunc': controlFunc })
+          controlJQ.on('click', async function () {
+            const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+            ChatMessage.create({
+              user: Fal.userID(),
+              content: weatherChatHtml
+            })
           })
           break
         case 'clipboard':
           controlJQ.on('click', async function () {
             const weatherText = await WeatherPerception.getAsText(WeatherUi._perceptionId, WeatherUi._weatherModel)
             Utils.copyToClipboard(weatherText)
-            Logger.info('Current weather information has been copied to the clipboard (' + WeatherUi._perceptionId + ')', true)
+            Logger.info(Fal.i18n('dialogs.weatherUi.clipboardNotice'), true)
           })
           break
       }
@@ -374,6 +417,17 @@ export class WeatherUi extends FormApplication {
   }
 
   /**
+   * TODO
+   */
+  static async _updateTimeHeadline() {
+    Logger.debug('WeatherUi._updateTimeHeadline()', { 'model': WeatherUi._weatherModel })
+    if (WeatherUi._weatherModel.hasTimeAuthority) {
+      WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
+      $('#weatherHeadline').html(WeatherUi._weatherModel.timeHeadline)
+    }
+  }
+
+  /**
    * This helper is invoked by the Hook on events to update the stored weatherModel
    * if provided. If no weatherModel is provided, the stored static on the class
    * is used instead.
@@ -384,13 +438,16 @@ export class WeatherUi extends FormApplication {
     if (weatherModel == null) weatherModel = WeatherUi._weatherModel
     Logger.debug('WeatherUi.update(...)', { 'weatherModel': weatherModel })
     WeatherUi._weatherModel = weatherModel
+
+    WeatherUi._addModelFlags()
     if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
 
       // TODO depending on user setting for precision
       // const id = WeatherPerception.getAllowedIds(Fal.userID())      
       const weatherInfoHtml = await WeatherPerception.getAsUiHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
-
       $('#weatherDetail').html(weatherInfoHtml)
+
+      WeatherUi._updateTimeHeadline()
     }
   }
 }

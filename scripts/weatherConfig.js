@@ -110,7 +110,7 @@ export class WeatherConfigDialog extends FormApplication {
   getData() {
     let additionalData = {
       'windSpeeds': Object.entries(WIND_SPEED).map(([name, id]) => {
-        if (name === 'hurricane') { return { 'id': 120, 'name': 'meteo.hurricane' } } else { return { 'id': id, 'name': 'meteo.' + name } }
+        if (name === 'hurricane') { return { 'id': 120, 'name': 'dialogs.weatherConfig.wind.speeds.hurricane' } } else { return { 'id': id, 'name': 'dialogs.weatherConfig.wind.speeds.' + name } }
       }),
       'directionTypes': [
         {
@@ -123,10 +123,10 @@ export class WeatherConfigDialog extends FormApplication {
         }
       ],
       'cloudsTypes': Object.entries(CLOUD_TYPE).map(([name, id]) => {
-        if (name === 'none') { return { 'id': 0, 'name': 'dialogs.weatherConfig.noClouds' } } else { return { 'id': id, 'name': 'meteo.' + name } }
+        return { 'id': id, 'name': 'dialogs.weatherConfig.clouds.types.' + name }
       }),
       'precipitationTypes': Object.entries(PRECI_TYPE).map(([name, id]) => {
-        if (name === 'none') { return { 'id': 0, 'name': 'dialogs.weatherConfig.noPrecipitation' } } else { return { 'id': id, 'name': 'meteo.' + name } }
+        return { 'id': id, 'name': 'dialogs.weatherConfig.precipitation.types.' + name }
       }),
       'windGustTypes': [
         {

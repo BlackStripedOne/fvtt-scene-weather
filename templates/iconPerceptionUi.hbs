@@ -1,0 +1,14 @@
+<div class="weatherIconContainer">
+  <div class="weatherIcon" {{#if (ne composite.sun 'none' )}}
+    style="background-image: url('/modules/scene-weather/assets/{{composite.sun}}.webp');" {{/if}}></div>
+  <div class="weatherIcon" {{#if (ne composite.clouds 'none' )}}
+    style="background-image: url('/modules/scene-weather/assets/{{composite.clouds}}.webp');" {{/if}}></div>
+  <div class="weatherIcon" {{#if (ne composite.preci 'none' )}}
+    style="background-image: url('/modules/scene-weather/assets/{{composite.preci}}.webp');" {{/if}}></div>
+  <div class="weatherIcon" {{#if (ne composite.wind 'none' )}}
+    style="background-image: url('/modules/scene-weather/assets/{{composite.wind}}.webp');" {{/if}}></div>
+</div>
+<div class="weatherIconText"><i class="fas fa-solid fa-temperature-low"></i> {{temperature.air}}{{localize
+  'dialogs.degCelsius'}}</div>
+<div class="weatherIconText"><i class="fas fa-regular fa-hand"></i> {{temperature.percieved}}{{localize
+  'dialogs.degCelsius'}}</div>

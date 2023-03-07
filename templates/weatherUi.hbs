@@ -1,43 +1,55 @@
 <div id="wrapper">
   <div id="displayContainer">
-    <div id="weatherHeadline">Current Weather</div>
+    <div id="weatherHeadline">{{#if hasTimeAuthority}}{{timeHeadline}}{{else}}{{localize
+      'dialogs.weatherUi.headline'}}{{/if}}</div>
     <div id="weatherContainer">
       {{#if hasPerceivers}}
       <div data-func="prevPerc" class="percControl"><i class="fas fa-solid fa-caret-left"></i></div>
       {{/if}}
-      <div id="weatherDetail">detail</div>
+      <div id="weatherDetail"></div>
       {{#if hasPerceivers}}
       <div data-func="nextPerc" class="percControl"><i class="fas fa-solid fa-caret-right"></i></div>
       {{/if}}
     </div>
   </div>
-
   {{#if hasControls}}
   <div id="weatherControls">
     <div id="weatherFlex">
+      {{#if hasTimeAuthority}}
       <div id="weatherTimeBack">
         <ul>
-          <li data-func="time" data-base="-86400" title="-1 day"><i class="fas fa-regular fa-backward-step"></i></li>
-          <li data-func="time" data-base="-3600" title="-1 hour"><i class="fas fa-solid fa-chevrons-left"></i></li>
-          <li data-func="time" data-base="-60" title="-1 minute"><i class="fas fa-solid fa-chevron-left"></i></li>
+          <li data-func="time" data-base="-86400" title="-1 {{localize 'time.day'}}"><i
+              class="fas fa-regular fa-backward-step"></i></li>
+          <li data-func="time" data-base="-3600" title="-1 {{localize 'time.hour'}}"><i
+              class="fas fa-solid fa-chevrons-left"></i></li>
+          <li data-func="time" data-base="-60" title="-1 {{localize 'time.minute'}}"><i
+              class="fas fa-solid fa-chevron-left"></i></li>
         </ul>
       </div>
+      {{/if}}
       <div id="weatherControlElements">
         <ul>
-          <li data-func="chatSingle" title="Send to player"><i class="fas fa-solid fa-comment"></i></li>
-          <li data-func="chatAll" title="Send to everyone"><i class="fas fa-solid fa-user-group"></i></li>
-          <li data-func="clipboard" title="Copy to clipboard"><i class="fas fa-solid fa-copy"></i></li>
+          <li data-func="chatSingle" title="{{localize 'dialogs.weatherUi.actionChatSingle'}}"><i
+              class="fas fa-solid fa-comment"></i></li>
+          <li data-func="chatAll" title="{{localize 'dialogs.weatherUi.actionChatAll'}}"><i
+              class="fas fa-solid fa-user-group"></i></li>
+          <li data-func="clipboard" title="{{localize 'dialogs.weatherUi.actionClipboard'}}"><i
+              class="fas fa-solid fa-copy"></i></li>
         </ul>
       </div>
+      {{#if hasTimeAuthority}}
       <div id="weatherTimeFwd">
         <ul>
-          <li data-func="time" data-base="60" title="+1 minute"><i class="fas fa-solid fa-chevron-right"></i></li>
-          <li data-func="time" data-base="3600" title="+1 hour"><i class="fas fa-solid fa-chevrons-right"></i></li>
-          <li data-func="time" data-base="86400" title="+1 day"><i class="fas fa-regular fa-forward-step"></i></li>
+          <li data-func="time" data-base="60" title="+1 {{localize 'time.minute'}}"><i
+              class="fas fa-solid fa-chevron-right"></i></li>
+          <li data-func="time" data-base="3600" title="+1 {{localize 'time.hour'}}"><i
+              class="fas fa-solid fa-chevrons-right"></i></li>
+          <li data-func="time" data-base="86400" title="+1 {{localize 'time.day'}}"><i
+              class="fas fa-regular fa-forward-step"></i></li>
         </ul>
       </div>
+      {{/if}}
     </div>
   </div>
   {{/if}}
-
 </div>

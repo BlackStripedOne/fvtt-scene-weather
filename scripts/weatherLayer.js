@@ -48,10 +48,10 @@ export class WeatherLayer extends InteractionLayer {
 
     Hooks.on("getSceneControlButtons", btns => {
       const weatherOptions = [{
-        name: "Toggle Weather UI",
-        title: 'Toggle Weather UI',
+        name: 'dialogs.weatherUi.toggleName',
+        title: 'dialogs.weatherUi.toggleTitle',
         icon: "fas fa-solid fa-window-maximize",
-        visible: game.user.isGM,
+        visible: true, // TODO use rights management here.
         toggle: true,
         active: WeatherUi._isOpen,
         onClick: () => {
@@ -62,7 +62,7 @@ export class WeatherLayer extends InteractionLayer {
         name: "Toggle Meteogram",
         title: 'Toggle Meteogram',
         icon: "fas fa-solid fa-chart-line",
-        visible: game.user.isGM && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
+        visible: game.user.isGM && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),  // TODO use Fal and rights management here
         toggle: true,
         active: MeteoUi._isOpen,
         onClick: () => {
@@ -73,7 +73,7 @@ export class WeatherLayer extends InteractionLayer {
         name: "Weather Settings",
         title: 'Weather Settings',
         icon: "fas fa-solid fa-sliders",
-        visible: game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
+        visible: game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
         button: true,
         onClick: () => {
           if (game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
@@ -86,7 +86,7 @@ export class WeatherLayer extends InteractionLayer {
         name: "Region Settings",
         title: 'Region Settings',
         icon: "fas fa-solid fa-sliders",
-        visible: game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
+        visible: game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
         button: true,
         onClick: () => {
           if (game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
@@ -99,6 +99,7 @@ export class WeatherLayer extends InteractionLayer {
         name: "Weather Effects Enabled",
         title: 'Weather Effects Enabled',
         icon: "fas fa-solid fa-eye",
+        visible: true,
         toggle: true,
         active: Utils.getSetting('enableFx', true),
         onClick: () => {
@@ -110,20 +111,10 @@ export class WeatherLayer extends InteractionLayer {
             'value': enabled
           })
         }
-      },
-      {
-        name: "Some Button",
-        title: 'Some Button',
-        icon: "fas fa-solid fa-square-xmark",
-        button: true,
-        onClick: () => {
-          //TODO
-        }
-      }
-      ]
+      }]
 
       btns.splice(btns.findIndex(e => e.name === 'sounds') + 1, 0, {
-        name: "Scene Weather",
+        name: "Scene Weather",  // TODO localize
         title: "Scene Weather",
         icon: "fas fa-solid fa-cloud-bolt-sun",
         layer: "sceneweather",

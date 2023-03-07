@@ -26,6 +26,35 @@ import { Noise } from './noise.js'
  */
 export class WeatherModel {
 
+  static DEFAULT_MODEL_STRUCT = {
+    "source": "_DISABLED_",
+    "name": "disabled",
+    "temp": {
+      "ground": 0,
+      "air": 0,
+      "percieved": 0
+    },
+    "wind": {
+      "speed": 0,
+      "gusts": 0,
+      "direction": 0
+    },
+    "clouds": {
+      "coverage": 0,
+      "bottom": 0,
+      "top": 0,
+      "type": 0
+    },
+    "precipitation": {
+      "amount": 0,
+      "type": 0
+    },
+    "sun": {
+      "amount": 0
+    },
+    "humidity": 0
+  }
+
   /**
    * TODO
    * @param {*} param0 
@@ -123,7 +152,7 @@ export class WeatherModel {
       const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
       const windDirection = Math.trunc(weatherConfig.wind.directionType == 1 ? WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(), windGusts) : weatherConfig.wind.direction)
 
-      let newWeatherData = {
+      let newWeatherData = Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, {
         'source': sourceId,
         'name': 'custom',
         'temp': {
@@ -152,7 +181,7 @@ export class WeatherModel {
           'amount': weatherConfig.sun.amount / 100  // we use fractions here,
         },
         'humidity': weatherConfig.humidity
-      }
+      })
 
       if (foundry.utils.objectsEqual(this.weatherData, newWeatherData)) {
         Logger.debug('WeatherModel.updateConfig() -> static from sceneConfig, no changes.')
@@ -190,7 +219,7 @@ export class WeatherModel {
         return this._cache[regionBaseValues.timeHash]
       }
 
-      this.weatherData = {
+      this.weatherData = Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, {
         'name': regionBaseValues.name,
         'temp': {
           'ground': this._groundTemp(3, 3, dayOffset, hourOffset),
@@ -217,7 +246,7 @@ export class WeatherModel {
           'amount': regionBaseValues.sunAmount,
         },
         'humidity': regionBaseValues.baseHumidity
-      }
+      })
 
       // Determin cloud hight
       // temperature coefficient at cloud bottom altitude

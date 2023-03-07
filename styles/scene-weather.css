@@ -1,3 +1,67 @@
+.weatherIconContainer {
+  width: 74px;
+  height: 74px;
+  margin-left: 5px;
+  float: left;
+  display: block;
+  position: relative;
+}
+
+
+
+.weatherIcon {
+  position: absolute;
+  width: 74px;
+  height: 74px;
+  background-size: contain;
+}
+
+.weatherIconText {
+  float: left;
+  margin-left: 10px;
+  margin-top: 8px;
+  font-size: var(--font-size-20);
+}
+
+.message-content .weatherIconContainer {
+  width: 128px;
+  height: 128px;
+  display: table-cell;
+  float: none;
+}
+
+.message-content .weatherIcon {
+  width: 128px;
+  height: 128px;
+}
+
+.message-content .weatherIconText {
+  font-size: var(--font-size-14);
+  display: table-cell;
+  float: none;
+}
+
+.message-content .weatherIconText ul {
+  list-style-type: none;
+}
+
+.message-content .weatherIconText li {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+
+
+.weatherVague {
+  font-size: var(--font-size-20);
+}
+
+.message-content .weatherVague {
+  font-size: var(--font-size-14);
+}
+
+
+
 table.preciseWeather {
   width: 100%;
   border-collapse: collapse;
@@ -16,6 +80,7 @@ table.preciseWeather {
 .preciseWeather td {
   padding: 0px;
   margin: 0px;
+  white-space: nowrap;
 }
 
 #scene-weather-app #displayContainer {

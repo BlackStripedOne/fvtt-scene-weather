@@ -51,6 +51,57 @@ export class Logger {
 export class Utils {
 
   /**
+  * TODO wrapper remove in Fal
+  */
+  static mergeObject(original, other = {}, options = {}, _d = 0) {
+    return foundry.utils.mergeObject(original, other, options, _d)
+  }
+
+  /**
+   * TODO
+   */
+  static copyToClipboard(text = '') {
+    let temp = $('<input>')
+    $('body').append(temp)
+    temp.val(text).select()
+    document.execCommand('copy')
+    temp.remove()
+  }
+
+  /**
+   * Returns the next element in an array after the given current element. If the current element
+   * is the last one in the array, the first element of the array is returned.
+   *
+   * @param {Array} arr - The array to search for the next element.
+   * @param {*} currentElement - The current element to search for.
+   * @returns {*} The next element in the array after the current element, or the first element
+   * of the array if the current element is the last one in the array. If the array is empty or
+   * the current element is not in the array, currentElement is returned.
+   */
+  static arrayNext(arr = [], currentElement = '') {
+    if (!arr.length) return currentElement
+    const currentIndex = arr.indexOf(currentElement)
+    return arr[(currentIndex + 1) % arr.length] || arr[0]
+  }
+
+  /**
+   * Returns the previous element in an array before the given current element. If the current
+   * element is the first one in the array, the last element of the array is returned.
+   *
+   * @param {Array} arr - The array to search for the previous element.
+   * @param {*} currentElement - The current element to search for.
+   * @returns {*} The previous element in the array before the current element, or the last element
+   * of the array if the current element is the first one in the array. If the array is empty or
+   * the current element is not in the array, currentElement is returned.
+   */
+  static arrayPrev(arr = [], currentElement = '') {
+    if (!arr.length) return currentElement
+    const currentIndex = arr.indexOf(currentElement)
+    return arr[(currentIndex + arr.length - 1) % arr.length] || arr[0]
+  }
+
+
+  /**
   * Returns the SceneWeather API instance.
   * @returns {Object} The SceneWeather API instance.
   */
@@ -148,7 +199,7 @@ export class Utils {
 
   /**
    * Foundry VTT's deepClone function wrapped here to avoid code error highlighting due to missing definition.
-   * 
+   * TODO move to Fal
    * @param {*} original
    * @param {*} options
    */
@@ -306,6 +357,7 @@ export class Utils {
   }
 
   /**
+   * TODO MOve to Fal
    * Language translation
    * 
    * @param {string} toTranslate The value to translate

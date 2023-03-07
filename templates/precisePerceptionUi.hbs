@@ -1,0 +1,38 @@
+<table class="preciseWeather">
+  <tr>
+    <td><i class="fa-regular fa-temperature-high"></i> {{localize 'meteo.precise.air'}}</td>
+    <td>{{temperature.air}} {{localize 'dialogs.degCelsius'}}</td>
+    <td><i class="fa-regular fa-droplet-percent"></i> {{localize 'meteo.precise.air'}}</td>
+    <td>{{humidity.percent}} {{localize 'dialogs.percent'}}</td>
+  </tr>
+  <tr>
+    <td><i class="fa-regular fa-street-view"></i> {{localize 'meteo.precise.ground'}}</td>
+    <td>{{temperature.ground}} {{localize 'dialogs.degCelsius'}}</td>
+    <td><i class="fa-regular fa-cloud-hail-mixed"></i> {{localize 'meteo.precise.kind'}}</td>
+    <td>{{localize precipitation.typeId}}</td>
+  </tr>
+  <tr>
+    <td><i class="fa-regular fa-hand"></i> {{localize 'meteo.precise.percieved'}}</td>
+    <td>{{temperature.percieved}} {{localize 'dialogs.degCelsius'}}</td>
+    <td><i class="fa-light fa-raindrops"></i> {{localize 'meteo.precise.amount'}}</td>
+    <td>{{precipitation.amount}} {{localize 'dialogs.percent'}}</td>
+  </tr>
+  <tr>
+    <td><i class="fa-regular fa-windsock"></i> {{localize 'meteo.precise.wind'}}</td>
+    <td>{{wind.speed}} {{localize 'dialogs.kmh'}}</td>
+    <td><i class="fa-regular fa-cloud"></i> {{localize 'meteo.precise.kind'}}</td>
+    <td>{{localize clouds.typeId}}</td>
+  </tr>
+  <tr>
+    <td><i class="fa-regular fa-wind-warning"></i> {{localize 'meteo.precise.gusts'}}</td>
+    <td>{{wind.gusts}} {{localize 'dialogs.kmh'}}</td>
+    <td><i class="fa-regular fa-clouds"></i> {{localize 'meteo.precise.clouds'}}</td>
+    <td>{{clouds.amount}} {{localize 'dialogs.percent'}}</td>
+  </tr>
+  <tr>
+    <td><i class="fa-regular fa-compass"></i> {{localize 'meteo.precise.direction'}}</td>
+    <td>{{wind.direction}}{{localize 'dialogs.degree'}}</td>
+    <td><i class="fa-regular fa-sun"></i> {{localize 'meteo.precise.sun'}}</td>
+    <td>{{sun.amount}} {{localize 'dialogs.percent'}}</td>
+  </tr>
+</table>

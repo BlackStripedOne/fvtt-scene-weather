@@ -17,13 +17,12 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from '../utils.js'
-import { EVENTS, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from '../constants.js'
+import { MODULE, EVENTS, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
-  Logger.debug('registered weatherPerciever for perceptive')
-  Utils.getApi().registerPerciever('perceptive', new PerceptivePerciever())
+  SceneWeather.registerPerciever(MODULE.ID, 'perceptive', new PerceptivePerciever())
 })
 
 const PREFIX = 'meteo.perceptive.'
@@ -43,7 +42,7 @@ class PerceptivePerciever extends WeatherPerception {
    */
   async getTextFromModel(weatherModel) {
     const weatherInfo = await this.getWeatherInfoFromModel(weatherModel)
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive.templates.text'))
+    const compiledTemplate = Handlebars.compile(Fal.i18n('meteo.perceptive.templates.text'))
     const weatherText = compiledTemplate(weatherInfo)
     return weatherText
   }
@@ -53,7 +52,7 @@ class PerceptivePerciever extends WeatherPerception {
    */
   async getUiHtmlFromModel(weatherModel) {
     const weatherInfo = await this.getWeatherInfoFromModel(weatherModel)
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.perceptive.templates.ui'))
+    const compiledTemplate = Handlebars.compile(Fal.i18n('meteo.perceptive.templates.ui'))
     const weatherInfoHtml = compiledTemplate(weatherInfo)
     return weatherInfoHtml
   }
@@ -69,7 +68,7 @@ class PerceptivePerciever extends WeatherPerception {
    * @override WeatherPerception.getWeatherInfoFromModel(weatherModel)
    */
   async getWeatherInfoFromModel(weatherModel) {
-    const weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, PerceptivePerciever._calculateWeatherInfoFromModelData(weatherModel))
+    const weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), PerceptivePerciever._calculateWeatherInfoFromModelData(weatherModel))
     Logger.debug('PerceptivePerciever.getWeatherInfoFromModel()', { 'weatherModel': weatherModel, 'weatherInfo': weatherInfo })
     return weatherInfo
   }
@@ -78,7 +77,7 @@ class PerceptivePerciever extends WeatherPerception {
    * @override WeatherPerception.getPercieverInfo()
    */
   getPercieverInfo() {
-    const info = Fal.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
+    const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'perceptive',
       'name': PREFIX + 'name'
     })

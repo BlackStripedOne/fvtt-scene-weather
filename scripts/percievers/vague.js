@@ -17,13 +17,13 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from '../utils.js'
-import { EVENTS, PRECI_TYPE, CLOUD_TYPE } from '../constants.js'
+import { MODULE, EVENTS, PRECI_TYPE, CLOUD_TYPE } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
   Logger.debug('registered weatherPerciever for vague')
-  Utils.getApi().registerPerciever('vague', new VaguePerciever())
+  SceneWeather.registerPerciever(MODULE.ID, 'vague', new VaguePerciever())
 })
 
 class VaguePerciever extends WeatherPerception {
@@ -40,7 +40,7 @@ class VaguePerciever extends WeatherPerception {
    * @override WeatherPerception.getTextFromModel(weatherModel)
    */
   async getTextFromModel(weatherModel) {
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.vague.templates.text'))
+    const compiledTemplate = Handlebars.compile(Fal.i18n('meteo.vague.templates.text'))
     const text = compiledTemplate(await this.getWeatherInfoFromModel(weatherModel))
     return text
   }
@@ -49,7 +49,7 @@ class VaguePerciever extends WeatherPerception {
    * @override WeatherPerception.getUiHtmlFromModel(weatherModel)
    */
   async getUiHtmlFromModel(weatherModel) {
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.vague.templates.ui'))
+    const compiledTemplate = Handlebars.compile(Fal.i18n('meteo.vague.templates.ui'))
     const uiHtml = compiledTemplate(await this.getWeatherInfoFromModel(weatherModel))
     return uiHtml
   }
@@ -66,7 +66,7 @@ class VaguePerciever extends WeatherPerception {
    */
   async getWeatherInfoFromModel(modelData) {
     const temp = Math.round(modelData.temp.percieved / 5) * 5
-    let weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, {
+    let weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
       'temperature': {
         'air': temp,
         'ground': NaN,
@@ -142,7 +142,7 @@ class VaguePerciever extends WeatherPerception {
    * @override WeatherPerception.getPercieverInfo()
    */
   getPercieverInfo() {
-    const info = Fal.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
+    const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'vague',
       'name': 'meteo.vague.name'
     })

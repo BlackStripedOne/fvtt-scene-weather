@@ -22,8 +22,7 @@ import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
-  Logger.debug('registered weatherPerciever for precise')
-  Utils.getApi().registerPerciever('precise', new PrecisePerciever())
+  SceneWeather.registerPerciever(MODULE.ID, 'precise', new PrecisePerciever())
 })
 
 class PrecisePerciever extends WeatherPerception {
@@ -63,7 +62,7 @@ class PrecisePerciever extends WeatherPerception {
    * @override WeatherPerception.getWeatherInfoFromModel(modelData)
    */
   async getWeatherInfoFromModel(modelData) {
-    const weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, {
+    const weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
       'temperature': {
         'air': modelData.temp.air.toFixed(1),
         'ground': modelData.temp.ground.toFixed(1),
@@ -100,7 +99,7 @@ class PrecisePerciever extends WeatherPerception {
    * @override WeatherPerception.getPercieverInfo()
    */
   getPercieverInfo() {
-    const info = Utils.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
+    const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'precise',
       'name': 'meteo.precise.name'
     })

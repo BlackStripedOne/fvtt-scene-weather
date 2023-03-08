@@ -22,8 +22,7 @@ import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
-  Logger.debug('registered weatherPerciever for icon')
-  Utils.getApi().registerPerciever('icon', new IconPerciever())
+  SceneWeather.registerPerciever(MODULE.ID, 'icon', new IconPerciever())
 })
 
 const PREFIX = 'meteo.icon.'
@@ -42,7 +41,7 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.getTextFromModel(weatherModel)
    */
   async getTextFromModel(weatherModel) {
-    const compiledTemplate = Handlebars.compile(Utils.i18n('meteo.icon.templates.text'))
+    const compiledTemplate = Handlebars.compile(Fal.i18n('meteo.icon.templates.text'))
     const text = compiledTemplate(await this.getWeatherInfoFromModel(weatherModel))
     return text
   }
@@ -71,7 +70,7 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.getWeatherInfoFromModel(modelData)
    */
   async getWeatherInfoFromModel(modelData) {
-    let weatherInfo = Fal.mergeObject(WeatherPerception.DEFAULT_WEATHER_STRUCT, {
+    let weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
       'temperature': {
         'air': modelData.temp.air.toFixed(1),
         'ground': modelData.temp.ground.toFixed(1),
@@ -158,7 +157,7 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.getPercieverInfo()
    */
   getPercieverInfo() {
-    const info = Fal.mergeObject(WeatherPerception.DEFAULT_INFO_STRUCT, {
+    const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'icon',
       'name': 'meteo.icon.name'
     })

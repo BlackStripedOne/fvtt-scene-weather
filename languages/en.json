@@ -152,6 +152,47 @@
     }
   },
   "templates": {
+    "weather": {
+      "blizzard": {
+        "name": "Blizzard"
+      },
+      "densefog": {
+        "name": "Dense fog"
+      },
+      "fog": {
+        "name": "Foggy"
+      },
+      "frigid": {
+        "name": "Freezing Clear Cold"
+      },
+      "heatwave": {
+        "name": "Searing Heat"
+      },
+      "heavyrain": {
+        "name": "Heavily Raining"
+      },
+      "moderaterain": {
+        "name": "Raining slightly"
+      },
+      "partlycloudy": {
+        "name": "Partial Cloudy"
+      },
+      "rain": {
+        "name": "Raining"
+      },
+      "slightsnow": {
+        "name": "Slightly Snowing"
+      },
+      "snow": {
+        "name": "Snow"
+      },
+      "default": {
+        "name": "Clear Sky"
+      },
+      "thunderstorm": {
+        "name": "Thunderstorm"
+      }
+    },
     "region": {
       "alpine": {
         "name": "Alpine",
@@ -160,6 +201,62 @@
       "chaparral": {
         "name": "Chaparral",
         "description": "Dry, shrubland region with hot summers and mild, rainy winters."
+      },
+      "coastal": {
+        "name": "Coastal",
+        "description": "Region influenced by the ocean with relatively mild temperatures and often high humidity."
+      },
+      "desert": {
+        "name": "Desert",
+        "description": "Dry region with little rainfall and high temperatures during the day, but can be cold at night."
+      },
+      "grassland": {
+        "name": "Grassland",
+        "description": "Open, flat region dominated by grasses and characterized by seasonal rainfall."
+      },
+      "littoral": {
+        "name": "Littoral",
+        "description": "The region where the land meets the water in a lake, river, or ocean, with unique plants and animals adapted to this interface."
+      },
+      "mangrove": {
+        "name": "Mangrove",
+        "description": "Coastal wetland region characterized by trees and shrubs adapted to saltwater and often submerged in water."
+      },
+      "mediterranean": {
+        "name": "Mediterranean",
+        "description": "Region with mild, rainy winters and hot, dry summers, known for its characteristic vegetation."
+      },
+      "polar": {
+        "name": "Polar",
+        "description": "Regions with permanently frozen water and very low temperatures."
+      },
+      "rainforest": {
+        "name": "Tropical Rainforest",
+        "description": "Dense forest with high amounts of rainfall and high biodiversity."
+      },
+      "savanna": {
+        "name": "Savanna",
+        "description": "Open grassland region with scattered trees and distinct dry and wet seasons."
+      },
+      "steppe": {
+        "name": "Steppe",
+        "description": "Large, flat region with low rainfall and characteristic grasses."
+      },
+      "taiga": {
+        "name": "Boreal Forest",
+        "description": "Dense forest of coniferous trees found in colder regions with long winters."
+      },
+      "temperate": {
+        "name": "Temperate",
+        "description": "TODO"
+      },
+      "tundra": {
+        "name": "Tundra",
+        "description": "Cold, treeless region with permafrost and a short growing season."
+      },
+      "wetland": {
+        "name": "Wetland",
+        "description": "Area with high water saturation, often with distinctive vegetation."
       }
     }
   },
@@ -325,8 +422,8 @@
       "snow": "snow",
       "blizzard": "blizzard",
       "templates": {
-        "ui": "The {{localize sun.amountId}} sky {{#if (eq clouds.type 'meteo.none')}} is clear.{{/if}}{{#if (ne clouds.type 'meteo.none')}} shows {{localize clouds.amountId}} {{localize clouds.heightId}} {{localize clouds.type}} bringing {{localize precipitation.amountId}} {{localize precipitation.type}}. {{/if}}The {{localize humidity.percentId}} {{localize temperature.percievedId}} air{{#if (eq wind.speedId 'meteo.calm')}} is {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} brings a {{localize wind.speedId}} from {{localize wind.directionId}}.{{/if}}({{name}})",
-        "text": "The {{localize sun.amountId}} sky {{#if (eq clouds.type 'meteo.none')}} is clear.{{/if}}{{#if (ne clouds.type 'meteo.none')}} shows {{localize clouds.amountId}} {{localize clouds.heightId}} {{localize clouds.type}} bringing {{localize precipitation.amountId}} {{localize precipitation.type}}. {{/if}}The {{localize humidity.percentId}} {{localize temperature.percievedId}} air{{#if (eq wind.speedId 'meteo.calm')}} is {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} brings a {{localize wind.speedId}} from {{localize wind.directionId}}.{{/if}}({{name}})"
+        "ui": "The {{localize sun.amountId}} sky {{#if (eq clouds.type 'meteo.perceptive.none')}} is clear.{{/if}}{{#if (ne clouds.type 'meteo.perceptive.none')}} shows {{localize clouds.amountId}} {{localize clouds.heightId}} {{localize clouds.type}} bringing {{localize precipitation.amountId}} {{localize precipitation.type}}. {{/if}}The {{localize humidity.percentId}} {{localize temperature.percievedId}} air{{#if (eq wind.speedId 'meteo.perceptive.calm')}} is {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.perceptive.calm')}} brings a {{localize wind.speedId}} from {{localize wind.directionId}}.{{/if}}({{name}})",
+        "text": "The {{localize sun.amountId}} sky {{#if (eq clouds.type 'meteo.perceptive.none')}} is clear.{{/if}}{{#if (ne clouds.type 'meteo.perceptive.none')}} shows {{localize clouds.amountId}} {{localize clouds.heightId}} {{localize clouds.type}} bringing {{localize precipitation.amountId}} {{localize precipitation.type}}. {{/if}}The {{localize humidity.percentId}} {{localize temperature.percievedId}} air{{#if (eq wind.speedId 'meteo.perceptive.calm')}} is {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.perceptive.calm')}} brings a {{localize wind.speedId}} from {{localize wind.directionId}}.{{/if}}({{name}})"
       }
     }
   }

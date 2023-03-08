@@ -19,48 +19,48 @@ See the License for the specific language governing permissions and limitations 
 import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  SceneWeather.registerRegionTemplate(MODULE.ID, 'alpine', {
-    'name': 'templates.region.alpine.name',
-    'description': 'templates.region.alpine.description',
-    'elevation': 1000,
-    'vegetation': 0,
-    'waterAmount': 0,
+  SceneWeather.registerRegionTemplate(MODULE.ID, 'temperate', {
+    'name': 'templates.region.temperate.name',
+    'description': 'templates.region.temperate.description',
+    'elevation': 400,
+    'vegetation': 50,
+    'waterAmount': 10,
     'summer': {
       'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 7.5
-      },
-      'humidity': {
-        'day': 50,
-        'night': 60,
-        'var': 5
-      },
-      'wind': {
-        'avg': 30,
-        'var': 10
-      },
-      'sun': {
-        'hours': 14
-      }
-    },
-    'winter': {
-      'temperature': {
-        'day': 0,
-        "night": -15,
-        "var": 7.5
+        'day': 25,
+        "night": 15,
+        "var": 10
       },
       'humidity': {
         'day': 70,
         'night': 60,
+        'var': 10
+      },
+      'wind': {
+        'avg': 15,
+        'var': 10
+      },
+      'sun': {
+        'hours': 15
+      }
+    },
+    'winter': {
+      'temperature': {
+        'day': 10,
+        "night": 0,
+        "var": 10
+      },
+      'humidity': {
+        'day': 60,
+        'night': 65,
         'var': 5
       },
       'wind': {
-        'avg': 40,
-        'var': 20
+        'avg': 20,
+        'var': 10
       },
       'sun': {
-        'hours': 10
+        'hours': 9
       }
     }
   })

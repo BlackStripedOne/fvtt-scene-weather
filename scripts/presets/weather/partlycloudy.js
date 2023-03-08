@@ -19,31 +19,33 @@ See the License for the specific language governing permissions and limitations 
 import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
-  SceneWeather.registerWeatherTemplate(MODULE.ID, 'blizzard', {
-    'name': 'templates.weather.blizzard.name',
+  SceneWeather.registerWeatherTemplate(MODULE.ID, 'partlycloudy', {
+    'name': 'templates.weather.partlycloudy.name',
     'temp': {
-      'ground': 0,
-      'air': -3,
-      'percieved': -4
+      'ground': 22,
+      'air': 25,
+      'percieved': 25
     },
     'wind': {
-      'speed': 70,
-      'gusts': 85,
-      'direction': 115
+      'speed': 20,
+      'gusts': 25,
+      'direction': 15
     },
     'clouds': {
-      'coverage': 0.7,
-      'bottom': 1000,
-      'top': 3000,
-      'type': CLOUD_TYPE.cumulunimbus
+      'coverage': 0.3,
+      'bottom': 3000,
+      'top': 4000,
+      'type': CLOUD_TYPE.stratus
     },
     'precipitation': {
-      'amount': 1.0,
-      'type': PRECI_TYPE.blizzard
+      'amount': 0,
+      'type': PRECI_TYPE.none
     },
     'sun': {
-      'amount': 0.1,
+      'amount': 0.6,
     },
-    'humidity': 10
+    'humidity': 60
   })
 })
+
+

@@ -182,14 +182,108 @@
     }
   },
   "templates": {
+    "weather": {
+      "blizzard": {
+        "name": "Schneesturm"
+      },
+      "densefog": {
+        "name": "Dichter Nebel"
+      },
+      "fog": {
+        "name": "Nebel"
+      },
+      "frigid": {
+        "name": "Frostig Klar"
+      },
+      "heatwave": {
+        "name": "Hitzewelle"
+      },
+      "heavyrain": {
+        "name": "Starkregen"
+      },
+      "moderaterain": {
+        "name": "Leichter Regen"
+      },
+      "partlycloudy": {
+        "name": "Teils bewölkt"
+      },
+      "rain": {
+        "name": "Regen"
+      },
+      "slightsnow": {
+        "name": "Leichter Schneefall"
+      },
+      "default": {
+        "name": "Klarer Himmel"
+      },
+      "thunderstorm": {
+        "name": "Gewitter"
+      }
+    },
     "region": {
       "alpine": {
         "name": "Gebirge",
         "description": "Hochgebirgsregion mit niedrigen Temperaturen und oft von Schnee und Eis bedeckt."
       },
       "chaparral": {
-        "name": "Gebirge",
+        "name": "Chaparral",
         "description": "Trockene, strauchige Region mit heißen Sommern und milden, regnerischen Wintern."
+      },
+      "coastal": {
+        "name": "Küstengebiet",
+        "description": "Region, die vom Ozean beeinflusst wird, mit vergleichsweise milden Temperaturen und oft hoher Luftfeuchtigkeit."
+      },
+      "desert": {
+        "name": "Wüste",
+        "description": "Trockene Region mit wenig Niederschlag und hohen Temperaturen am Tag, kann aber nachts kalt sein."
+      },
+      "grassland": {
+        "name": "Graslandschaft",
+        "description": "Offene, flache Region, die von Gräsern dominiert wird und durch saisonale Niederschläge gekennzeichnet ist."
+      },
+      "littoral": {
+        "name": "Litoralzone",
+        "description": "Die Region, in der das Land in einem See, Fluss oder Ozean auf das Wasser trifft, mit einzigartigen Pflanzen und Tieren, die an diese Schnittstelle angepasst sind."
+      },
+      "mangrove": {
+        "name": "Mangroven",
+        "description": "Küsten Feuchtgebiete, die von Bäumen und Sträuchern angepasst an Salzwasser und oft von Wasser bedeckt sind, gekennzeichnet sind."
+      },
+      "mediterranean": {
+        "name": "Mediterran",
+        "description": "Region mit milden, regnerischen Wintern und heißen, trockenen Sommern, bekannt für ihre charakteristische Vegetation."
+      },
+      "polar": {
+        "name": "Polare Eiskappen",
+        "description": "Regionen mit dauerhaft gefrorenem Wasser und sehr niedrigen Temperaturen."
+      },
+      "rainforest": {
+        "name": "Regenwald",
+        "description": "Dichter Wald mit hohen Niederschlagsmengen und hoher Artenvielfalt."
+      },
+      "savanna": {
+        "name": "Savanne",
+        "description": "Offene Graslandregion mit vereinzelten Bäumen und ausgeprägten Trocken- und Regenzeiten."
+      },
+      "steppe": {
+        "name": "Steppe",
+        "description": "Große, flache Region mit geringem Niederschlag und charakteristischen Gräsern."
+      },
+      "taiga": {
+        "name": "Taiga",
+        "description": "Dichter Wald aus Nadelbäumen, der in kälteren Regionen mit langen Wintern zu finden ist."
+      },
+      "temperate": {
+        "name": "Temperate",
+        "description": "TODO"
+      },
+      "tundra": {
+        "name": "Tundra",
+        "description": "Kalte, baumlose Region mit Permafrost und einer kurzen Vegetationsperiode."
+      },
+      "wetland": {
+        "name": "Feuchtgebiete",
+        "description": "Gebiet mit hoher Wassersättigung, oft mit charakteristischer Vegetation."
       }
     }
   },
@@ -355,8 +449,8 @@
       "snow": "Schneit",
       "blizzard": "Tobt ein Schneesturm,",
       "templates": {
-        "ui": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}} {{localize clouds.type}}.{{#if (ne precipitation.amountId 'meteo.nothing')}} Es {{localize precipitation.type}}{{localize precipitation.amountId}}.{{/if}}{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}",
-        "text": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}} {{localize clouds.type}}.{{#if (ne precipitation.amountId 'meteo.nothing')}} Es {{localize precipitation.type}}{{localize precipitation.amountId}}.{{/if}}{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}"
+        "ui": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.perceptive.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.perceptive.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}} {{localize clouds.type}}.{{#if (ne precipitation.amountId 'meteo.perceptive.nothing')}} Es {{localize precipitation.type}}{{localize precipitation.amountId}}.{{/if}}{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.perceptive.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.perceptive.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}",
+        "text": "Der {{localize sun.amountId}} Himmel {{#if (eq clouds.type 'meteo.perceptive.none')}} frei von Wolken.{{/if}}{{#if (ne clouds.type 'meteo.perceptive.none')}} ist {{localize clouds.amountId}} mit {{localize clouds.heightId}} {{localize clouds.type}}.{{#if (ne precipitation.amountId 'meteo.perceptive.nothing')}} Es {{localize precipitation.type}}{{localize precipitation.amountId}}.{{/if}}{{/if}} Die {{localize humidity.percentId}} {{localize temperature.percievedId}} Luft{{#if (eq wind.speedId 'meteo.perceptive.calm')}} ist {{localize wind.speedId}}.{{/if}}{{#if (ne wind.speedId 'meteo.perceptive.calm')}} bringt {{localize wind.speedId}} aus {{localize wind.directionId}}.{{/if}}"
       }
     }
   }

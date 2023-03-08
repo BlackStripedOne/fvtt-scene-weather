@@ -19,48 +19,48 @@ See the License for the specific language governing permissions and limitations 
 import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  SceneWeather.registerRegionTemplate(MODULE.ID, 'alpine', {
-    'name': 'templates.region.alpine.name',
-    'description': 'templates.region.alpine.description',
-    'elevation': 1000,
-    'vegetation': 0,
-    'waterAmount': 0,
+  SceneWeather.registerRegionTemplate(MODULE.ID, 'taiga', {
+    'name': 'templates.region.taiga.name',
+    'description': 'templates.region.taiga.description',
+    'elevation': 400,
+    'vegetation': 70,
+    'waterAmount': 10,
     'summer': {
       'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 7.5
+        'day': 20,
+        "night": 10,
+        "var": 10
       },
       'humidity': {
-        'day': 50,
-        'night': 60,
+        'day': 70,
+        'night': 80,
         'var': 5
       },
       'wind': {
-        'avg': 30,
+        'avg': 15,
         'var': 10
       },
       'sun': {
-        'hours': 14
+        'hours': 17
       }
     },
     'winter': {
       'temperature': {
-        'day': 0,
-        "night": -15,
-        "var": 7.5
+        'day': -5,
+        "night": -25,
+        "var": 10
       },
       'humidity': {
-        'day': 70,
+        'day': 80,
         'night': 60,
         'var': 5
       },
       'wind': {
-        'avg': 40,
-        'var': 20
+        'avg': 25,
+        'var': 10
       },
       'sun': {
-        'hours': 10
+        'hours': 8
       }
     }
   })

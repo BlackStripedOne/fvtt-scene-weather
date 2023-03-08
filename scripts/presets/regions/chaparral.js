@@ -16,14 +16,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from '../../utils.js'
-import { EVENTS } from '../../constants.js'
+import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   // https://en.wikipedia.org/wiki/Chaparral
-  Logger.debug('registered regionTemplate for chaparral')
-  Utils.getApi().regionTemplates.push({
-    'id': 'chaparral',
+  SceneWeather.registerRegionTemplate(MODULE.ID, 'chaparral', {
     'name': 'templates.region.chaparral.name',
     'description': 'templates.region.chaparral.description',
     'elevation': 1000,

@@ -19,48 +19,49 @@ See the License for the specific language governing permissions and limitations 
 import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  SceneWeather.registerRegionTemplate(MODULE.ID, 'alpine', {
-    'name': 'templates.region.alpine.name',
-    'description': 'templates.region.alpine.description',
-    'elevation': 1000,
-    'vegetation': 0,
-    'waterAmount': 0,
+  // https://en.wikipedia.org/wiki/Mangrove
+  SceneWeather.registerRegionTemplate(MODULE.ID, 'mangrove', {
+    'name': 'templates.region.mangrove.name',
+    'description': 'templates.region.mangrove.description',
+    'elevation': 0,
+    'vegetation': 80,
+    'waterAmount': 60,
     'summer': {
       'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 7.5
+        'day': 32.5,
+        "night": 22.5,
+        "var": 5
       },
       'humidity': {
-        'day': 50,
-        'night': 60,
-        'var': 5
-      },
-      'wind': {
-        'avg': 30,
+        'day': 60,
+        'night': 70,
         'var': 10
       },
+      'wind': {
+        'avg': 10,
+        'var': 5
+      },
       'sun': {
-        'hours': 14
+        'hours': 16
       }
     },
     'winter': {
       'temperature': {
-        'day': 0,
-        "night": -15,
-        "var": 7.5
+        'day': 27.5,
+        "night": 17.5,
+        "var": 5
       },
       'humidity': {
-        'day': 70,
+        'day': 60,
         'night': 60,
-        'var': 5
+        'var': 10
       },
       'wind': {
-        'avg': 40,
-        'var': 20
+        'avg': 15,
+        'var': 10
       },
       'sun': {
-        'hours': 10
+        'hours': 8
       }
     }
   })

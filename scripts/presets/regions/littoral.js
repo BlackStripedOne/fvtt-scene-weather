@@ -19,48 +19,49 @@ See the License for the specific language governing permissions and limitations 
 import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  SceneWeather.registerRegionTemplate(MODULE.ID, 'alpine', {
-    'name': 'templates.region.alpine.name',
-    'description': 'templates.region.alpine.description',
-    'elevation': 1000,
-    'vegetation': 0,
-    'waterAmount': 0,
+  // https://en.wikipedia.org/wiki/Littoral_zone
+  SceneWeather.registerRegionTemplate(MODULE.ID, 'littoral', {
+    'name': 'templates.region.littoral.name',
+    'description': 'templates.region.littoral.description',
+    'elevation': 0,
+    'vegetation': 1,
+    'waterAmount': 50,
     'summer': {
       'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 7.5
+        'day': 25,
+        "night": 15,
+        "var": 10
       },
       'humidity': {
-        'day': 50,
+        'day': 60,
         'night': 60,
         'var': 5
       },
       'wind': {
-        'avg': 30,
-        'var': 10
+        'avg': 10,
+        'var': 5
       },
       'sun': {
-        'hours': 14
+        'hours': 16
       }
     },
     'winter': {
       'temperature': {
-        'day': 0,
-        "night": -15,
-        "var": 7.5
+        'day': 15,
+        "night": 5,
+        "var": 10
       },
       'humidity': {
-        'day': 70,
+        'day': 60,
         'night': 60,
-        'var': 5
+        'var': 10
       },
       'wind': {
-        'avg': 40,
-        'var': 20
+        'avg': 15,
+        'var': 10
       },
       'sun': {
-        'hours': 10
+        'hours': 8
       }
     }
   })

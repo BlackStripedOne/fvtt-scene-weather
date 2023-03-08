@@ -17,6 +17,8 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { MODULE } from '../constants.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Utils } from '../utils.js'
 
 export class FlashFilter extends PIXI.filters.AdjustmentFilter {
 
@@ -33,11 +35,11 @@ export class FlashFilter extends PIXI.filters.AdjustmentFilter {
    */
   constructor({ options = {}, soft = false } = {}) {
     super()
-    this.options = foundry.utils.mergeObject({
+    this.options = Utils.mergeObject({
       frequency: 0,
       duration: 0,
       brightness: 1,
-      nextTime: canvas.app.ticker.lastTime / 10
+      nextTime: Fal.getLastTickTime() / 10
     }, options)
     const keys = Object.keys(this.options)
     for (const key of keys) {
@@ -65,8 +67,8 @@ export class FlashFilter extends PIXI.filters.AdjustmentFilter {
    * Process next animation step. Invoked by the ticker.
    */
   async step() {
-    if (canvas.app.ticker.lastTime / 10 > this.options.nextTime) {
-      this.options.nextTime = canvas.app.ticker.lastTime / 10 + 40 + this.options.frequency * Math.random()
+    if (Fal.getLastTickTime() / 10 > this.options.nextTime) {
+      this.options.nextTime = Fal.getLastTickTime() / 10 + 40 + this.options.frequency * Math.random()
 
       const animate = (value) => {
         const attributes = [

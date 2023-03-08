@@ -16,6 +16,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
+import { Utils } from '../utils.js'
+
 export class ColorFilter extends PIXI.filters.AdjustmentFilter {
 
   /**
@@ -26,7 +28,7 @@ export class ColorFilter extends PIXI.filters.AdjustmentFilter {
    */
   constructor({ options = {}, soft = false } = {}) {
     super()
-    const { color, ...otherOptions } = foundry.utils.mergeObject({
+    const { color, ...otherOptions } = Utils.mergeObject({
       tint: '#ffffff',
       saturation: 1,
       gamma: 1,

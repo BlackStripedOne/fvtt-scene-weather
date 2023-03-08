@@ -17,106 +17,102 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Generators } from './generators.js'
-import { Logger, Utils } from '../utils.js'
+import { Utils } from '../utils.js'
 import { MODULE, CLOUD_TYPE } from '../constants.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
-  Logger.debug('registered generator for stratus')
-  game.sceneWeather.generators.push({
-    'name': 'stratus',
-    'getEmitter': function (modelData) {
+  SceneWeather.registerWeatherFxGenerator('stratus', function (modelData) {
+    if (Fal.getSetting('cloudsAlpha', 100) < 2) {
+      return undefined
+    }
 
-      if (Utils.getSetting('cloudsAlpha', 100) < 2) {
-        return undefined
-      }
+    if (![CLOUD_TYPE.stratus, CLOUD_TYPE.cumulus, CLOUD_TYPE.cumulunimbus].includes(modelData.clouds.type)) return null
 
-      if (![CLOUD_TYPE.stratus, CLOUD_TYPE.cumulus, CLOUD_TYPE.cumulunimbus].includes(modelData.clouds.type)) return null
+    let generatorOptions = {
+      alpha: Fal.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
+      direction: (Math.round(modelData.wind.direction) + 90) % 360,           // 0..359 via Winddirection
+      speed: Utils.map(modelData.wind.speed, 10, 100, 0.2, 2.5),    // 0.2 nearly no wind, 4 much wind, 5 storm
+      scale: Utils.map(modelData.clouds.coverage, 0.3, 1, 1, 2),            // 1 few clouds, 2 overcast
+      lifetime: 1,
+      density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.001, 0.01),     // 0.01 few clouds, 0.1 overcast
+      tint: null                                                              // 250,250,250 few clouds  180,180,180 overcast
+    }
 
-      let generatorOptions = {
-        alpha: Utils.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
-        direction: (Math.round(modelData.wind.direction) + 90) % 360,           // 0..359 via Winddirection
-        speed: Utils.map(modelData.wind.speed, 10, 100, 0.2, 2.5),    // 0.2 nearly no wind, 4 much wind, 5 storm
-        scale: Utils.map(modelData.clouds.coverage, 0.3, 1, 1, 2),            // 1 few clouds, 2 overcast
-        lifetime: 1,
-        density: Utils.map(modelData.clouds.coverage, 0.2, 1, 0.001, 0.01),     // 0.01 few clouds, 0.1 overcast
-        tint: null                                                              // 250,250,250 few clouds  180,180,180 overcast
-      }
+    // Darker cumulus below cumulunimbus clouds
+    if (modelData.clouds.type == 3) {
+      generatorOptions.tint = '#A0A0A0'                                       // 250,250,250 few clouds  180,180,180 overcast
+      generatorOptions.density = 0.007
+      generatorOptions.scale = 1
+    }
 
-      // Darker cumulus below cumulunimbus clouds
-      if (modelData.clouds.type == 3) {
-        generatorOptions.tint = '#A0A0A0'                                       // 250,250,250 few clouds  180,180,180 overcast
-        generatorOptions.density = 0.007
-        generatorOptions.scale = 1
-      }
+    // Darker cumulus below cumulunimbus and cumulus clouds
+    if (modelData.clouds.type == 4) {
+      generatorOptions.tint = '#808080'                                       // 250,250,250 few clouds  180,180,180 overcast
+      generatorOptions.density = 0.01
+      generatorOptions.scale = 1.2
+    }
 
-      // Darker cumulus below cumulunimbus and cumulus clouds
-      if (modelData.clouds.type == 4) {
-        generatorOptions.tint = '#808080'                                       // 250,250,250 few clouds  180,180,180 overcast
-        generatorOptions.density = 0.01
-        generatorOptions.scale = 1.2
-      }
-
-      const stratusConfig = foundry.utils.deepClone({
-        weight: 0.7,
-        behaviors: [
-          {
-            type: 'alpha',
-            config: {
-              alpha: {
-                list: [
-                  {
-                    value: 0,
-                    time: 0
-                  },
-                  {
-                    value: 0.5,
-                    time: 0.05
-                  },
-                  {
-                    value: 0.5,
-                    time: 0.95
-                  },
-                  {
-                    value: 0,
-                    time: 1
-                  }
-                ]
-              }
-            }
-          },
-          {
-            type: 'moveSpeedStatic',
-            config: {
-              min: 30,
-              max: 100
-            }
-          },
-          {
-            type: 'scaleStatic',
-            config: {
-              min: 2.58,
-              max: 3.3
-            }
-          },
-          {
-            type: 'rotationStatic',
-            config: {
-              min: 80,
-              max: 100
-            }
-          },
-          {
-            type: 'textureRandom',
-            config: {
-              textures: Array.fromRange(6).map(
-                (n) => 'modules/' + MODULE.ID + `/assets/st${n + 1}.webp`
-              )
+    const stratusConfig = Utils.deepClone({
+      weight: 0.7,
+      behaviors: [
+        {
+          type: 'alpha',
+          config: {
+            alpha: {
+              list: [
+                {
+                  value: 0,
+                  time: 0
+                },
+                {
+                  value: 0.5,
+                  time: 0.05
+                },
+                {
+                  value: 0.5,
+                  time: 0.95
+                },
+                {
+                  value: 0,
+                  time: 1
+                }
+              ]
             }
           }
-        ]
-      })
-      Generators.applyGeneratorToEmitterConfig(generatorOptions, stratusConfig)
-      return stratusConfig
-    }
+        },
+        {
+          type: 'moveSpeedStatic',
+          config: {
+            min: 30,
+            max: 100
+          }
+        },
+        {
+          type: 'scaleStatic',
+          config: {
+            min: 2.58,
+            max: 3.3
+          }
+        },
+        {
+          type: 'rotationStatic',
+          config: {
+            min: 80,
+            max: 100
+          }
+        },
+        {
+          type: 'textureRandom',
+          config: {
+            textures: Array.fromRange(6).map(
+              (n) => 'modules/' + MODULE.ID + `/assets/st${n + 1}.webp`
+            )
+          }
+        }
+      ]
+    })
+    Generators.applyGeneratorToEmitterConfig(generatorOptions, stratusConfig)
+    return stratusConfig
   })
 })

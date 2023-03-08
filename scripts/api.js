@@ -17,90 +17,109 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { SceneWeather } from './sceneWeather.js'
 import { TimeProvider } from './timeProvider.js'
 import { WeatherPerception } from './weatherPerception.js'
+import { SceneWeather } from './sceneWeather.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { SceneWeatherState } from './state.js'
 
-
+// will be available globally via SceneWeather.
 export function getSceneWeatherAPIv1() {
 
-  async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
-    SceneWeatherApi.updateWeatherConfig({
-      'forSceneId': forSceneId,
-      'force': force
-    })
-  }
-
-  async function updateWeather({ force = false } = {}) {
-    SceneWeatherApi.calculateWeather({
-      'force': force
-    })
-  }
-
-  return {
-    updateWeatherConfig: updateWeatherConfig,
-    updateWeather: updateWeather,
-    version: '1.0'
-  }
-}
-
-
-/**
- * Scene Weather's public API functions, attached to the foundry game object.
- */
-export class SceneWeatherApi {
-
-  static _lastUpdate = 0  // last update in timeHash
-  static _sceneWeather = {}  // cached instances of sceneWeather by scene ID
-
-  /**
-   * Initialize the application
-   */
-  static async registerApi() {
-
-    // If no application instance exists, create a new instance of SceneWeather and initialize it
-    if (!game.sceneWeather) {
-      game.sceneWeather = {}
-      game.sceneWeather.get = SceneWeatherApi.getSceneWeatherProvider // TODO remove api access to provider
-
-      game.sceneWeather.updateSettings = SceneWeatherApi.updateSettings
-
-      // Update configuration for the weather configuration models, essentially invalidating caches
-      game.sceneWeather.updateWeatherConfig = SceneWeatherApi.updateWeatherConfig
-
-      // Calculates the weather for the current game time and current scene and sends an event
-      game.sceneWeather.calculateWeather = SceneWeatherApi.calculateWeather
-
-      // all registered generators
-      game.sceneWeather.generators = []
-
-      // all registered filters
-      game.sceneWeather.filters = []
-
-      // all region templates
-      game.sceneWeather.regionTemplates = []
-
-      // all static weather templates
-      game.sceneWeather.weatherTemplates = []
-
-      game.sceneWeather.registerPerciever = WeatherPerception.registeredPerciever
-
-      Logger.debug('sceneWeather API registered as game.sceneWeather')
-    } else {
-      Logger.debug('SceneWeather API aleady registered!');
+  const DEFAULT_REGION_STRUCT = {
+    'id': 'unknown',
+    'name': 'unknown',
+    'description': 'unknown',
+    'elevation': 0,
+    'vegetation': 0,
+    'waterAmount': 0,
+    'summer': {
+      'temperature': {
+        'day': 0,
+        "night": 0,
+        "var": 0
+      },
+      'humidity': {
+        'day': 0,
+        'night': 0,
+        'var': 0
+      },
+      'wind': {
+        'avg': 0,
+        'var': 0
+      },
+      'sun': {
+        'hours': 0
+      }
+    },
+    'winter': {
+      'temperature': {
+        'day': 0,
+        "night": 0,
+        "var": 0
+      },
+      'humidity': {
+        'day': 0,
+        'night': 0,
+        'var': 0
+      },
+      'wind': {
+        'avg': 0,
+        'var': 0
+      },
+      'sun': {
+        'hours': 0
+      }
     }
   }
 
-  /**
-   * Update Scene Weather following change to module settings
-   */
-  static async updateSettings() {
-    Logger.debug('api::updateSettings')
-    // TODO ? game.sceneWeather.app.SceneWeather?.updateSettings()
+  const DEFAULT_WEATHER_STRUCT = {
+    'id': 'unknown',
+    'name': 'unknown',
+    'temp': {
+      'ground': 0,
+      'air': 0,
+      'percieved': 0
+    },
+    'wind': {
+      'speed': 0,
+      'gusts': 0,
+      'direction': 0
+    },
+    'clouds': {
+      'coverage': 0,
+      'bottom': 0,
+      'top': 0,
+      'type': 0
+    },
+    'precipitation': {
+      'amount': 0,
+      'type': 0
+    },
+    'sun': {
+      'amount': 0,
+    },
+    'humidity': 0
   }
 
-  // TODO Api Functions go here
-
+  /**
+   * Update the weather provider's configuration and internal precalculations as well as
+   * invalidating the internal caches of the cascading weather modesla and region providers
+   * if applicable.
+   */
+  async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
+    Logger.debug('SceneWeather.updateWeatherConfig(...)', { 'forSceneId': forSceneId, 'force': force })
+    // Update from configs
+    const weatherProvider = _getSceneWeatherProvider(forSceneId, force)
+    if (weatherProvider !== undefined) {
+      if (weatherProvider.updateConfig() || force) {
+        updateWeather({
+          sceneId: forSceneId,
+          force: true
+        })
+      }
+    }
+  }
 
   /**
    * Calculate the current weather for the current time and scene displayed based on the
@@ -109,62 +128,84 @@ export class SceneWeatherApi {
    * 
    * force -> true: will always calculate the weather anew, wether it was calculated
    * already or not and emit the event.
+   * 
    */
-  static calculateWeather({ force = false, sceneId = undefined } = {}) {
-    Logger.debug('api::calculateWeather(...)', { 'sceneId': sceneId, 'force': force })
+  async function updateWeather({ force = false, sceneId = undefined } = {}) {
+    Logger.debug('SceneWeather.updateWeather(...)', { 'sceneId': sceneId, 'force': force, 'canvasSceneId': canvas.scene._id })
     if (sceneId === undefined) sceneId = canvas.scene._id
-
-    if (sceneId != canvas.scene._id) {
-      Logger.debug('Not calculating weather for non current scene...')
-      return
-    }
-
+    if (sceneId != canvas.scene._id) return
     if (force) {
-      SceneWeatherApi._lastUpdate = -1
+      SceneWeatherState._lastUpdate = -1
     }
-
-    let currentTimeHash = TimeProvider.getCurrentTimeHash()
-    if (SceneWeatherApi._lastUpdate == currentTimeHash) return
-    SceneWeatherApi._lastUpdate = currentTimeHash
-
-    const provider = SceneWeatherApi.getSceneWeatherProvider(sceneId)
+    const currentTimeHash = TimeProvider.getCurrentTimeHash()
+    if (SceneWeatherState._lastUpdate == currentTimeHash) return
+    SceneWeatherState._lastUpdate = currentTimeHash
+    const provider = _getSceneWeatherProvider(sceneId)
     if (provider !== undefined) {
       provider.calculateWeather({
         'force': force
       })
-    } else {
-      Logger.debug('Not calculating weather for disabled setting...')
     }
   }
 
   /**
-   * Update the weather provider's configuration and internal precalculations as well as
-   * invalidating the internal caches of the cascading weather modesla and region providers
-   * if applicable.
-   * 
+   * TODO
    */
-  static updateWeatherConfig({ forSceneId = undefined, force = false, prewarm = false, fade = true } = {}) {
-    Logger.debug('api::updateWeatherConfig(...)', { 'forSceneId': forSceneId, 'force': force })
-    // Update from configs
-    const weatherProvider = SceneWeatherApi.getSceneWeatherProvider(forSceneId, force)
-    if (weatherProvider == undefined) {
-      // disabled
-      Logger.debug('api::updateWeatherConfig(...) -> disabled by config')
+  function registerRegionTemplate(moduleId = null, templateId = null, regionData = {}) {
+    if (moduleId && templateId && regionData && Fal.isModuleEnabled(moduleId)) {
+      // TODO use option inplace:false instead of deepClone ?
+      regionData.id = moduleId + '.' + templateId
+      const regionDataSafe = Utils.mergeObject(Utils.deepClone(DEFAULT_REGION_STRUCT), regionData, { insertKeys: false })
+      SceneWeatherState._regionTemplates[regionDataSafe.id] = regionDataSafe
+      Logger.debug('Registered regionTemplate for ' + moduleId + '.' + templateId, { 'regionData': regionDataSafe })
     } else {
-      if (weatherProvider.updateConfig() || force) {
-        SceneWeatherApi.calculateWeather({
-          sceneId: forSceneId,
-          force: true
-        })
-      }
+      Logger.error('Unable to register RegionTemplate for moduleId:' + moduleId + ' with id:' + id, true)
     }
-
   }
 
   /**
-   * Returns the SceneWeather for the currently active scene
+   * TODO
    */
-  static getSceneWeatherProvider(forSceneId = undefined, ignoreCache = false) {
+  function registerWeatherTemplate(moduleId = null, templateId = null, weatherData = {}) {
+    if (moduleId && templateId && weatherData && Fal.isModuleEnabled(moduleId)) {
+      weatherData.id = moduleId + '.' + templateId
+      const weatherDataSafe = Utils.mergeObject(Utils.deepClone(DEFAULT_WEATHER_STRUCT), weatherData, { insertKeys: false })
+      SceneWeatherState._weatherTemplates[moduleId + '.' + templateId] = weatherDataSafe
+      Logger.debug('Registered weatherTemplate for ' + moduleId + '.' + templateId, { 'weatherData': weatherDataSafe })
+    } else {
+      Logger.error('Unable to register RegionTemplate for moduleId:' + moduleId + ' with id:' + id, true)
+    }
+  }
+
+  /**
+   * TODO
+   */
+  function registerWeatherFxGenerator(generatorId = null, getEmitterFunction = null) {
+    Logger.debug('Registered weather fx generator for ' + generatorId)
+    SceneWeatherState._generators.push({
+      'name': generatorId,
+      'getEmitter': getEmitterFunction
+    })
+  }
+
+  /**
+   * TODO
+   */
+  function registerWeatherFxFilter(filterId = null, getFilterConfigFunction = null) {
+    Logger.debug('Registered weather fx filter for ' + filterId)
+    SceneWeatherState._filters.push({
+      'name': filterId,
+      'getFilterConfig': getFilterConfigFunction
+    })
+  }
+
+
+
+  /**
+  * Returns the SceneWeather for the currently active scene
+  * @private
+  */
+  function _getSceneWeatherProvider(forSceneId = undefined, ignoreCache = false) {
     let sceneId = canvas.scene._id
     if (forSceneId !== undefined) {
       sceneId = forSceneId
@@ -173,17 +214,31 @@ export class SceneWeatherApi {
     Logger.debug('api::getSceneWeatherProvider()', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache })
 
     if (ignoreCache) {
-      SceneWeatherApi._sceneWeather[sceneId] = undefined
+      SceneWeatherState._sceneWeather[sceneId] = undefined
     }
-    if (SceneWeatherApi._sceneWeather[sceneId] !== undefined) {
-      return SceneWeatherApi._sceneWeather[sceneId]
+    if (SceneWeatherState._sceneWeather[sceneId] !== undefined) {
+      return SceneWeatherState._sceneWeather[sceneId]
     }
 
-    SceneWeatherApi._sceneWeather[sceneId] = SceneWeather.fromConfig({
+    SceneWeatherState._sceneWeather[sceneId] = SceneWeather.fromConfig({
       'sceneId': sceneId
     })  // May also be undefined
 
-    return SceneWeatherApi._sceneWeather[sceneId]
+    return SceneWeatherState._sceneWeather[sceneId]
   }
 
-}   // SceneWeatherApi
+
+
+  return {
+    updateWeatherConfig: updateWeatherConfig,
+    updateWeather: updateWeather,
+    registerPerciever: WeatherPerception.registeredPerciever,
+    registerRegionTemplate: registerRegionTemplate,
+    registerWeatherTemplate: registerWeatherTemplate,
+    registerWeatherFxGenerator: registerWeatherFxGenerator,
+    registerWeatherFxFilter: registerWeatherFxFilter,
+    version: '1.0'
+  }
+}
+
+

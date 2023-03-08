@@ -34,9 +34,13 @@ export const GENERATOR_MODES = {
 }
 
 export const EVENTS = {
+  'REG_FX_FILTERS': MODULE.LCCNAME + 'RegisterFilters',
+  'REG_FX_GENERATORS': MODULE.LCCNAME + 'RegisterGenerators',
   'SETTINGS_UPDATED': MODULE.LCCNAME + 'SettingsUpdated',
   'REG_TEMPLATE_REGION': MODULE.LCCNAME + 'RegisterRegionTemplate',
-  'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate'
+  'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate',
+  'REG_WEATHER_PERCIEVERS': MODULE.LCCNAME + 'RegisterWeatherPercievers',
+  'MODULE_INITIALIZED': MODULE.LCCNAME + 'Initialized'
 }
 
 export const METEO = {

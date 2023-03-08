@@ -16,8 +16,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
+import { MODULE } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { WeatherModel } from './weatherModel.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 export class WeatherPerception {
 
@@ -68,7 +70,7 @@ export class WeatherPerception {
    * Default perciever infor struct for forward compatibility
    */
   static DEFAULT_INFO_STRUCT = {
-    'id': 'default',
+    'id': MODULE.ID + '.default',
     'name': 'default'
   }
 
@@ -78,10 +80,12 @@ export class WeatherPerception {
    * @param {String} id - the id to register the perciever as
    * @param {instance of WeatherPerception descendant} weatherPerception - the instance of the perciever to be used as this registered id
    */
-  static registeredPerciever(id = null, weatherPerception = null) {
-    Logger.debug('WeatherPerception.registeredPerciever(...)', { 'id': id, 'weatherPerception': weatherPerception })
-    if (id && weatherPerception && weatherPerception instanceof WeatherPerception) {
-      WeatherPerception._registeredPercievers[id] = weatherPerception
+  static registeredPerciever(moduleId = null, id = null, weatherPerception = null) {
+    Logger.debug('WeatherPerception.registeredPerciever(...)', { 'moduleId': moduleId, 'id': id, 'weatherPerception': weatherPerception })
+    if (moduleId && id && weatherPerception && weatherPerception instanceof WeatherPerception && Fal.isModuleEnabled(moduleId)) {
+      WeatherPerception._registeredPercievers[moduleId + '.' + id] = weatherPerception
+    } else {
+      Logger.error('Unable to register WeatherPerciever for moduleId:' + moduleId + ' with id:' + id, true)
     }
   }
 
@@ -93,9 +97,9 @@ export class WeatherPerception {
    * @param {*} weatherModel - the weatherModel data to be interpreted by the perciever
    * @returns String - the plaintext interpretation of the weatherModel as percieved by the perciever's instance.
    */
-  static async getAsText(id = 'default', weatherModel) {
+  static async getAsText(id = MODULE.ID + '.default', weatherModel) {
     const perciever = WeatherPerception._getPercieverById(id)
-    const text = perciever.getTextFromModel(Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, weatherModel))
+    const text = perciever.getTextFromModel(Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), weatherModel))
     Logger.debug('WeatherPerception.getAsText(...)', { 'id': id, 'perciever': perciever, 'text': text })
     return text
   }
@@ -108,9 +112,9 @@ export class WeatherPerception {
    * @param {*} weatherModel - the weatherModel data to be interpreted by the perciever
    * @returns String - the html suitable for the UI interpretation of the weatherModel as percieved by the perciever's instance.
    */
-  static async getAsUiHtml(id = 'default', weatherModel) {
+  static async getAsUiHtml(id = MODULE.ID + '.default', weatherModel) {
     const perciever = WeatherPerception._getPercieverById(id)
-    const uiHtml = perciever.getUiHtmlFromModel(Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, weatherModel))
+    const uiHtml = perciever.getUiHtmlFromModel(Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), weatherModel))
     Logger.debug('WeatherPerception.getAsUiHtml(...)', { 'id': id, 'perciever': perciever, 'uiHtml': uiHtml })
     return uiHtml
   }
@@ -123,9 +127,9 @@ export class WeatherPerception {
    * @param {*} weatherModel - the weatherModel data to be interpreted by the perciever
    * @returns String - the html suitable for the Chat message interpretation of the weatherModel as percieved by the perciever's instance.
    */
-  static async getAsChatHtml(id = 'default', weatherModel) {
+  static async getAsChatHtml(id = MODULE.ID + '.default', weatherModel) {
     const perciever = WeatherPerception._getPercieverById(id)
-    const chatHtml = perciever.getChatHtmlFromModel(Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, weatherModel))
+    const chatHtml = perciever.getChatHtmlFromModel(Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), weatherModel))
     Logger.debug('WeatherPerception.getAsChatHtml(...)', { 'id': id, 'perciever': perciever, 'chatHtml': chatHtml })
     return chatHtml
   }
@@ -138,9 +142,9 @@ export class WeatherPerception {
    * @param {*} weatherModel - the weatherModel data to be interpreted by the perciever
    * @returns Object - the weatherInfo structure as interpretation of the weatherModel as percieved by the perciever's instance.
    */
-  static async getAsWeatherInfo(id = 'default', weatherModel) {
+  static async getAsWeatherInfo(id = MODULE.ID + '.default', weatherModel) {
     const perciever = WeatherPerception._getPercieverById(id)
-    const weatherInfo = perciever.getWeatherInfoFromModel(Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, weatherModel))
+    const weatherInfo = perciever.getWeatherInfoFromModel(Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), weatherModel))
     Logger.debug('WeatherPerception.getAsWeatherInfo(...)', { 'id': id, 'perciever': perciever, 'weatherInfo': weatherInfo })
     return weatherInfo
   }
@@ -151,7 +155,7 @@ export class WeatherPerception {
    * @param {String} id - the id of the perciever to be used to interpret the weatherModel data.
    * @returns Object - the percievers information object.
    */
-  static getInfo(id = 'default') {
+  static getInfo(id = MODULE.ID + '.default') {
     const perciever = WeatherPerception._getPercieverById(id)
     const percieverInfo = perciever.getPercieverInfo()
     Logger.debug('WeatherPerception.getInfo(...)', { 'id': id, 'perciever': perciever, 'percieverInfo': percieverInfo })
@@ -236,7 +240,7 @@ export class WeatherPerception {
    * @returns 
    */
   getWeatherInfoFromModel(weatherModel) {
-    return Utils.deepClone(DEFAULT_WEATHER_STRUCT)
+    return Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT)
   }
 
   /**
@@ -245,6 +249,6 @@ export class WeatherPerception {
    * @returns 
    */
   getPercieverInfo() {
-    return Utils.deepClone(DEFAULT_INFO_STRUCT)
+    return Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT)
   }
 }

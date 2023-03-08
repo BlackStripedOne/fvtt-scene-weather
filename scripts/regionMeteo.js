@@ -16,10 +16,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE } from './constants.js'
 import { Logger, Utils } from './utils.js'
 import { TimeProvider } from './timeProvider.js'
 import { Noise } from './noise.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { SceneWeatherState } from './state.js'
 
 /**
  *  RegionMeteo in combination with TimeOfDy/DayInYear will generate WeatherModel
@@ -35,15 +36,18 @@ export class RegionMeteo {
     Logger.debug('RegionMeteo:constrctor', { 'templateId': templateId })
     if (templateId !== undefined) {
       // TOOD set parameters from template
-      this.regionData = Utils.getApi().regionTemplates.find(template => template.id == templateId)
+      this.regionData = SceneWeatherState._regionTemplates[templateId]
       if (this.regionData === undefined) {
-        this.regionData = Utils.getApi().regionTemplates[0]
-        canvas.scene.setFlag(MODULE.ID, 'regionTemplate', this.regionData.id)
-        Logger.error('Unable to set region template with id [' + templateId + '] reverting to [' + this.regionData.id + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
+        this.regionData = Object.values(SceneWeatherState._regionTemplates)[0]
+        Fal.setSceneFlag('regionTemplate', this.regionData.id)
+        const [tId, mId] = templateId.split('.')
+        Logger.error('Unable to set region template with id [' + tId + '], registered by module [' + mId + ']. Reverting to [' + Fal.i18n(this.regionData.name) + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true, true)
       }
     } else {
-      // TODO set parameters from scene config or if none found, from game defaults
-      this.regionData = canvas.scene.getFlag(MODULE.ID, 'regionSettings')
+      this.regionData = Fal.getSceneFlag('regionSettings', undefined)
+      if (this.regionData === undefined) {
+        // TODO set parameters from scene config or if none found, from game defaults
+      }
     }
     this._noise = Noise.createNoise2D(0) // TODO use configurable seed
     this.updateConfig()
@@ -55,15 +59,12 @@ export class RegionMeteo {
   * @returns - array of dictionaries containing 'id' and 'name'
   */
   static getTemplates() {
-    let res = []
-    // TODO maybe use map?
-    Utils.getApi().regionTemplates.forEach(template => {
-      res.push({
-        'id': template.id,
-        'name': template.name
-      })
+    return Object.entries(SceneWeatherState._regionTemplates).map(template => {
+      return {
+        'id': template[0],
+        'name': template[1].name
+      }
     })
-    return res
   }
 
   /**

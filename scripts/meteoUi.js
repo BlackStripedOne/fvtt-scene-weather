@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
-import { SceneWeatherApi } from './api.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   // TODO only for GMs?
@@ -52,7 +52,7 @@ export class MeteoUi extends FormApplication {
     if (options.sceneWeather) {
       MeteoUi._isOpen = false
       MeteoUi._context = undefined
-      game.settings.set(MODULE.ID, 'meteoVisible', false)
+      Fal.setSetting('meteoVisible', false)
     }
     return super.close(options)
   }
@@ -62,8 +62,8 @@ export class MeteoUi extends FormApplication {
   }
 
   static get defaultOptions() {
-    this.initialPosition = game.settings.get(MODULE.ID, 'meteoPosition')
-    return mergeObject(super.defaultOptions, {
+    this.initialPosition = Fal.getSetting('meteoPosition', { 'top': 40, 'left': 40 })
+    return Utils.mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
       width: 600,
@@ -75,7 +75,7 @@ export class MeteoUi extends FormApplication {
       id: 'scene-weather-meteo-app',
       title: 'SceneWeather Meteogram',
       top: this.initialPosition.top,
-      left: this.initialPosition.left,
+      left: this.initialPosition.left
     })
   }
 
@@ -89,37 +89,37 @@ export class MeteoUi extends FormApplication {
   }
 
   activateListeners(html) {
-    super.activateListeners(html);
+    super.activateListeners(html)
 
-    const dragHandle = html.find('#dragHandle')[0];
-    const drag = new Draggable(this, html, dragHandle, false);
+    const dragHandle = html.find('#dragHandle')[0]
+    const drag = new Draggable(this, html, dragHandle, false)
 
     // Have to override this because of the non-standard drag handle, and
     // also to manage the pin lock zone and animation effects.
     drag._onDragMouseMove = function _newOnDragMouseMove(event) {
-      event.preventDefault();
+      event.preventDefault()
 
       // Limit dragging to 60 updates per second.
-      const now = Date.now();
-      if (now - this._moveTime < 1000 / 60) return;
-      this._moveTime = now;
+      const now = Date.now()
+      if (now - this._moveTime < 1000 / 60) return
+      this._moveTime = now
 
       // Follow the mouse.
       this.app.setPosition({
         left: this.position.left + (event.clientX - this._initial.x),
-        top: this.position.top + (event.clientY - this._initial.y),
-      });
-    };
+        top: this.position.top + (event.clientY - this._initial.y)
+      })
+    }
 
     drag._onDragMouseUp = async function _newOnDragMouseUp(event) {
-      event.preventDefault();
+      event.preventDefault()
 
-      window.removeEventListener(...this.handlers.dragMove);
-      window.removeEventListener(...this.handlers.dragUp);
+      window.removeEventListener(...this.handlers.dragMove)
+      window.removeEventListener(...this.handlers.dragUp)
 
-      let windowPos = $('#scene-weather-meteo-app').position();
-      let newPos = { top: windowPos.top, left: windowPos.left };
-      await game.settings.set(MODULE.ID, 'meteoPosition', newPos);
+      let windowPos = $('#scene-weather-meteo-app').position()
+      let newPos = { top: windowPos.top, left: windowPos.left }
+      await Fal.setSetting('meteoPosition', newPos)
     };
 
   }
@@ -128,33 +128,33 @@ export class MeteoUi extends FormApplication {
   static async toggleAppVis(mode) {
     //TODO check wether player is allowed to view weather
     if (mode === 'toggle') {
-      if (game.settings.get(MODULE.ID, 'meteoVisible') === true) {
+      if (Fal.getSetting('meteoVisible', false) === true) {
         // Stop any currently-running animations, and then animate the app
         // away before close(), to avoid the stock close() animation.
-        $('#scene-weather-meteo-app').stop();
-        $('#scene-weather-meteo-app').css({ animation: 'close 0.3s', opacity: '0' });
+        $('#scene-weather-meteo-app').stop()
+        $('#scene-weather-meteo-app').css({ animation: 'close 0.3s', opacity: '0' })
         setTimeout(function () {
           // Pass an object to .close() to indicate that it came from SceneWeather
           // itself istead of an Esc keypress.
-          game.modules.get(MODULE.ID).meteoApp.close({ sceneWeather: true });
-        }, 200);
+          Fal.getModule().meteoApp.close({ sceneWeather: true })
+        }, 200)
       } else {
         // Make sure there isn't already an instance of the app rendered.
         // Fire off a close() just in case, clears up some stuck states.
         if (MeteoUi._isOpen) {
-          game.modules.get(MODULE.ID).meteoApp.close({ sceneWeather: true });
+          Fal.getModule().meteoApp.close({ sceneWeather: true })
         }
-        game.modules.get(MODULE.ID).meteoApp = await new MeteoUi().render(true);
-        game.settings.set(MODULE.ID, 'meteoVisible', true);
+        Fal.getModule().meteoApp = await new MeteoUi().render(true)
+        await Fal.setSetting('meteoVisible', true)
       }
-    } else if (game.settings.get(MODULE.ID, 'meteoVisible') === true) {
-      game.modules.get(MODULE.ID).meteoApp = await new MeteoUi().render(true);
+    } else if (Fal.getSetting('meteoVisible', false) === true) {
+      Fal.getModule().meteoApp = await new MeteoUi().render(true)
     }
   }
 
   static async update() {
     Logger.debug('Updating MeteoUi')
-    if (game.settings.get(MODULE.ID, 'meteoVisible') === true) {
+    if (Fal.getSetting('meteoVisible', false) === true) {
       MeteoUi._drawWeatherModelData()
     }
   }
@@ -187,7 +187,10 @@ export class MeteoUi extends FormApplication {
     let sunAmount = { label: 'sunAmount', data: [], borderWidth: 1, pointRadius: 0, backgroundColor: 'rgba(255, 255, 0, 0.6)', fill: true, yAxisID: 'y2' }
     let humidity = { label: 'humidity', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#9999ff', yAxisID: 'y2' }
 
+    // TODO !!!
     const sceneWeather = SceneWeatherApi.getSceneWeatherProvider()
+
+
     for (let hour = fromHr; hour < toHr; hour++) {
       const meteoData = sceneWeather.weatherModel.getWeatherData(0, hour)
 

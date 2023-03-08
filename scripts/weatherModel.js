@@ -19,7 +19,10 @@ See the License for the specific language governing permissions and limitations 
 import { Logger, Utils } from './utils.js'
 import { METEO, MODULE } from './constants.js'
 import { TimeProvider } from './timeProvider.js'
+import { SceneWeatherState } from './state.js'
 import { Noise } from './noise.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
+
 
 /**
  *  WeatherModel produces SceneWeather (which also can be set via Weather Template option)
@@ -73,13 +76,14 @@ export class WeatherModel {
     } else {
       this.regionMeteo = undefined
       this.useConfigSceneId = undefined
-      this.weatherData = Utils.getApi().weatherTemplates.find(template => template.id == templateId)
+      this.weatherData = SceneWeatherState._weatherTemplates[templateId]
       if (this.weatherData === undefined) {
-        this.weatherData = Utils.getApi().weatherTemplates[0]
+        this.weatherData = Object.values(SceneWeatherState._weatherTemplates)[0]
         canvas.scene.setFlag(MODULE.ID, 'weatherTemplate', this.weatherData.id)
-        Logger.error('Unable to set weather template with id [' + templateId + '] reverting to [' + this.weatherData.id + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
+        const [tId, mId] = templateId.split('.')
+        Logger.error('Unable to set weather template with id [' + tId + '], registered by module [' + mId + ']. Reverting to [' + Fal.i18n(this.weatherData.name) + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
       }
-      this.weatherData.precipitation.mode = Utils.getSceneFlag('rainMode', 'winddir')
+      this.weatherData.precipitation.mode = Fal.getSceneFlag('rainMode', 'winddir')
     }
   }
 
@@ -88,14 +92,13 @@ export class WeatherModel {
    * @returns - array of dictionaries containing 'id' and 'name'
    */
   static getTemplates() {
-    let res = []
-    Utils.getApi().weatherTemplates.forEach(template => {
-      res.push({
-        'id': template.id,
-        'name': template.name
-      })
+    Logger.debug('getTemplates', { 't': Object.entries(SceneWeatherState._weatherTemplates) })
+    return Object.entries(SceneWeatherState._weatherTemplates).map(template => {
+      return {
+        'id': template[0],
+        'name': template[1].name
+      }
     })
-    return res
   }
 
   static fromSceneConfig(sceneId) {
@@ -137,12 +140,12 @@ export class WeatherModel {
       // update weather from sceneConfig by sceneId of global
 
       let sourceId = this.useConfigSceneId
-      let weatherConfig = game.scenes.get(this.useConfigSceneId)?.getFlag(MODULE.ID, 'weatherSettings') ?? undefined
+      let weatherConfig = Fal.getSceneFlag('weatherSettings', undefined, this.useConfigSceneId)
       Logger.debug('WeatherModel.updateConfig()', { 'weatherConfig': weatherConfig })
 
       // if no scene data set, use game setting defaults
       if (!weatherConfig) {
-        weatherConfig = Utils.getSetting('defaultWeatherSettings')
+        weatherConfig = Fal.getSetting('defaultWeatherSettings')
         sourceId = '_GLOBAL_'
       }
 
@@ -175,7 +178,7 @@ export class WeatherModel {
         'precipitation': {
           'amount': weatherConfig.precipitation.amount / 100,  // we use fractions here
           'type': weatherConfig.precipitation.type,
-          'mode': Utils.getSceneFlag('rainMode', 'winddir')
+          'mode': Fal.getSceneFlag('rainMode', 'winddir')
         },
         'sun': {
           'amount': weatherConfig.sun.amount / 100  // we use fractions here,
@@ -183,7 +186,7 @@ export class WeatherModel {
         'humidity': weatherConfig.humidity
       })
 
-      if (foundry.utils.objectsEqual(this.weatherData, newWeatherData)) {
+      if (Utils.objectEquals(this.weatherData, newWeatherData)) {
         Logger.debug('WeatherModel.updateConfig() -> static from sceneConfig, no changes.')
         return false
       } else {
@@ -192,11 +195,11 @@ export class WeatherModel {
         return true
       }
     } else {
-      if (this.weatherData.precipitation.mode == Utils.getSceneFlag('rainMode', 'winddir')) {
+      if (this.weatherData.precipitation.mode == Fal.getSceneFlag('rainMode', 'winddir')) {
         Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
         return false
       } else {
-        this.weatherData.precipitation.mode = Utils.getSceneFlag('rainMode', 'winddir')
+        this.weatherData.precipitation.mode = Fal.getSceneFlag('rainMode', 'winddir')
         return true
       }
     }
@@ -240,7 +243,7 @@ export class WeatherModel {
         'precipitation': {
           'amount': 0,
           'type': 0, // 0: none, 1:drizzle, 2:rain, 3:downpour, 4:hail, 5:snow, 6:blizzard
-          'mode': Utils.getSceneFlag('rainMode', 'winddir') // default to mode:winddir
+          'mode': Fal.getSceneFlag('rainMode', 'winddir') // default to mode:winddir
         },
         'sun': {
           'amount': regionBaseValues.sunAmount,

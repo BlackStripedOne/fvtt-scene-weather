@@ -16,7 +16,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
+import { SceneWeatherState } from './state.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 /**
  * A particle effect class that generates an array of emitter configurations based on the generators in the game's
@@ -45,13 +47,13 @@ export class WeatherEffect extends ParticleEffect {
   static _getFxEmittersForModel(modelData) {
     // TODO check for correct modelData content
     let emitterConfigs = []
-    game.sceneWeather.generators.forEach(generator => {
+    SceneWeatherState._generators.forEach(generator => {
       let config = generator.getEmitter(modelData)
       if (config) {
         emitterConfigs.push(config)
       }
     })
-    Logger.debug('WeatherEffect._getFxEmittersForModel()', { 'model': modelData, 'gen': game.sceneWeather.generators, 'emitters': emitterConfigs })
+    Logger.debug('WeatherEffect._getFxEmittersForModel()', { 'model': modelData, 'gen': SceneWeatherState._generators, 'emitters': emitterConfigs })
     return emitterConfigs
   }
 
@@ -131,9 +133,9 @@ export class WeatherEffect extends ParticleEffect {
       return []
     }
 
-    const emitterConfigs = WeatherEffect._getFxEmittersForModel(options.data.model)//  game.sceneWeather.get().getSceneWeatherFxEmitters()
+    const emitterConfigs = WeatherEffect._getFxEmittersForModel(options.data.model)
     // TODO scale particle amount
-    const maxParticles = Utils.getSetting('maxParticles', 3200) // Default 3200
+    const maxParticles = Fal.getSetting('maxParticles', 3200) // Default 3200
     WeatherEffect._equalizeMaxParticles(emitterConfigs, maxParticles)
 
     let emitters = []

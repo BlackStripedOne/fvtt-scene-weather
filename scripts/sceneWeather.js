@@ -16,13 +16,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
 import { TimeProvider } from './timeProvider.js'
 import { MODULE, GENERATOR_MODES } from './constants.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
 import { WeatherPerception } from './weatherPerception.js'
-
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 /**
  * This class handles weather conditions for a scene in foundry virtual tabletop.
  */
@@ -77,14 +77,14 @@ export class SceneWeather {
    */
   updateConfig() {
     Logger.debug('SceneWeather.updateConfig()', { 'sceneId': this.sceneId })
-    const scene = game.scenes.get(this.sceneId)
+    const scene = Fal.getScene(this.sceneId)
     if (scene === undefined) {
       Logger.error('Unable to instantiate SceneWeather for non existing Scene with id ' + this.sceneId)
       throw new Error('Unable to instantiate SceneWeather for non existing Scene with id ' + this.sceneId)
     }
-    if (scene.getFlag(MODULE.ID, 'weatherMode') != this.weatherMode) {
+    if (Fal.getSceneFlag('weatherMode', null, this.sceneId) != this.weatherMode) {
       // need to set new model here
-      Logger.debug('SceneWeather.updateConfig() -> new mode', { 'sceneId': this.sceneId, 'prevMode': this.weatherMode, 'newMode': scene.getFlag(MODULE.ID, 'weatherMode') })
+      Logger.debug('SceneWeather.updateConfig() -> new mode', { 'sceneId': this.sceneId, 'prevMode': this.weatherMode, 'newMode': Fal.getSceneFlag('weatherMode', '-', this.sceneId) })
 
       this.weatherModel = this._getWeatherModelForMode(scene) // TODO may throw Error
       return true
@@ -108,7 +108,7 @@ export class SceneWeather {
     if (sceneId == null) {
       sceneId = canvas.scene._id
     }
-    const scene = game.scenes.get(sceneId)
+    const scene = Fal.getScene(sceneId)
     if (scene === undefined) {
       Logger.error('Unable to instantiate SceneWeather for non existing Scene with id ' + sceneId)
       return undefined
@@ -133,6 +133,14 @@ export class SceneWeather {
     // TODO get via perception model configured for user settings
     const perceptionId = 'perceptive'
     const weatherInfo = WeatherPerception.getAsWeatherInfo(perceptionId, modelData)
+
+    Logger.debug('SceneWeather.calculateWeather() -> WeatherUpdated', {
+      'info': weatherInfo, // TODO may not be required. Use Perciever instead
+      'model': modelData,
+      'timeHash': currentTimeHash,
+      'sceneId': this.sceneId,
+      'force': force  // TODO rename to 'forced'
+    })
 
     Hooks.callAll(MODULE.LCCNAME + 'WeatherUpdated', {
       'info': weatherInfo, // TODO may not be required. Use Perciever instead

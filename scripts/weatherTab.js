@@ -16,7 +16,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
 import { MODULE } from './constants.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'

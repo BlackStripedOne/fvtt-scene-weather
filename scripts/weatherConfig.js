@@ -17,7 +17,8 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { MODULE, WIND_SPEED, CLOUD_TYPE, PRECI_TYPE } from './constants.js'
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 export class WeatherConfigDialog extends FormApplication {
 
@@ -146,14 +147,14 @@ export class WeatherConfigDialog extends FormApplication {
 
     if (this.applyToScene === undefined) {
       // Settings default region
-      mergeObject(additionalData, Utils.getSetting('defaultWeatherSettings'))
+      mergeObject(additionalData, Fal.getSetting('defaultWeatherSettings'))
       Logger.debug('WeatherConfigDialog:getData(general)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
     } else {
       // Setting for a specific scene
-      let sceneData = game.scenes.get(this.applyToScene)?.getFlag(MODULE.ID, 'weatherSettings') ?? undefined
+      let sceneData = Fal.getSceneFlag('weatherSettings', undefined, this.applyToScene)
       // if no scene data set, use game setting defaults
-      if (!sceneData) sceneData = Utils.getSetting('defaultWeatherSettings')
+      if (!sceneData) sceneData = Fal.getSetting('defaultWeatherSettings')
       mergeObject(additionalData, sceneData)
       Logger.debug('WeatherConfigDialog:getData(scene)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
@@ -170,10 +171,9 @@ export class WeatherConfigDialog extends FormApplication {
     // TODO also have choice between setting and scene
     Logger.debug('updateObject, weatherConfig', { 'data': data, 'scene': this.applyToScene })
     if (this.applyToScene === undefined) {
-      Utils.setSetting('defaultWeatherSettings', data)
+      Fal.setSetting('defaultWeatherSettings', data)
     } else {
-      // TODO use Utils for game settings, scene Flags
-      game.scenes.get(this.applyToScene).setFlag(MODULE.ID, 'weatherSettings', data)
+      Fal.setSceneFlag('weatherSettings', data, this.applyToScene)
       // TODO fire event
     }
   }

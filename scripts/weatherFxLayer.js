@@ -19,16 +19,33 @@ See the License for the specific language governing permissions and limitations 
 import { Logger, Utils } from './utils.js'
 import { WeatherEffect } from './weatherFx.js'
 import { MODULE } from './constants.js'
-import { SceneWeatherApi } from './api.js'
+import { SceneWeatherState } from './state.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
+// TODO use EVENTS
 Hooks.on(MODULE.LCCNAME + 'SettingsUpdated', async (data) => {
   Logger.debug('-> Hooks::SettingsUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
   if (['cloudsAlpha', 'precipitationAlpha', 'maxParticles', 'enableFx'].includes(data.id)) {
     // Update weather to update effects
-    SceneWeatherApi.calculateWeather({ force: true })
+    SceneWeather.updateWeather({ force: true })
   }
 })
 
+// TODO use EVENTS
+Hooks.on(MODULE.LCCNAME + 'WeatherDisabled', async (data) => {
+  if (canvas.scene._id != data.scene.id) {
+    Logger.debug('WeatherDisabled for another scene, ignoring')
+    return
+  }
+  if (canvas['sceneweatherfx'] !== undefined) {
+    await Promise.all([canvas.sceneweatherfx.drawParticleEffects({ 'soft': false }),
+    canvas.sceneweatherfx.drawFilterEffects({ 'soft': false })])
+  } else {
+    Logger.debug('No canvas.sceneweatherfx') // Should not come to this.
+  }
+})
+
+// TODO use EVENTS
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   Logger.debug('-> Hooks::WeatherUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
 
@@ -84,8 +101,8 @@ export class WeatherEffectsLayer extends CanvasLayer {
   static getFxFiltersForModel(modelData) {
     // TODO check for correct modelData content
     let filterConfigs = {}
-    game.sceneWeather.filters.forEach(filter => {
-      foundry.utils.mergeObject(filterConfigs, filter.getFilterConfig(modelData))
+    SceneWeatherState._filters.forEach(filter => {
+      Utils.mergeObject(filterConfigs, filter.getFilterConfig(modelData))
     })
     Logger.debug('WeatherEffectsLayer.getFxFiltersForModel()', { 'model': modelData, 'filter': filterConfigs })
     return filterConfigs
@@ -109,7 +126,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * Return default layer options
    */
   static get layerOptions() {
-    return foundry.utils.mergeObject(super.layerOptions, { name: "weather-particle-effects" })
+    return Utils.mergeObject(super.layerOptions, { name: "weather-particle-effects" })
   }
 
   /**
@@ -153,7 +170,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
    */
   async drawFilterEffects(options) {
     Logger.debug('WeatherEffectsLayer.drawFilterEffects(...)', { 'options': options })
-    options = foundry.utils.mergeObject({ 'soft': false }, options)
+    options = Utils.mergeObject({ 'soft': false }, options)
     if (!canvas.scene) return
 
     // Stop all existing filters
@@ -169,18 +186,18 @@ export class WeatherEffectsLayer extends CanvasLayer {
     }) ?? []
     this.activeFilters = {}
 
-    if (!Utils.getSetting('enableFx', true)) return
+    if (!Fal.getSetting('enableFx', true)) return
 
     // Get and initialize filters
     if (options['data'] === undefined || options.data['model'] === undefined) {
       Logger.debug('WeatherEffectsLayer.drawFilterEffects() no model data contained, no filters.')
       return
     }
-    const filterConfigs = WeatherEffectsLayer.getFxFiltersForModel(options.data.model)// game.sceneWeather.get().getSceneWeatherFxFilters() DOIWJDOWJ
+    const filterConfigs = WeatherEffectsLayer.getFxFiltersForModel(options.data.model)
     Object.entries(filterConfigs).map(([id, config]) => {
       this.activeFilters[id] = new config.type({
         'soft': options.soft,
-        'options': foundry.utils.mergeObject(config, { "-=type": null }, { performDeletions: true })
+        'options': Utils.mergeObject(config, { "-=type": null }, { performDeletions: true })
       })
       canvas.environment.filters.push(this.activeFilters[id])
     })
@@ -193,7 +210,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * @param {boolean} [options.soft=false] - Whether the particle effects should be "soft"-eased out.
    */
   async drawParticleEffects(options) {
-    options = foundry.utils.mergeObject({ 'soft': false }, options)
+    options = Utils.mergeObject({ 'soft': false }, options)
 
     if (!canvas.scene) return
     if (!this.particleEffectsContainer) {
@@ -214,7 +231,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
       }
     }))
 
-    if (Utils.getSetting('enableFx', true)) {
+    if (Fal.getSetting('enableFx', true)) {
       const newEffect = new WeatherEffect(this.particleEffectsContainer, options)
       newEffect.play({ easeIn: options.soft })
       this.activeEffects.push(newEffect)

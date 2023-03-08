@@ -17,12 +17,13 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { MODULE, GENERATOR_MODES } from './constants.js'
-import { Logger, Utils } from './utils.js'
+import { Utils } from './utils.js'
 import { WeatherUi } from './weatherUi.js'
 import { MeteoUi } from './meteoUi.js'
 import { WeatherEffectsLayer } from './weatherFxLayer.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 /**
  * Layer for the scene-weather. FEATURE placeable sources and sinks on this layer
@@ -62,7 +63,7 @@ export class WeatherLayer extends InteractionLayer {
         name: "Toggle Meteogram",
         title: 'Toggle Meteogram',
         icon: "fas fa-solid fa-chart-line",
-        visible: game.user.isGM && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),  // TODO use Fal and rights management here
+        visible: Fal.isGm() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),  // TODO use Fal and rights management here
         toggle: true,
         active: MeteoUi._isOpen,
         onClick: () => {
@@ -73,10 +74,10 @@ export class WeatherLayer extends InteractionLayer {
         name: "Weather Settings",
         title: 'Weather Settings',
         icon: "fas fa-solid fa-sliders",
-        visible: game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
+        visible: Fal.isGm() && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
         button: true,
         onClick: () => {
-          if (game.user.isGM && [GENERATOR_MODES.WEATHER_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+          if (Fal.isGm() && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
             const dia = new WeatherConfigDialog(canvas.scene._id)
             dia.render(true)
           }
@@ -86,10 +87,10 @@ export class WeatherLayer extends InteractionLayer {
         name: "Region Settings",
         title: 'Region Settings',
         icon: "fas fa-solid fa-sliders",
-        visible: game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
+        visible: Fal.isGm() && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
         button: true,
         onClick: () => {
-          if (game.user.isGM && [GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+          if (Fal.isGm() && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
             const dia = new RegionConfigDialog(canvas.scene._id)
             dia.render(true)
           }
@@ -101,11 +102,11 @@ export class WeatherLayer extends InteractionLayer {
         icon: "fas fa-solid fa-eye",
         visible: true,
         toggle: true,
-        active: Utils.getSetting('enableFx', true),
+        active: Fal.getSetting('enableFx', true),
         onClick: () => {
           // Toggle FX Enabled
-          const enabled = (!Utils.getSetting('enableFx', true))
-          Utils.setSetting('enableFx', enabled)
+          const enabled = (!Fal.getSetting('enableFx', true))
+          Fal.setSetting('enableFx', enabled)
           Hooks.callAll(MODULE.LCCNAME + 'SettingsUpdated', {
             'id': 'enableFx',
             'value': enabled
@@ -126,12 +127,12 @@ export class WeatherLayer extends InteractionLayer {
   }
 
   static get layerOptions() {
-    return foundry.utils.mergeObject(super.layerOptions, {
+    return Utils.mergeObject(super.layerOptions, {
       name: "sceneweather",
       canDragCreate: false,
       controllableObjects: true,
       rotatableObjects: true,
-      zIndex: 666,
+      zIndex: 479,
     });
   }
 

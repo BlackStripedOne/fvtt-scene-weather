@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { MODULE } from './constants.js'
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 /**
  *  TODO
@@ -44,7 +44,7 @@ export class TimeProvider {
    */
   static getI18nDateString() {
     // TODO use specific provider _getTimeInfo()
-    const scInstance = SimpleCalendar.api.timestampToDate(game.time.worldTime)
+    const scInstance = SimpleCalendar.api.timestampToDate(Fal.getWorldTime())
     const timeInfo = {
       'month': {
         'number': scInstance.display.month,
@@ -85,8 +85,8 @@ export class TimeProvider {
 
     //Set the world time, this will trigger the updateWorldTime hook on all connected players
     if (Fal.isGm()) {
-      const currentWorldTime = game.time.worldTime
-      const newTime = await game.time.advance(deltaSeconds)
+      const currentWorldTime = Fal.getWorldTime()
+      const newTime = await Fal.advanceWorldTime(deltaSeconds)
     }
   }
 
@@ -136,22 +136,22 @@ export class TimeProvider {
   }
 
   static getDayOfYear() {
-    if (game.modules.get('foundryvtt-simple-calendar')?.active && TimeProvider._getTimeProvider() === 'simple-calendar') {
-      let scInstance = SimpleCalendar.api.timestampToDate(game.time.worldTime)
+    if (Fal.isModuleEnabled('foundryvtt-simple-calendar') && TimeProvider._getTimeProvider() === 'simple-calendar') {
+      let scInstance = SimpleCalendar.api.timestampToDate(Fal.getWorldTime())
       //      Logger.debug('TimeProvider:getDayOfYear', {'sc':scInstance})
       return TimeProvider.config.monthOffset[scInstance.month] + scInstance.day
     } else {
       // Fallback to manual time
       let sceneManualDate = canvas.scene.getFlag(MODULE.ID, 'timeSeason')
       if (sceneManualDate === undefined) {
-        sceneManualDate = Util.getSetting('timeSeason', 150)
+        sceneManualDate = Fal.getSetting('timeSeason', 150)
       }
       return sceneManualData
     }
   }
 
   static getHourOfDay() {
-    const currentWorldTime = game.time.worldTime + 0 // TODO Epoch Offsett
+    const currentWorldTime = Fal.getWorldTime() + 0 // TODO Epoch Offsett
     const dayTime = Math.abs(Math.trunc((currentWorldTime % 86400) / 3600))
     if (currentWorldTime < 0) {
       return 24 - dayTime

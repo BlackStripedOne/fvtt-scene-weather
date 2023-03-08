@@ -30,6 +30,10 @@ Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   }
 })
 
+Hooks.on(MODULE.LCCNAME + 'WeatherDisabled', async (data) => {
+  // TODO maybe handle hiding of the window instead of in the render method?
+})
+
 Hooks.on('renderWeatherUi', () => {
   Logger.debug('->Hook:renderWeatherUi')
   WeatherUi.update()
@@ -47,7 +51,7 @@ Hooks.on('updateWorldTime', () => {
 export class WeatherUi extends FormApplication {
   static _isOpen = false
   static _weatherModel = {}
-  static _perceptionId = 'perceptive' // TODO init with ''
+  static _perceptionId = undefined
 
   /**
    * TODO from Foundry VTT API
@@ -55,14 +59,15 @@ export class WeatherUi extends FormApplication {
   async _render(force = false, options = {}) {
     Logger.debug('WeatherUi._render(...)', { 'force': force, 'options': options })
     await super._render(force, options)
-    if (game.settings.get(MODULE.ID, 'uiPinned')) {
+    if (Fal.getSetting('uiPinned', false)) {
       WeatherUi.pinApp()
     }
+
     WeatherUi._isOpen = true
     // Remove the window from candidates for closing via Escape.
     delete ui.windows[this.appId]
     // hide the app when we have weather DISABLED
-    if (Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) {
+    if (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) {
       Logger.debug('WeatherUi._render() -> hiding app, DISABLED')
       $('#scene-weather-app').css("visibility", "hidden")
     } else {
@@ -82,7 +87,7 @@ export class WeatherUi extends FormApplication {
     // If called by scene weather, record that it is not longer visible.
     if (options.sceneWeather) {
       WeatherUi._isOpen = false
-      game.settings.set(MODULE.ID, 'uiVisible', false)
+      await Fal.setSetting('uiVisible', false)
     }
     return super.close(options)
   }
@@ -103,7 +108,7 @@ export class WeatherUi extends FormApplication {
    * @returns {ApplicationOptions} - The default options for this FormApplication class
    */
   static get defaultOptions() {
-    this.initialPosition = game.settings.get(MODULE.ID, 'uiPosition')
+    this.initialPosition = Fal.getSetting('uiPosition', { 'top': 40, 'left': 40 })
     return mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
@@ -116,7 +121,7 @@ export class WeatherUi extends FormApplication {
       id: 'scene-weather-app',
       title: 'dialogs.weatherUi.title',
       top: this.initialPosition.top,
-      left: this.initialPosition.left,
+      left: this.initialPosition.left
     })
   }
 
@@ -139,7 +144,7 @@ export class WeatherUi extends FormApplication {
     // TODO use rights management here
     WeatherUi._weatherModel.hasControls = Fal.isGm()
     WeatherUi._weatherModel.hasPerceivers = (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)
-    WeatherUi._weatherModel.hasTimeAuthority = Fal.isGm() && TimeProvider.hasTimeAuthority() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Utils.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
+    WeatherUi._weatherModel.hasTimeAuthority = Fal.isGm() && TimeProvider.hasTimeAuthority() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
     if (WeatherUi._weatherModel.hasTimeAuthority) {
       WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
     } else {
@@ -229,7 +234,7 @@ export class WeatherUi extends FormApplication {
       if (insideAttachZone) {
         WeatherUi.pinApp()
         // TODO use Fal here
-        await game.settings.set(MODULE.ID, 'uiPinned', true)
+        await Fal.setSetting('uiPinned', true)
         this.app.setPosition({
           left: 15,
           top: window.innerHeight - myOffset
@@ -238,8 +243,8 @@ export class WeatherUi extends FormApplication {
         const windowPos = $('#scene-weather-app').position()
         const newPos = { top: windowPos.top, left: windowPos.left }
         // TODO use Fal here
-        await game.settings.set(MODULE.ID, 'uiPosition', newPos)
-        await game.settings.set(MODULE.ID, 'uiPinned', false)
+        await Fal.setSetting('uiPosition', newPos)
+        await Fal.setSetting('uiPinned', false)
       }
 
       // remove the wiggle animation on mouseUp.
@@ -317,18 +322,20 @@ export class WeatherUi extends FormApplication {
       const controlFunc = controlJQ.attr('data-func') || 'none'
       switch (controlFunc) {
         case 'prevPerc':
-          controlJQ.on('click', function () {
+          controlJQ.on('click', async function () {
             const percieverIds = WeatherPerception.getAllowedIds(Fal.userID())
             WeatherUi._perceptionId = Utils.arrayPrev(percieverIds, WeatherUi._perceptionId)
             Logger.debug('click()', { 'perceiverPrev': WeatherUi._perceptionId })
+            await Fal.setUserFlag('perceptionId', WeatherUi._perceptionId)
             WeatherUi.update()
           })
           break
         case 'nextPerc':
-          controlJQ.on('click', function () {
+          controlJQ.on('click', async function () {
             const percieverIds = WeatherPerception.getAllowedIds(Fal.userID())
             WeatherUi._perceptionId = Utils.arrayNext(percieverIds, WeatherUi._perceptionId)
             Logger.debug('click()', { 'perceiverNext': WeatherUi._perceptionId })
+            await Fal.setUserFlag('perceptionId', WeatherUi._perceptionId)
             WeatherUi.update()
           })
           break
@@ -361,7 +368,7 @@ export class WeatherUi extends FormApplication {
    * Pin the UI above the player's list inside the ui-left container.
    */
   static async pinApp() {
-    const app = game.modules.get(MODULE.ID).uiApp;
+    const app = Fal.getModule().uiApp
     if (app && !app.element.hasClass('pinned')) {
       $('#players').before(app.element)
       app.element.addClass('pinned')
@@ -373,7 +380,7 @@ export class WeatherUi extends FormApplication {
    * @returns true, if the UI was unpinned.
    */
   static unPinApp() {
-    const app = game.modules.get(MODULE.ID).uiApp;
+    const app = Fal.getModule().uiApp
     if (app && app.element.hasClass('pinned')) {
       const element = app.element
       $('body').append(element)
@@ -392,7 +399,7 @@ export class WeatherUi extends FormApplication {
   static async toggleAppVis(mode) {
     //TODO check wether player is allowed to view weather
     if (mode === 'toggle') {
-      if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
+      if (Fal.getSetting('uiVisible', false) === true) {
         // Stop any currently-running animations, and then animate the app
         // away before close(), to avoid the stock close() animation.
         $('#scene-weather-app').stop()
@@ -400,19 +407,19 @@ export class WeatherUi extends FormApplication {
         setTimeout(function () {
           // Pass an object to .close() to indicate that it came from SceneWeather
           // itself istead of an Esc keypress.
-          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true })
+          Fal.getModule().uiApp.close({ sceneWeather: true })
         }, 200)
       } else {
         // Make sure there isn't already an instance of the app rendered.
         // Fire off a close() just in case, clears up some stuck states.
         if (WeatherUi._isOpen) {
-          game.modules.get(MODULE.ID).uiApp.close({ sceneWeather: true })
+          Fal.getModule().uiApp.close({ sceneWeather: true })
         }
-        game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true)
-        game.settings.set(MODULE.ID, 'uiVisible', true)
+        Fal.getModule().uiApp = await new WeatherUi().render(true)
+        Fal.setSetting('uiVisible', true)
       }
-    } else if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
-      game.modules.get(MODULE.ID).uiApp = await new WeatherUi().render(true)
+    } else if (Fal.getSetting('uiVisible', false) === true) {
+      Fal.getModule().uiApp = await new WeatherUi().render(true)
     }
   }
 
@@ -439,8 +446,18 @@ export class WeatherUi extends FormApplication {
     Logger.debug('WeatherUi.update(...)', { 'weatherModel': weatherModel })
     WeatherUi._weatherModel = weatherModel
 
+    // get last used perception if from user or apply an allowed one to the user
+    if (!WeatherUi._perceptionId) {
+      WeatherUi._perceptionId = Fal.getUserFlag('perceptionId', undefined)
+      const percieverIds = WeatherPerception.getAllowedIds(Fal.userID())
+      if (!percieverIds.includes(WeatherUi._perceptionId)) {
+        WeatherUi._perceptionId = percieverIds[0]
+      }
+      await Fal.setUserFlag('perceptionId', WeatherUi._perceptionId)
+    }
+
     WeatherUi._addModelFlags()
-    if (game.settings.get(MODULE.ID, 'uiVisible') === true) {
+    if (Fal.getSetting('uiVisible', false) === true) {
 
       // TODO depending on user setting for precision
       // const id = WeatherPerception.getAllowedIds(Fal.userID())      

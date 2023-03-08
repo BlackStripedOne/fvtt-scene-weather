@@ -17,11 +17,9 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { MODULE, EVENTS } from './constants.js'
-import { Logger, Utils } from './utils.js'
+import { Logger } from './utils.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
-import { WeatherPerception } from './weatherPerception.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 function onChangeFunction(value) {
   Hooks.callAll(EVENTS.SETTINGS_UPDATED, value)
@@ -38,21 +36,7 @@ export const registerSettingsPostInit = function () {
     defaultPerceptionId = id
   })
 
-  game.settings.register(MODULE.ID, 'perceptionId', {
-    name: Utils.i18n('settings.perceptionId.name'),
-    hint: Utils.i18n('settings.perceptionId.hint'),
-    scope: 'client',
-    config: true,
-    type: String,
-    choices: perceptionIdChoices,
-    default: defaultPerceptionId,
-    onChange: (value) => {
-      onChangeFunction({
-        'id': 'perceptionId',
-        'value': value
-      })
-    }
-  })*/
+  */
 }
 
 export const registerSettingsPreInit = function () {
@@ -66,9 +50,9 @@ export const registerSettingsPreInit = function () {
 
   // https://foundryvtt.wiki/en/development/api/settings
   game.settings.registerMenu(MODULE.ID, "defaultRegionSettingsMenu", {
-    name: Utils.i18n('settings.defaultRegionSettingsMenu.name'),
-    label: Utils.i18n('settings.defaultRegionSettingsMenu.label'),
-    hint: Utils.i18n('settings.defaultRegionSettingsMenu.hint'),
+    name: 'settings.defaultRegionSettingsMenu.name',
+    label: 'settings.defaultRegionSettingsMenu.label',
+    hint: 'settings.defaultRegionSettingsMenu.hint',
     icon: "fas fa-bars",
     type: RegionConfigDialog,
     restricted: true
@@ -122,9 +106,9 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.registerMenu(MODULE.ID, "defaultWeatherSettingsMenu", {
-    name: Utils.i18n('settings.defaultWeatherSettingsMenu.name'),
-    label: Utils.i18n('settings.defaultWeatherSettingsMenu.label'),
-    hint: Utils.i18n('settings.defaultWeatherSettingsMenu.hint'),
+    name: 'settings.defaultWeatherSettingsMenu.name',
+    label: 'settings.defaultWeatherSettingsMenu.label',
+    hint: 'settings.defaultWeatherSettingsMenu.hint',
     icon: "fas fa-bars",
     type: WeatherConfigDialog,
     restricted: true
@@ -166,8 +150,8 @@ export const registerSettingsPreInit = function () {
   // TODO
 
   game.settings.register(MODULE.ID, 'enableFx', {
-    name: Utils.i18n('settings.enableFx.name'),
-    hint: Utils.i18n('settings.enableFx.hint'),
+    name: 'settings.enableFx.name',
+    hint: 'settings.enableFx.hint',
     scope: 'client',
     config: true,
     type: Boolean,
@@ -181,8 +165,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'cloudsAlpha', {
-    name: Utils.i18n('settings.cloudsAlpha.name'),
-    hint: Utils.i18n('settings.cloudsAlpha.hint'),
+    name: 'settings.cloudsAlpha.name',
+    hint: 'settings.cloudsAlpha.hint',
     scope: "client",
     config: true,
     type: Number,
@@ -201,8 +185,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'precipitationAlpha', {
-    name: Utils.i18n('settings.precipitationAlpha.name'),
-    hint: Utils.i18n('settings.precipitationAlpha.hint'),
+    name: 'settings.precipitationAlpha.name',
+    hint: 'settings.precipitationAlpha.hint',
     scope: "client",
     config: true,
     type: Number,
@@ -221,8 +205,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'maxParticles', {
-    name: Utils.i18n('settings.maxParticles.name'),
-    hint: Utils.i18n('settings.maxParticles.hint'),
+    name: 'settings.maxParticles.name',
+    hint: 'settings.maxParticles.hint',
     scope: 'client',
     config: true,
     type: Number,
@@ -265,8 +249,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'meteoPosition', {
-    name: Utils.i18n('settings.meteoPosition.name'),
-    hint: Utils.i18n('settings.meteoPosition.hint'),
+    name: 'settings.meteoPosition.name',
+    hint: 'settings.meteoPosition.hint',
     scope: 'client',
     config: false,
     type: Object,
@@ -274,8 +258,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'uiPinned', {
-    name: Utils.i18n('settings.uiPinned.name'),
-    hint: Utils.i18n('settings.uiPinned.hint'),
+    name: 'settings.uiPinned.name',
+    hint: 'settings.uiPinned.hint',
     scope: 'client',
     config: false,
     type: Boolean,
@@ -283,8 +267,8 @@ export const registerSettingsPreInit = function () {
   })
 
   game.settings.register(MODULE.ID, 'debug', {
-    name: Utils.i18n('settings.debug.name'),
-    hint: Utils.i18n('settings.debug.hint'),
+    name: 'settings.debug.name',
+    hint: 'settings.debug.hint',
     scope: 'client',
     config: true,
     type: Boolean,

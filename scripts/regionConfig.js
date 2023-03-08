@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { MODULE } from './constants.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 /**
  * TODO maybe use Tabs
@@ -39,7 +40,7 @@ export class RegionConfigDialog extends FormApplication {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return Utils.mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
       template: 'modules/' + MODULE.ID + '/templates/regionConfig.hbs',
@@ -155,15 +156,15 @@ export class RegionConfigDialog extends FormApplication {
 
     if (this.applyToScene === undefined) {
       // Settings default region
-      mergeObject(additionalData, Utils.getSetting('defaultRegionSettings'))
+      Utils.mergeObject(additionalData, Fal.getSetting('defaultRegionSettings'))
       Logger.debug('RegionConfigDialog:getData(general)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
     } else {
       // Setting for a specific scene
-      let sceneData = game.scenes.get(this.applyToScene)?.getFlag(MODULE.ID, 'regionSettings') ?? undefined
+      let sceneData = Fal.getSceneFlag('regionSettings', undefined, this.applyToScene)
       // if no scene data set, use game setting defaults
-      if (!sceneData) sceneData = Utils.getSetting('defaultRegionSettings')
-      mergeObject(additionalData, sceneData)
+      if (!sceneData) sceneData = Fal.getSetting('defaultRegionSettings')
+      Utils.mergeObject(additionalData, sceneData)
       Logger.debug('RegionConfigDialog:getData(scene)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
     }
@@ -179,10 +180,9 @@ export class RegionConfigDialog extends FormApplication {
     // TODO also have choice between setting and scene
     Logger.debug('updateObject, regionConfig', { 'data': data, 'scene': this.applyToScene })
     if (this.applyToScene === undefined) {
-      Utils.setSetting('defaultRegionSettings', data)
+      Fal.setSetting('defaultRegionSettings', data)
     } else {
-      // TODO use Utils for game settings, scene Flags
-      game.scenes.get(this.applyToScene).setFlag(MODULE.ID, 'regionSettings', data)
+      Fal.setSceneFlag('regionSettings', data, this.applyToScene)
       // TODO fire event
     }
   }

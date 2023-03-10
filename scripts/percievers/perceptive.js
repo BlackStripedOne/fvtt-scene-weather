@@ -20,6 +20,7 @@ import { Logger, Utils } from '../utils.js'
 import { MODULE, EVENTS, CLOUD_TYPE, PRECI_TYPE, HUMIDITY_LEVELS, SUN_INTENSITY, PRECI_AMOUNT, WIND_SPEED, CLOUD_HEIGHT, TEMP_TYPES } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Permissions } from '../permissions.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
   SceneWeather.registerPerciever(MODULE.ID, 'perceptive', new PerceptivePerciever())
@@ -33,8 +34,7 @@ class PerceptivePerciever extends WeatherPerception {
    * @override WeatherPerception.isAllowed(userId)
    */
   isAllowed(userId) {
-    // TODO use rights management
-    return true
+    return Permissions.hasPermission(userId, 'perciever.scene-weather.perceptive')
   }
 
   /**
@@ -79,7 +79,7 @@ class PerceptivePerciever extends WeatherPerception {
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'perceptive',
-      'name': PREFIX + 'name'
+      'name': Fal.i18n(PREFIX + 'name')
     })
     Logger.debug('PerceptivePerciever.getPercieverInfo()', { 'info': info })
     return info

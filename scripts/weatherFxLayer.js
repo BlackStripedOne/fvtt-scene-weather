@@ -225,7 +225,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
         effect.stop()
       }
       // Remove stopped effect from list of active effects
-      const index = this.activeEffects.indexOf(effect);
+      const index = this.activeEffects.indexOf(effect)
       if (index > -1) { // only splice array when effect is found
         this.activeEffects.splice(index, 1)
       }

@@ -8,6 +8,30 @@
     "day": "Tag",
     "formatted": "{{day.name}}{{day.suffix}} {{month.name}}, {{hour.name}}:{{minute.name}}"
   },
+  "permissions": {
+    "percieverName": "Wetter UI ",
+    "percieverHint": "Dieses Recht erlaubt die Ansicht in der Wetter UI mit der Prezision ",
+    "unknown": {
+      "name": "Unbekannt",
+      "hint": "Dieses Recht ist nicht bekannt und hat den Schlüssel "
+    },
+    "sceneSettings": {
+      "name": "Scenen Konfiguration",
+      "hint": "Dieses Recht erlaubt die Wetter Konfiguration von Scenen."
+    },
+    "weatherUiControls": {
+      "name": "Erweiterte WetterUI Funktionen",
+      "hint": "Erlaubt es die erweiterten Funktionen der WetterUI zu sehen/nutzen, wie Chat, Text und wenn erlaubt und verfügbar die Zeit zu beeinflussen. Der Spieler braucht zudem die Berechtigung die Sceneneinstellungen zu ändern."
+    },
+    "timeControls": {
+      "name": "Steuerung der Spielzeit",
+      "hint": "Ermöglicht die Steuerung der Spielzeit, sofern kein externer Provider eingestellt ist, die Wetterart dynamisch ist und auch das Recht für die WetterUI Funktionen erteilt ist. Der Spieler braucht zudem die Spieleberechtigung die Spielzeit zu ändern."
+    },
+    "meteogramUi": {
+      "name": "Nutzung der Meteogram UI",
+      "hint": "Erlaubt die Nutzung der Meteogram UI für eine feinere Übersicht über die Wetterbildung und entwicklung über die Zeit."
+    }
+  },
   "dialogs": {
     "degCelsius": "°C",
     "meters": "m",
@@ -16,6 +40,14 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "permissionConfig": {
+      "title": "Rechtekonfiguration",
+      "hint": "Bestimme welche Nutzerrolle oder Benutzer das Recht hat welche Aktion durchzuführen oder welche Darstellung zu sehen. Die Spielleitung kann immer alles. Manche Änderungen werden erst nach einem Neustart des Spiels angewendet.",
+      "right": "Recht",
+      "save": "Konfiguration speichern",
+      "defaults": "Auf Voreinstellung zurücksetzen",
+      "defaultsNotice": "Berechtigungen von Rechten wurden auf die Standardwerte zurückgesetzt."
+    },
     "weatherUi": {
       "title": "SceneWeather",
       "headline": "Aktuelles Wetter",
@@ -27,8 +59,14 @@
       "actionChatAll": "An jeden Chatten",
       "actionClipboard": "In die Zwischenablage kopieren"
     },
+    "meteoUi": {
+      "toggleName": "Meteogram UI Anzeigen/Verbergen",
+      "toggleTitle": "Meteogram UI Anzeigen/Verbergen"
+    },
     "weatherConfig": {
       "title": "Statische Wetter Einstellungen",
+      "toggleName": "Wetter Einstellungen",
+      "toggleTitle": "Wetter Einstellungen",
       "directionTypes": {
         "fixed": "Feste Richtung",
         "noise": "Procedural veränderliche Richtung"
@@ -104,6 +142,8 @@
     },
     "regionConfig": {
       "title": "Einstellungen der Region",
+      "toggleName": "Regions Einstellungen",
+      "toggleTitle": "Regions Einstellungen",
       "generic": {
         "headline": "Allgemeine Einstellungen für die Region",
         "title": "Scenen Umgebung",
@@ -150,6 +190,13 @@
     }
   },
   "settings": {
+    "buttonName": "Wetter",
+    "buttonTitle": "Wetter",
+    "permissionSettingsMenu": {
+      "name": "Rechte für die Nutzung von SceneWeather",
+      "label": "Rechte konfigurieren",
+      "hint": "Definiere welche Aktionen und Ansichten in SceneWeather Nutzern unterschiedlichen Rollen oder Nutzern direkt erlaubt sind."
+    },
     "defaultRegionSettingsMenu": {
       "name": "Standard Einstellungen für Regionen",
       "label": "Einstellungen ändern",
@@ -162,7 +209,9 @@
     },
     "enableFx": {
       "hint": "Lokal die auto-visuellen Wetter Effekte der Scene, die durch SceneWeather generiert werden deaktivieren. Dies deaktiviert nur die Darstellung der Effekte auf der Scene, nicht jedoch das Wetter selbst.",
-      "name": "Wetter Effekte Aktivieren"
+      "name": "Wetter Effekte Aktivieren",
+      "toggleName": "Wetter Effekte An-/Abschalten",
+      "toggleTitle": "Wetter Effekte An-/Abschalten"
     },
     "cloudsAlpha": {
       "hint": "Wie sichtbar sollen Wolken, Nebel oder andere Flächendeckende Effekte auf der Scene sein. 0% deaktiviert Wolken visuell.",

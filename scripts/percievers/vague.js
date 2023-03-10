@@ -20,6 +20,7 @@ import { Logger, Utils } from '../utils.js'
 import { MODULE, EVENTS, PRECI_TYPE, CLOUD_TYPE } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Permissions } from '../permissions.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
   Logger.debug('registered weatherPerciever for vague')
@@ -32,8 +33,7 @@ class VaguePerciever extends WeatherPerception {
    * @override WeatherPerception.isAllowed(userId)
    */
   isAllowed(userId) {
-    // TODO use rights management
-    return Fal.isGm(userId)
+    return Permissions.hasPermission(userId, 'perciever.scene-weather.vague')
   }
 
   /**
@@ -144,7 +144,7 @@ class VaguePerciever extends WeatherPerception {
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'vague',
-      'name': 'meteo.vague.name'
+      'name': Fal.i18n('meteo.vague.name')
     })
     Logger.debug('VaguePerciever.getPercieverInfo()', { 'info': info })
     return info

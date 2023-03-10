@@ -62,7 +62,7 @@ export class WeatherModel {
    * TODO
    * @param {*} param0 
    */
-  constructor({ regionMeteo, templateId = 'default', useWeatherConfig }) {
+  constructor({ regionMeteo, templateId, useWeatherConfig }) {
     Logger.debug('WeatherModel:constrctor', { 'regionMeteo': regionMeteo, 'templateId': templateId, 'useWeatherConfig': useWeatherConfig })
     this._cache = {}
     if (regionMeteo !== undefined) {
@@ -141,12 +141,13 @@ export class WeatherModel {
 
       let sourceId = this.useConfigSceneId
       let weatherConfig = Fal.getSceneFlag('weatherSettings', undefined, this.useConfigSceneId)
-      Logger.debug('WeatherModel.updateConfig()', { 'weatherConfig': weatherConfig })
+      Logger.debug('WeatherModel.updateConfig() -> load from scene flags', { 'weatherConfig': weatherConfig, 'sceneId': this.useConfigSceneId })
 
       // if no scene data set, use game setting defaults
       if (!weatherConfig) {
         weatherConfig = Fal.getSetting('defaultWeatherSettings')
         sourceId = '_GLOBAL_'
+        Logger.debug('WeatherModel.updateConfig() -> no weather on flags, using global', { 'weatherConfig': weatherConfig })
       }
 
       // initiate noise
@@ -155,7 +156,7 @@ export class WeatherModel {
       const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
       const windDirection = Math.trunc(weatherConfig.wind.directionType == 1 ? WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(), windGusts) : weatherConfig.wind.direction)
 
-      let newWeatherData = Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, {
+      let newWeatherData = Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), {
         'source': sourceId,
         'name': 'custom',
         'temp': {
@@ -178,15 +179,16 @@ export class WeatherModel {
         'precipitation': {
           'amount': weatherConfig.precipitation.amount / 100,  // we use fractions here
           'type': weatherConfig.precipitation.type,
-          'mode': Fal.getSceneFlag('rainMode', 'winddir')
+          'mode': Fal.getSceneFlag('rainMode', 'winddir', this.useConfigSceneId) || 0
         },
         'sun': {
           'amount': weatherConfig.sun.amount / 100  // we use fractions here,
         },
         'humidity': weatherConfig.humidity
       })
+      Logger.debug('WeatherModel.merged', { 'newWeatherData': newWeatherData, 'weatherData': this.weatherData })
 
-      if (Utils.objectEquals(this.weatherData, newWeatherData)) {
+      if (Utils.objectsEqual(this.weatherData, newWeatherData)) {
         Logger.debug('WeatherModel.updateConfig() -> static from sceneConfig, no changes.')
         return false
       } else {
@@ -466,7 +468,7 @@ export class WeatherModel {
     humidity = humidity / 100
     if (temperature < 0 || temperature > 60) return temperature
     if (humidity < 0.01 || humidity > 1) return temperature
-    const a = 17.27;  // 1974 Psychrometry and Psychrometric Charts
+    const a = 17.27 // 1974 Psychrometry and Psychrometric Charts
     let alphaTR = ((a * temperature) / (METEO.Tzero + temperature)) + Math.log(humidity)
     let relativeTemperature = (METEO.Tzero * alphaTR) / (a - alphaTR)
     if (relativeTemperature < 0 || relativeTemperature > 50) return temperature

@@ -21,15 +21,6 @@ import { Logger } from './utils.js'
 
 export class FoundryAbstractionLayer {
 
-  /**
-   * Checks if a user can do an action based on a passed in permission matrix
-   * TODO Move to PermissionManagement
-   */
-  canDo(user = null, permission) {
-    if (user === null) return false
-    // return !!(user.isGM || (permissions.player && user.hasRole(1)) || (permissions.trustedPlayer && user.hasRole(2)) || (permissions.assistantGameMaster && user.hasRole(3)) || (permissions.users && permissions.users.includes(user.id? user.id : '')))
-    return FoundryAbstractionLayer.isGm
-  }
 
   /**
    * Get the ID of the current world

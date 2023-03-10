@@ -21,6 +21,7 @@ import { MODULE, GENERATOR_MODES } from './constants.js'
 import { TimeProvider } from './timeProvider.js'
 import { WeatherPerception } from './weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { Permissions } from './permissions.js'
 
 Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
   Logger.debug('->Hook:WeatherUpdated -> WeatherUI.update(...)', { 'data': data })
@@ -54,7 +55,7 @@ export class WeatherUi extends FormApplication {
   static _perceptionId = undefined
 
   /**
-   * TODO from Foundry VTT API
+   * TODO called from Foundry VTT API
    */
   async _render(force = false, options = {}) {
     Logger.debug('WeatherUi._render(...)', { 'force': force, 'options': options })
@@ -67,7 +68,8 @@ export class WeatherUi extends FormApplication {
     // Remove the window from candidates for closing via Escape.
     delete ui.windows[this.appId]
     // hide the app when we have weather DISABLED
-    if (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) {
+    if ((Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) ||
+      (!WeatherUi._weatherModel.hasPerceiver)) {
       Logger.debug('WeatherUi._render() -> hiding app, DISABLED')
       $('#scene-weather-app').css("visibility", "hidden")
     } else {
@@ -141,10 +143,15 @@ export class WeatherUi extends FormApplication {
    * TODO
    */
   static _addModelFlags() {
-    // TODO use rights management here
-    WeatherUi._weatherModel.hasControls = Fal.isGm()
-    WeatherUi._weatherModel.hasPerceivers = (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)
-    WeatherUi._weatherModel.hasTimeAuthority = Fal.isGm() && TimeProvider.hasTimeAuthority() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
+    const userId = Fal.userID()
+    WeatherUi._weatherModel.hasControls = Permissions.hasPermission(userId, 'weatherUiControls')
+    WeatherUi._weatherModel.hasPerceiver = WeatherPerception.getAllowedIds(Fal.userID()).length >= 1
+    WeatherUi._weatherModel.hasPerceivers = WeatherPerception.getAllowedIds(Fal.userID()).length > 1
+    WeatherUi._weatherModel.hasTimeAuthority = Permissions.hasPermission(userId, 'timeControls')
+      && WeatherUi._weatherModel.hasControls
+      && TimeProvider.hasTimeAuthority()
+      && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
+
     if (WeatherUi._weatherModel.hasTimeAuthority) {
       WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
     } else {
@@ -260,50 +267,57 @@ export class WeatherUi extends FormApplication {
    * @param {jQuery} jQ - the jQuery instance containing the UI window html.
    */
   _attachControls(jQ) {
-    if (!Fal.isGm()) return
+    if (!WeatherUi._weatherModel.hasControls) return
     jQ.find('#weatherControls li').each(function (id) {
       const controlJQ = $(this)
       const controlFunc = controlJQ.attr('data-func') || 'none'
       const controlBase = Number(controlJQ.attr('data-base') || '0')
       switch (controlFunc) {
         case 'time':
-          // TODO only if TimeProvider is set to internal          
-          controlJQ.on('click', function () {
-            TimeProvider.advanceGameTime((window.event.ctrlKey ? controlBase * 5 : controlBase))
-          })
+          if (WeatherUi._weatherModel.hasTimeAuthority) {
+            controlJQ.on('click', function () {
+              TimeProvider.advanceGameTime((window.event.ctrlKey ? controlBase * 5 : controlBase))
+            })
+          }
           break
         case 'chatSingle':
-          controlJQ.on('click', async function () {
-            const tokens = Fal.getControlledTokens()
-            if (tokens.length == 0) {
-              Logger.info(Fal.i18n('dialogs.weatherUi.chatNotice'), true)
-            } else {
-              const userIds = tokens.map(token => { return Fal.getUserByToken(token) })
-              Logger.debug('chatSingle', { 'tokens': tokens, 'userIds': userIds })
+          if (WeatherUi._weatherModel.hasControls) {
+            controlJQ.on('click', async function () {
+              const tokens = Fal.getControlledTokens()
+              if (tokens.length == 0) {
+                Logger.info(Fal.i18n('dialogs.weatherUi.chatNotice'), true)
+              } else {
+                const userIds = tokens.map(token => { return Fal.getUserByToken(token) })
+                Logger.debug('chatSingle', { 'tokens': tokens, 'userIds': userIds })
+                const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+                ChatMessage.create({
+                  user: Fal.userID(),
+                  whisper: userIds,
+                  content: weatherChatHtml
+                })
+              }
+            })
+          }
+          break
+        case 'chatAll':
+          if (WeatherUi._weatherModel.hasControls) {
+            controlJQ.on('click', async function () {
               const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
               ChatMessage.create({
                 user: Fal.userID(),
-                whisper: userIds,
                 content: weatherChatHtml
               })
-            }
-          })
-          break
-        case 'chatAll':
-          controlJQ.on('click', async function () {
-            const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
-            ChatMessage.create({
-              user: Fal.userID(),
-              content: weatherChatHtml
             })
-          })
+          }
           break
         case 'clipboard':
-          controlJQ.on('click', async function () {
-            const weatherText = await WeatherPerception.getAsText(WeatherUi._perceptionId, WeatherUi._weatherModel)
-            Utils.copyToClipboard(weatherText)
-            Logger.info(Fal.i18n('dialogs.weatherUi.clipboardNotice'), true)
-          })
+          if (WeatherUi._weatherModel.hasControls) {
+            controlJQ.on('click', async function () {
+              const weatherText = await WeatherPerception.getAsText(WeatherUi._perceptionId, WeatherUi._weatherModel)
+              Utils.copyToClipboard(weatherText)
+              Logger.info(Fal.i18n('dialogs.weatherUi.clipboardNotice'), true)
+            })
+          }
           break
       }
     })
@@ -316,7 +330,7 @@ export class WeatherUi extends FormApplication {
    * @param {jQuery} jQ - the jQuery instance containing the UI window html.
    */
   _attachPerceiverControls(jQ) {
-    if (!(Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length > 1)) return
+    if (!WeatherUi._weatherModel.hasPerceivers) return
     jQ.find('#weatherContainer .percControl').each(function (id) {
       const controlJQ = $(this)
       const controlFunc = controlJQ.attr('data-func') || 'none'
@@ -352,16 +366,8 @@ export class WeatherUi extends FormApplication {
     super.activateListeners(jQ)
     // attach drag handler for moving the UI and pinning it to predefined positions
     this._attachDragHandler(jQ)
-
-    // TODO use rights management here
-    if (Fal.isGm()) {
-      this._attachControls(jQ)
-    }
-
-    // TODO use rights management here
-    if (Fal.isGm() || WeatherPerception.getAllowedIds(Fal.userID()).length) {
-      this._attachPerceiverControls(jQ)
-    }
+    this._attachControls(jQ)
+    this._attachPerceiverControls(jQ)
   }
 
   /**
@@ -385,7 +391,7 @@ export class WeatherUi extends FormApplication {
       const element = app.element
       $('body').append(element)
       element.removeClass('pinned')
-      return true;
+      return true
     }
   }
 
@@ -458,13 +464,9 @@ export class WeatherUi extends FormApplication {
 
     WeatherUi._addModelFlags()
     if (Fal.getSetting('uiVisible', false) === true) {
-
-      // TODO depending on user setting for precision
-      // const id = WeatherPerception.getAllowedIds(Fal.userID())      
       const weatherInfoHtml = await WeatherPerception.getAsUiHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
       $('#weatherDetail').html(weatherInfoHtml)
-
-      WeatherUi._updateTimeHeadline()
+      if (WeatherUi._weatherModel.hasTimeAuthority) WeatherUi._updateTimeHeadline()
     }
   }
 }

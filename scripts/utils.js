@@ -51,27 +51,148 @@ export class Logger {
 export class Utils {
 
   /**
-   * TODO
-   * 
-   * @param {*} objectA 
-   * @param {*} objectB 
-   * @returns 
-   */
-  static objectsEqual(objectA, objectB) {
-    return foundry.utils.objectsEqual(objectA, objectB)
+  * Test if two objects contain the same enumerable keys and values.
+  * @param {object} a  The first object.
+  * @param {object} b  The second object.
+  * @returns {boolean}
+  */
+  static objectsEqual(a, b) {
+    if (a === undefined || b === undefined) return false
+    if ((a == null) || (b == null)) return a === b
+    if ((getType(a) !== "Object") || (getType(b) !== "Object")) return a === b
+    if (Object.keys(a).length !== Object.keys(b).length) return false
+    return Object.entries(a).every(([k, v0]) => {
+      const v1 = b[k]
+      const t0 = getType(v0)
+      const t1 = getType(v1)
+      if (t0 !== t1) return false
+      if (v0?.equals instanceof Function) return v0.equals(v1)
+      if (t0 === "Object") return Utils.objectsEqual(v0, v1)
+      return v0 === v1
+    })
   }
 
   /**
-   * TODO
-   * 
-   * @param {*} original 
-   * @param {*} other 
-   * @param {*} options 
-   * @param {*} _d 
-   * @returns 
+   * Update a source object by replacing its keys and values with those from a target object.
+   *
+   * @param {object} original                           The initial object which should be updated with values from the
+   *                                                    target
+   * @param {object} [other={}]                         A new object whose values should replace those in the source
+   * @param {object} [options={}]                       Additional options which configure the merge
+   * @param {boolean} [options.insertKeys=true]         Control whether to insert new top-level objects into the resulting
+   *                                                    structure which do not previously exist in the original object.
+   * @param {boolean} [options.insertValues=true]       Control whether to insert new nested values into child objects in
+   *                                                    the resulting structure which did not previously exist in the
+   *                                                    original object.
+   * @param {boolean} [options.overwrite=true]          Control whether to replace existing values in the source, or only
+   *                                                    merge values which do not already exist in the original object.
+   * @param {boolean} [options.recursive=true]          Control whether to merge inner-objects recursively (if true), or
+   *                                                    whether to simply replace inner objects with a provided new value.
+   * @param {boolean} [options.inplace=true]            Control whether to apply updates to the original object in-place
+   *                                                    (if true), otherwise the original object is duplicated and the
+   *                                                    copy is merged.
+   * @param {boolean} [options.enforceTypes=false]      Control whether strict type checking requires that the value of a
+   *                                                    key in the other object must match the data type in the original
+   *                                                    data to be merged.
+   * @param {boolean} [options.performDeletions=false]  Control whether to perform deletions on the original object if
+   *                                                    deletion keys are present in the other object.
+   * @param {boolean} [options.expand=true]            Control whether keys will be treated as flattened object keys when
+   *                                                    they contain a colon. If true, they will be expanded into am object
+   *                                                    hierarchy, otherwise will kept as they are.
+   * @param {number} [_d=0]                             A privately used parameter to track recursion depth.
+   * @returns {object}                                  The original source object including updated, inserted, or
+   *                                                    overwritten records.
+   *  
    */
-  static mergeObject(original, other = {}, options = {}, _d = 0) {
-    return foundry.utils.mergeObject(original, other, options, _d)
+  static mergeObject(original, other = {}, {
+    insertKeys = true, insertValues = true, overwrite = true, recursive = true, inplace = true, enforceTypes = false,
+    performDeletions = false, expand = true
+  } = {}, _d = 0) {
+    other = other || {}
+    if (!(original instanceof Object) || !(other instanceof Object)) {
+      throw new Error("One of original or other are not Objects!")
+    }
+    const options = { insertKeys, insertValues, overwrite, recursive, inplace, enforceTypes, performDeletions, expand }
+    // Special handling at depth 0
+    if (_d === 0) {
+      if (expand && Object.keys(other).some(k => /\./.test(k))) other = expandObject(other) // TODO Utils.expandObject
+      if (Object.keys(original).some(k => /\./.test(k))) {
+        const expanded = (expand) ? expandObject(original) : original  // TODO Utils.expandObject
+        if (inplace && expand) {
+          Object.keys(original).forEach(k => delete original[k])
+          Object.assign(original, expanded)
+        }
+        else original = expanded
+      }
+      else if (!inplace) original = Utils.deepClone(original)
+    }
+    // Iterate over the other object
+    for (let k of Object.keys(other)) {
+      const v = other[k]
+      if (original.hasOwnProperty(k)) {
+        Utils._mergeUpdate(original, k, v, options, _d + 1)
+      } else {
+        Utils._mergeInsert(original, k, v, options, _d + 1)
+      }
+    }
+    return original
+  }
+
+  /**
+   * A helper function for merging objects when the target key does not exist in the original
+   * @private
+   */
+  static _mergeInsert(original, k, v, { insertKeys, insertValues, performDeletions, expand } = {}, _d) {
+    // Delete a key
+    if (k.startsWith("-=") && performDeletions) {
+      delete original[k.slice(2)]
+      return
+    }
+    const canInsert = ((_d <= 1) && insertKeys) || ((_d > 1) && insertValues)
+    if (!canInsert) return
+    // Recursively create simple objects
+    if (v?.constructor === Object) {
+      original[k] = Utils.mergeObject({}, v, { insertKeys: true, inplace: true, performDeletions, expand })
+      return
+    }
+    // Insert a key
+    original[k] = v
+  }
+
+  /**
+   * A helper function for merging objects when the target key exists in the original
+   * @private
+   */
+  static _mergeUpdate(original, k, v, {
+    insertKeys, insertValues, enforceTypes, overwrite, recursive, performDeletions, expand
+  } = {}, _d) {
+    const x = original[k]
+    const tv = getType(v)
+    const tx = getType(x)
+    // Recursively merge an inner object
+    if ((tv === "Object") && (tx === "Object") && recursive) {
+      return Utils.mergeObject(x, v, {
+        insertKeys, insertValues, overwrite, enforceTypes, performDeletions, expand,
+        inplace: true
+      }, _d)
+    }
+    // Overwrite an existing value
+    if (overwrite) {
+      if ((tx !== "undefined") && (tv !== tx) && enforceTypes) {
+        throw new Error(`Mismatched data types encountered during object merge.`)
+      }
+      original[k] = v
+    }
+  }
+
+  /**
+   * Flatten a possibly multi-dimensional object to a one-dimensional one by converting all nested keys to dot notation
+   * @param {object} obj        The object to flatten
+   * @param {number} [_d=0]     Track the recursion depth to prevent overflow
+   * @return {object}           A flattened object
+   */
+  static flattenObject(obj, _d = 0) {
+    return flattenObject(obj, _d)
   }
 
   /**
@@ -143,12 +264,12 @@ export class Utils {
    * @returns {number} The mapped value.
    * 
    * @example
-   * const current = 50;
-   * const inMin = 0;
-   * const inMax = 100;
-   * const outMin = 0;
-   * const outMax = 1;
-   * const mappedValue = map(current, inMin, inMax, outMin, outMax); // Returns 0.5
+   * const current = 50
+   * const inMin = 0
+   * const inMax = 100
+   * const outMin = 0
+   * const outMax = 1
+   * const mappedValue = map(current, inMin, inMax, outMin, outMax) // Returns 0.5
    */
   static map(current, inMin, inMax, outMin, outMax) {
     const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
@@ -181,7 +302,7 @@ export class Utils {
    * @returns {number} The rounded result
    */
   static roundToDecimals(number, decimals) {
-    return Number(Math.round(number + "e" + decimals) + "e-" + decimals);
+    return Number(Math.round(number + "e" + decimals) + "e-" + decimals)
   }
 
   /**
@@ -191,8 +312,8 @@ export class Utils {
    * @returns {object} The object without the given key.
    */
   static omit(object, key) {
-    const { [key]: _omitted, ...rest } = object;
-    return rest;
+    const { [key]: _omitted, ...rest } = object
+    return rest
   }
 
   /**

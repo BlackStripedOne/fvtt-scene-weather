@@ -20,23 +20,15 @@ import { MODULE, EVENTS } from './constants.js'
 import { Logger } from './utils.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
+import { PermissionConfigDialog } from './permissionConfig.js'
+import { Permissions } from './permissions.js'
 
 function onChangeFunction(value) {
   Hooks.callAll(EVENTS.SETTINGS_UPDATED, value)
 }
 
 export const registerSettingsPostInit = function () {
-  /*
-  TODO NAAAw.. use a matrix instead
-  
-  let perceptionIdChoices = {}
-  let defaultPerceptionId
-  WeatherPerception.getAllowedIds(Fal.userID()).forEach(id => {
-    perceptionIdChoices[id] = WeatherPerception.getInfo(id).name
-    defaultPerceptionId = id
-  })
-
-  */
+  // TODO
 }
 
 export const registerSettingsPreInit = function () {
@@ -48,12 +40,28 @@ export const registerSettingsPreInit = function () {
     default: false
   })
 
+  game.settings.registerMenu(MODULE.ID, "permissionSettingsMenu", {
+    name: 'settings.permissionSettingsMenu.name',
+    label: 'settings.permissionSettingsMenu.label',
+    hint: 'settings.permissionSettingsMenu.hint',
+    icon: "fa-regular fa-user-lock",
+    type: PermissionConfigDialog,
+    restricted: true
+  })
+
+  game.settings.register(MODULE.ID, 'permissions', {
+    scope: 'world',
+    config: false, // we will use the menu above to edit this setting
+    type: Object,
+    default: Permissions._getDefaultPermissions()
+  })
+
   // https://foundryvtt.wiki/en/development/api/settings
   game.settings.registerMenu(MODULE.ID, "defaultRegionSettingsMenu", {
     name: 'settings.defaultRegionSettingsMenu.name',
     label: 'settings.defaultRegionSettingsMenu.label',
     hint: 'settings.defaultRegionSettingsMenu.hint',
-    icon: "fas fa-bars",
+    icon: "fas fa-solid fa-sliders",
     type: RegionConfigDialog,
     restricted: true
   })
@@ -109,7 +117,7 @@ export const registerSettingsPreInit = function () {
     name: 'settings.defaultWeatherSettingsMenu.name',
     label: 'settings.defaultWeatherSettingsMenu.label',
     hint: 'settings.defaultWeatherSettingsMenu.hint',
-    icon: "fas fa-bars",
+    icon: "fas fa-solid fa-sliders",
     type: WeatherConfigDialog,
     restricted: true
   })

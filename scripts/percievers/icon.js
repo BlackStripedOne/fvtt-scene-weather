@@ -20,6 +20,7 @@ import { Logger, Utils } from '../utils.js'
 import { EVENTS, MODULE, CLOUD_TYPE, PRECI_TYPE } from '../constants.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Permissions } from '../permissions.js'
 
 Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
   SceneWeather.registerPerciever(MODULE.ID, 'icon', new IconPerciever())
@@ -33,8 +34,7 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.isAllowed(userId)
    */
   isAllowed(userId) {
-    // TODO use rights management
-    return Fal.isGm(userId)
+    return Permissions.hasPermission(userId, 'perciever.scene-weather.icon')
   }
 
   /**
@@ -159,7 +159,7 @@ class IconPerciever extends WeatherPerception {
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
       'id': 'icon',
-      'name': 'meteo.icon.name'
+      'name': Fal.i18n(PREFIX + 'name')
     })
     Logger.debug('IconPerciever.getPercieverInfo()', { 'info': info })
     return info

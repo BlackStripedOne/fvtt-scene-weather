@@ -24,6 +24,8 @@ import { WeatherEffectsLayer } from './weatherFxLayer.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { WeatherPerception } from './weatherPerception.js'
+import { Permissions } from './permissions.js'
 
 /**
  * Layer for the scene-weather. FEATURE placeable sources and sinks on this layer
@@ -48,58 +50,59 @@ export class WeatherLayer extends InteractionLayer {
   static registerLayerButtons() {
 
     Hooks.on("getSceneControlButtons", btns => {
+      const userId = Fal.userID()
       const weatherOptions = [{
         name: 'dialogs.weatherUi.toggleName',
         title: 'dialogs.weatherUi.toggleTitle',
-        icon: "fas fa-solid fa-window-maximize",
-        visible: true, // TODO use rights management here.
+        icon: 'fas fa-solid fa-window-maximize',
+        visible: WeatherPerception.getAllowedIds(userId).length >= 1,
         toggle: true,
         active: WeatherUi._isOpen,
         onClick: () => {
-          WeatherUi.toggleAppVis('toggle');
+          WeatherUi.toggleAppVis('toggle')
         }
       },
       {
-        name: "Toggle Meteogram",
-        title: 'Toggle Meteogram',
-        icon: "fas fa-solid fa-chart-line",
-        visible: Fal.isGm() && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),  // TODO use Fal and rights management here
+        name: 'dialogs.meteoUi.toggleName',
+        title: 'dialogs.meteoUi.toggleTitle',
+        icon: 'fas fa-solid fa-chart-line',
+        visible: Permissions.hasPermission(userId, 'meteogramUi') && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         toggle: true,
         active: MeteoUi._isOpen,
         onClick: () => {
-          MeteoUi.toggleAppVis('toggle');
+          MeteoUi.toggleAppVis('toggle')
         }
       },
       {
-        name: "Weather Settings",
-        title: 'Weather Settings',
-        icon: "fas fa-solid fa-sliders",
-        visible: Fal.isGm() && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
+        name: 'dialogs.weatherConfig.toggleName',
+        title: 'dialogs.weatherConfig.toggleTitle',
+        icon: 'fas fa-solid fa-sliders',
+        visible: Permissions.hasPermission(userId, 'sceneSettings') && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         button: true,
         onClick: () => {
-          if (Fal.isGm() && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+          if (Permissions.hasPermission(userId, 'sceneSettings') && [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
             const dia = new WeatherConfigDialog(canvas.scene._id)
             dia.render(true)
           }
         }
       },
       {
-        name: "Region Settings",
-        title: 'Region Settings',
-        icon: "fas fa-solid fa-sliders",
-        visible: Fal.isGm() && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)), // TODO use Fal and rights management here
+        name: 'dialogs.regionConfig.toggleName',
+        title: 'dialogs.regionConfig.toggleTitle',
+        icon: 'fas fa-solid fa-sliders',
+        visible: Permissions.hasPermission(userId, 'sceneSettings') && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         button: true,
         onClick: () => {
-          if (Fal.isGm() && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+          if (Permissions.hasPermission(userId, 'sceneSettings') && [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
             const dia = new RegionConfigDialog(canvas.scene._id)
             dia.render(true)
           }
         }
       },
       {
-        name: "Weather Effects Enabled",
-        title: 'Weather Effects Enabled',
-        icon: "fas fa-solid fa-eye",
+        name: 'settings.enableFx.toggleName',
+        title: 'settings.enableFx.toggleTitle',
+        icon: 'fas fa-solid fa-eye',
         visible: true,
         toggle: true,
         active: Fal.getSetting('enableFx', true),
@@ -115,10 +118,10 @@ export class WeatherLayer extends InteractionLayer {
       }]
 
       btns.splice(btns.findIndex(e => e.name === 'sounds') + 1, 0, {
-        name: "Scene Weather",  // TODO localize
-        title: "Scene Weather",
-        icon: "fas fa-solid fa-cloud-bolt-sun",
-        layer: "sceneweather",
+        name: 'settings.buttonName',
+        title: 'settings.buttonTitle',
+        icon: 'fas fa-solid fa-cloud-bolt-sun',
+        layer: 'sceneweather',
         // activeTool: 'name_of_tool_to_automatically_select
         tools: weatherOptions
       })
@@ -128,12 +131,12 @@ export class WeatherLayer extends InteractionLayer {
 
   static get layerOptions() {
     return Utils.mergeObject(super.layerOptions, {
-      name: "sceneweather",
+      name: 'sceneweather',
       canDragCreate: false,
       controllableObjects: true,
       rotatableObjects: true,
-      zIndex: 479,
-    });
+      zIndex: 479
+    })
   }
 
   selectObjects(optns) {

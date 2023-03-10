@@ -16,12 +16,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger } from './utils.js'
-import { MODULE } from './constants.js'
+import { Logger, Utils } from './utils.js'
+import { MODULE, RAIN_MODES, GENERATOR_MODES } from './constants.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
 import { WeatherModel } from './weatherModel.js'
 import { RegionMeteo } from './regionMeteo.js'
+import { SceneWeatherState } from './state.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { TimeProvider } from './timeProvider.js'
 
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
@@ -34,95 +37,48 @@ export class WeatherTab {
    * @param {*} jQ - the jQuery instance of the html where the tab shall be injected
    */
   static async addControlsTab(app, jQ) {
-    Logger.debug('addControlsTab', { 'app': app, 'jQ': jQ })
+    Logger.debug('WeatherTab.addControlsTab', { 'app': app, 'jQ': jQ })
 
-    let sceneDoc = app.document
-    let weatherFlags = sceneDoc.flags[MODULE.ID]
-    let defaultOptions = {
+    const weatherSettings = app.document.flags[MODULE.ID]
+    const defaultOptions = {
       'weatherMode': 'disabled',
-      'weatherTemplate': 'default',	// via WeatherModel
-      'regionTemplate': 'plains',		// via RegionMeteo
-      'timeProvider': 'manual',
-      'seed': 0
-    }
-    mergeObject(defaultOptions, weatherFlags, { overwrite: true })
-
-    let tabData = {
-      'data': defaultOptions,
-      'timeProviders': [    // TODO use TimeProvider to fill list
-        {
-          'id': 'internal',
-          'name': 'Use SceneWeather as time source'
-        },
-        {
-          'id': 'external',
-          'name': 'Use an external time source'
-        },
-        {
-          'id': 'simple-calendar',
-          'name': 'Use Simple Calendar as time source'
-        }
-      ],
-      'rainModes': [
-        {
-          'id': 'winddir',
-          'name': 'Same as winddirection'
-        },
-        {
-          'id': 'topdown',
-          'name': 'Always straight from top to bottom'
-        },
-        {
-          'id': 'slanted',
-          'name': 'Always slanted, from top to bottom'
-        },
-        {
-          'id': 'windinfluence',
-          'name': 'Direction influenced by winddirection and speed'
-        }
-      ],
-      'weatherModes': [
-        {
-          'id': 'disabled',
-          'name': 'Disabled (Use foundry default ambience)',
-          'hint': 'Scene Weather is disabled. All ambience effects and types are set via the foundry default settings in Ambience.'
-        },
-        {
-          'id': 'weatherTemplate',
-          'name': 'Use weather template (static)',
-          'hint': 'Set a weather for the scene from a select choice of templates. The weather is static and will remain like that unless manually changed.'
-        },
-        {
-          'id': 'weatherAuto',
-          'name': 'Manual weather settings (static)',
-          'hint': 'Set the weather for the scene from manual set individual settings. The weather is static and will remain like that unless manually changed.'
-        },
-        {
-          'id': 'regionTemplate',
-          'name': 'Use region template (dynamic)',
-          'hint': 'Let the weather be generated based on a selected region template from a choice list. The weather will change dynamically based on given time of day and the season in the year. If an automatic calendar or time module is installed, it will change with the flow of time.'
-        },
-        {
-          'id': 'regionAuto',
-          'name': 'Manual region settings (dynamic)',
-          'hint': 'Let the weather be generated based on set attributes for the scene like mean temperature or elevation. The weather is dependant on a current time/date that needs to be provided to generate the dynamic weather based on all those parameters.'
-        }
-      ],
-      'weatherTemplates': [],
-      'regionTemplates': []
+      'weatherTemplate': Object.values(SceneWeatherState._weatherTemplates)[0].id,
+      'regionTemplate': Object.values(SceneWeatherState._regionTemplates)[0].id,
+      'timeProvider': TimeProvider.getProviderIds()[0],
+      'seed': ''
     }
 
-    // Add available weather templates
-    tabData.weatherTemplates = WeatherModel.getTemplates()
-    // Add available region templates
-    tabData.regionTemplates = RegionMeteo.getTemplates()
+    const tabData = {
+      'data': Utils.mergeObject(defaultOptions, weatherSettings, { overwrite: true }),
+      'timeProviders': TimeProvider.getProviderIds().map(element => {
+        return {
+          'id': element,
+          'name': 'configTab.general.timeSources.' + element + '.name',
+          'hint': 'configTab.general.timeSources.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+        }
+      }),
+      'rainModes': Object.values(RAIN_MODES).map(element => {
+        return {
+          'id': element,
+          'name': 'configTab.rainModes.' + element + '.name',
+          'hint': 'configTab.rainModes.' + element + '.hint'  // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+        }
+      }),
+      'weatherModes': Object.values(GENERATOR_MODES).map(element => {
+        return {
+          'id': element,
+          'name': 'configTab.weatherModes.' + element + '.name',
+          'hint': 'configTab.weatherModes.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+        }
+      }),
+      'weatherTemplates': WeatherModel.getTemplates(),
+      'regionTemplates': RegionMeteo.getTemplates()
+    }
 
-    Logger.debug('Render TabData with', { 'tabData': tabData })
-
-    const tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData);
+    const tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData)
 
     // inject the weather tab
-    $('.sheet-tabs', jQ).append($('<a>').addClass('item').attr('data-tab', "weather").html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> Weather'))
+    $('.sheet-tabs', jQ).append($('<a>').addClass('item').attr('data-tab', "weather").html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> ' + Fal.i18n('configTab.title')))
     let tab = $('<div>').addClass('tab').attr('data-tab', "weather").insertAfter($('div[data-tab="ambience"]', jQ))
     tab.append(tabHtml)
 
@@ -158,6 +114,22 @@ export class WeatherTab {
       dia.render(true)
     })
 
+    // action on click for random seed string generation
+    jQ.find('#randomSeed').on('click', async function () {
+      const field = jQ.find('input[name="flags.scene-weather.seed"]')
+      let words = []
+      Object.values(Utils.flattenObject(game.i18n.translations)).forEach(line => {
+        line.split(/(\s+)/).forEach(word => {
+          if (word && word.length > 5 && word.length < 13 && /^\w+$/.test(word)) words.push(word)
+        })
+      })
+      let sentence = []
+      for (var i = 0; i < 3; i++) {
+        sentence.push(words[Math.floor(Math.random() * words.length)])
+      }
+      field.val(sentence.join(' '))
+    })
+
     // TODO check when find yields null
     jQ.find('select[name="flags.scene-weather.weatherMode"]').on('change', function () {
       let modeId = $(this).find(":selected").val()
@@ -179,6 +151,5 @@ export class WeatherTab {
       app.setPosition({ height: 'auto' });
       Logger.debug('onChange', { 'app': app, 'jQ': jQ })
     }) // on change
-
   }
 }

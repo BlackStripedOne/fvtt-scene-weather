@@ -1,3 +1,9 @@
+.radomizeSeed {
+  max-width: 14px;
+  margin-right: 7px !important;
+  margin-left: 3px !important;
+}
+
 #scene-weather-permissions-config header.table-header {
   background: rgba(0, 0, 0, 0.5);
   padding: 5px;

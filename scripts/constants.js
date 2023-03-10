@@ -26,11 +26,11 @@ export const MODULE = {
 }
 
 export const GENERATOR_MODES = {
+  'DISABLED': 'disabled',
   'WEATHER_TEMPLATE': 'weatherTemplate', // Weather Template (Rainstorm, Thunder, Sunny Breeze, ...) / Time,Date agnostic, static
   'WEATHER_GENERATE': 'weatherAuto', // Weather from scene or global weatherConfig
   'REGION_TEMPLATE': 'regionTemplate', // Region Template (Boreal Forest, Shorelines, Mountains, ...) Time,Date aware
-  'REGION_GENERATE': 'regionAuto', // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
-  'DISABLED': 'disabled'
+  'REGION_GENERATE': 'regionAuto' // Region Automatic (Temps, Moists, Winds, ...) Time,Date dependant
 }
 
 export const EVENTS = {
@@ -41,6 +41,19 @@ export const EVENTS = {
   'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate',
   'REG_WEATHER_PERCIEVERS': MODULE.LCCNAME + 'RegisterWeatherPercievers',
   'MODULE_INITIALIZED': MODULE.LCCNAME + 'Initialized'
+}
+
+export const RAIN_MODES = {
+  'WINDDIR': 'winddir',
+  'TOPDOWN': 'topdown',
+  'SLANTED': 'slanted',
+  'WINDINFLUENCED': 'windinfluence'
+}
+
+export const TIME_PROVIDERS = {
+  'INTERNAL': 'internal',
+  'EXTERNAL': 'external',
+  'SIMPLE_CALENDAR': 'simple-calendar'
 }
 
 export const METEO = {

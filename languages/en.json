@@ -32,6 +32,91 @@
       "hint": "Allows use of the Meteogram UI for a finer overview of weather formation and evolution over time."
     }
   },
+  "configTab": {
+    "title": "Weather",
+    "sceneWeather": "Scene Weather",
+    "sceneRegion": "Scene Region",
+    "weatherMode": {
+      "title": "Select Scene Weather Mode:",
+      "hint": "Set the mode in which SceneWeather should control this scene's weather."
+    },
+    "weatherModes": {
+      "disabled": {
+        "name": "Disabled (Use foundry default ambience)",
+        "hint": "Scene Weather is disabled. SceneWeather does not influence this scene's weather or ambience. There will be no weather information available on this scene."
+      },
+      "weatherTemplate": {
+        "name": "Use weather template (static)",
+        "hint": "Set a weather for the scene from a select choice of templates. The weather is static and will remain like that unless manually changed.",
+        "selectTitle": "Weather Template",
+        "selectHint": "Select a predefined weather by its template."
+      },
+      "weatherAuto": {
+        "name": "Manual weather settings (static)",
+        "hint": "Set the weather for the scene from manual set individual settings. The weather is static and will remain like that unless manually changed.",
+        "settingsTitle": "Weather Settings for this Scene",
+        "settingsButton": "Configure Weather Settings",
+        "settingsHint": "Edit this scene's specific weather configuration manually."
+      },
+      "regionTemplate": {
+        "name": "Use region template (dynamic)",
+        "hint": "Let the weather be generated based on a selected region template from a choice list. The weather will change dynamically based on given time of day and the season in the year. If an automatic calendar or time module is installed, it will change with the flow of time.",
+        "selectTitle": "Region Template",
+        "selectHint": "Select a predefined regional settings by its template."
+      },
+      "regionAuto": {
+        "name": "Manual region settings (dynamic)",
+        "hint": "Let the weather be generated based on set attributes for the scene like mean temperature or elevation. The weather is dependant on a current time/date that needs to be provided to generate the dynamic weather based on all those parameters.",
+        "settingsTitle": "Region Settings for this Scene",
+        "settingsButton": "Configure Region Settings",
+        "settingsHint": "Edit this scene's specific region configuration to have the weather generate from."
+      }
+    },
+    "general": {
+      "title": "General Settings",
+      "seedTitle": "Generator Seed",
+      "seedHint": "Generate random seed string",
+      "seedNote": "Seed value for the procedural generated values for this scene. The same seed on different scenes will make sure the weather is exactly the same if all other weather settings are equal.",
+      "timeTitle": "Time Provider",
+      "timeHint": "Select the time provider for dynamic weather generation. If you select SceneWeather as your time provider, additional elements will be shown on the weather info window to let you advance or revert the current time and day. External time providers have SceneWeather rely on another means to change the current time of the game/scene.",
+      "timeSources": {
+        "internal": {
+          "name": "Use SceneWeather as time source",
+          "hint": ""
+        },
+        "external": {
+          "name": "Use an external time source",
+          "hint": ""
+        },
+        "simple-calendar": {
+          "name": "Use Simple Calendar as time source",
+          "hint": ""
+        }
+      }
+    },
+    "rainMode": {
+      "title": "Precipitation Mode",
+      "hint": "Define how the precipitation effects are redered visually. They can statically just fall from the top of the screen down, show the wind direction or be influenced by the wind direction from a top-down path."
+    },
+    "rainModes": {
+      "winddir": {
+        "name": "Same as winddirection",
+        "hint": ""
+      },
+      "topdown": {
+        "name": "Always straight from top to bottom",
+        "hint": ""
+      },
+      "slanted": {
+        "name": "Always slanted, from top to bottom",
+        "hint": ""
+      },
+      "windinfluence": {
+        "name": "Direction influenced by winddirection and speed",
+        "hint": ""
+      }
+    }
+  },
   "dialogs": {
     "degCelsius": "°C",
     "meters": "m",

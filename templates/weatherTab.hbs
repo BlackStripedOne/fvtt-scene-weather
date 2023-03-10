@@ -1,115 +1,104 @@
 <div class="form-group">
-  <label for="flags.scene-weather.weatherMode">Select Scene Weather Mode:</label>
+  <label for="flags.scene-weather.weatherMode">{{localize 'configTab.weatherMode.title'}}</label>
   <div class="form-fields">
     <select name="flags.scene-weather.weatherMode" data-type="String" class="select2" style="width:100%;">
       {{selectOptions weatherModes selected=data.weatherMode nameAttr="id" labelAttr="name" localize=true}}
     </select>
   </div>
-  <p class="notes">Set the mode in which SceneWeather should control this scene's weather.</p>
+  <p class="notes">{{localize 'configTab.weatherMode.hint'}}</p>
 </div>
 
 <div id="sceneWeather.mode.disabled" class="sceneWeather-collapsibleModeOption">
-  <h2>Disabled</h2>
-  <p class="notes">Scene Weather is disabled. SceneWeather does not influence this scene's weather or ambience. There
-    will be no weather information available on this scene.</p>
+  <h2>{{localize 'configTab.weatherModes.disabled.name'}}</h2>
+  <p class="notes">{{localize 'configTab.weatherModes.disabled.hint'}}</p>
 </div>
 
 <div id="not_sceneWeather.mode.disabled" class="sceneWeather-collapsibleModeOption active">
-  <h2>General Settings</h2>
+  <h2>{{localize 'configTab.general.title'}}</h2>
   <div class="form-group">
-    <label for="flags.scene-weather.rainMode">Precipitation Mode</label>
+    <label for="flags.scene-weather.rainMode">{{localize 'configTab.rainMode.title'}}</label>
     <div class="form-fields">
       <select name="flags.scene-weather.rainMode" data-dtype="String">
         {{selectOptions rainModes selected=data.rainMode nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
-    <p class="notes">Define how the precipitation effects are redered visually. They can statically just fall from the
-      top of the screen down, show the wind direction or be influenced by the wind direction from a top-down path.</p>
+    <p class="notes">{{localize 'configTab.rainMode.hint'}}</p>
   </div>
 
   <div class="form-group">
-    <label for="flags.scene-weather.seed">Generator Seed</label>
+    <label for="flags.scene-weather.seed">{{localize 'configTab.general.seedTitle'}}</label>
     <div class="form-fields">
-      <input type="number" data-dtype="Number" name="flags.scene-weather.seed" placeholder="{{data.seed}}"
+      <input type="string" data-dtype="String" name="flags.scene-weather.seed" placeholder="{{data.seed}}"
         value="{{data.seed}}">
+      <div id="randomSeed" class="radomizeSeed" title="{{localize 'configTab.general.seedHint'}}"><i
+          class="fa-solid fa-dice"></i></div>
     </div>
-    <p class="notes">Seed value for the procedural generated values for this scene. The same seed on different scenes
-      will make sure the weather is exactly the
-      same if all other weather settings are equal.
-    </p>
+    <p class="notes">{{localize 'configTab.general.seedNote'}}</p>
   </div>
 
   <div class="form-group">
-    <label for="flags.scene-weather.timeProvider">Time Provider</label>
+    <label for="flags.scene-weather.timeProvider">{{localize 'configTab.general.timeTitle'}}</label>
     <div class="form-fields">
       <select name="flags.scene-weather.timeProvider" data-dtype="String">
         {{selectOptions timeProviders selected=data.timeProvider nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
-    <p class="notes">Select the time provider for dynamic weather generation. If you select SceneWeather as your time
-      provider, additional elements will be shown on the weather info window to let you advance or revert the current
-      time and day. External time providers have SceneWeather rely on another means to change the current time of the
-      game/scene.
-    </p>
+    <p class="notes">{{localize 'configTab.general.timeHint'}}</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.weatherTemplate" class="sceneWeather-collapsibleModeOption">
-  <h2>Scene Weather</h2>
-  <p class="notes">Set a weather for the scene from a select choice of templates. The weather is static and will remain
-    like that unless manually changed.</p>
+  <h2>{{localize 'configTab.sceneWeather'}}</h2>
+  <p class="notes">{{localize 'configTab.weatherModes.weatherTemplate.hint'}}</p>
   <div class="form-group">
-    <label for="flags.scene-weather.weatherTemplate">Weather Template</label>
+    <label for="flags.scene-weather.weatherTemplate">{{localize
+      'configTab.weatherModes.weatherTemplate.selectTitle'}}</label>
     <div class="form-fields">
       <select name="flags.scene-weather.weatherTemplate" data-dtype="String">
         {{selectOptions weatherTemplates selected=data.weatherTemplate nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
-    <p class="notes">Select a predefined weather by its template.</p>
+    <p class="notes">{{localize 'configTab.weatherModes.weatherTemplate.selectHint'}}</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.weatherAuto" class="sceneWeather-collapsibleModeOption">
-  <h2>Scene Weather</h2>
-  <p class="notes">Set a weather for the scene defined by manual settings. The weather is static and will remain
-    like that unless manually changed.</p>
+  <h2>{{localize 'configTab.sceneWeather'}}</h2>
+  <p class="notes">{{localize 'configTab.weatherModes.weatherAuto.hint'}}</p>
   <div class="form-group submenu">
-    <label>Weather Settings for this Scene</label>
+    <label>{{localize 'configTab.weatherModes.weatherAuto.settingsTitle'}}</label>
     <button type="button" data-key="flags.scene-weather.weatherConfig">
-      <i class="fas fa-bars"></i>
-      <label>Configure Weather Settings</label>
+      <i class="fas fa-solid fa-sliders"></i>
+      <label>{{localize 'configTab.weatherModes.weatherAuto.settingsButton'}}</label>
     </button>
-    <p class="notes">Edit this scene's specific weather configuration manually.</p>
+    <p class="notes">{{localize 'configTab.weatherModes.weatherAuto.settingsHint'}}</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.regionTemplate" class="sceneWeather-collapsibleModeOption">
-  <h2>Scene Region</h2>
-  <p class="notes">Let the weather be generated based on a selected region template from a choice list. The weather will
-    change dynamically based on given time of day and the season in the year. If an automatic calendar or time module is
-    installed, it will change with the flow of time.</p>
+  <h2>{{localize 'configTab.sceneRegion'}}</h2>
+  <p class="notes">{{localize 'configTab.weatherModes.regionTemplate.hint'}}</p>
   <div class="form-group">
-    <label for="flags.scene-weather.regionTemplate">Region Template</label>
+    <label for="flags.scene-weather.regionTemplate">{{localize
+      'configTab.weatherModes.regionTemplate.selectTitle'}}</label>
     <div class="form-fields">
       <select name="flags.scene-weather.regionTemplate" data-dtype="String">
         {{selectOptions regionTemplates selected=data.regionTemplate nameAttr="id" labelAttr="name" localize=true}}
       </select>
     </div>
-    <p class="notes">Select a predefined regional settings by its template.</p>
+    <p class="notes">{{localize 'configTab.weatherModes.regionTemplate.selectHint'}}</p>
   </div>
 </div>
 
 <div id="sceneWeather.mode.regionAuto" class="sceneWeather-collapsibleModeOption">
-  <h2>Scene Region</h2>
-  <p class="notes">Let the weather be generated based on set attributes for the scene like mean temperature or
-    elevation. The weather is dependant on a current time/date that needs to be provided to generate the dynamic weather
-    based on all those parameters.</p>
+  <h2>{{localize 'configTab.sceneRegion'}}</h2>
+  <p class="notes">{{localize 'configTab.weatherModes.regionAuto.hint'}}</p>
   <div class="form-group submenu">
-    <label>Region Settings for this Scene</label>
+    <label>{{localize 'configTab.weatherModes.regionAuto.settingsTitle'}}</label>
     <button type="button" data-key="flags.scene-weather.regionConfig">
-      <i class="fas fa-bars"></i>
-      <label>Configure Region Settings</label>
+      <i class="fas fa-solid fa-sliders"></i>
+      <label>{{localize 'configTab.weatherModes.regionAuto.settingsButton'}}</label>
     </button>
-    <p class="notes">Edit this scene's specific region configuration to have the weather generate from.</p>
+    <p class="notes">{{localize 'configTab.weatherModes.regionAuto.settingsHint'}}</p>
   </div>
 </div>

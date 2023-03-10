@@ -32,6 +32,91 @@
       "hint": "Erlaubt die Nutzung der Meteogram UI für eine feinere Übersicht über die Wetterbildung und entwicklung über die Zeit."
     }
   },
+  "configTab": {
+    "title": "Wetter",
+    "sceneWeather": "Szenen Wetter",
+    "sceneRegion": "Szenen Region",
+    "weatherMode": {
+      "title": "Wähle den Wetter Generator:",
+      "hint": "Bestimme den Modus in dem SceneWeather das Wetter der Szene beeinflussen soll und den Generator Modus."
+    },
+    "weatherModes": {
+      "disabled": {
+        "name": "Inaktiv (Keine Wetter Generierung)",
+        "hint": "Die Wetter generation ist deaktiviert. SceneWeather hat keinen Einfluss auf das Wetter oder die Atmosphäre dieser Szene. Für diese Szene sind keine Wetterinformationen verfügbar."
+      },
+      "weatherTemplate": {
+        "name": "Wetter Vorlage (statisch)",
+        "hint": "Stelle ein Wetter für die Szene aus einer verfügbaren Auswahl von Vorlagen ein. Das Wetter ist statisch und von der aktuellen Spielzeit unbeeinflusst und bleibt so, wenn es nicht manuell geändert wird.",
+        "selectTitle": "Wetter Vorlage",
+        "selectHint": "Wähle eine vordefinierte Form von Wetter aus, welches auf dieser Szene herrschen soll."
+      },
+      "weatherAuto": {
+        "name": "Manuelle Wetter Einstellungen (statisch)",
+        "hint": "Stelle das Wetter für die Szene aus manuell festlegbaren, individuellen Einstellungen ein. Das Wetter ist statisch und von der aktuellen Spielzeit unbeeinflusst und bleibt so, wenn es nicht manuell geändert wird.",
+        "settingsTitle": "Wetter Einstellungen für diese Szene",
+        "settingsButton": "Wetter Einstellungen Anpassen",
+        "settingsHint": "Die Einstellungen für das Wetter auf dieser Szene manuell anpassen."
+      },
+      "regionTemplate": {
+        "name": "Regionen Vorlage (dynamisch)",
+        "hint": "Lass das Wetter basierend auf einer ausgewählten Regionsvorlage prozedural generieren. Das Wetter ändert sich dynamisch je nach Tages- und Jahreszeit. Wenn ein automatischer Kalender oder ein Zeitmodul installiert ist, ändert sich dieser mit der Zeit. Wetterdaten werden basierend auf einm prozeduralen Modell für diese Region individuell simuliert.",
+        "selectTitle": "Vorlage für die Region",
+        "selectHint": "Wähle eine vordefinierte Art der Region aus, die zur prozeduralen Wetter generation und Simulation genutzt werden soll."
+      },
+      "regionAuto": {
+        "name": "Manelle Einstellungen der Region (dynamisch)",
+        "hint": "Lass das Wetter basierend auf festzulegenden Attributen für die Szene wie Durchschnittstemperatur oder Höhe generieren. Das Wetter hängt von einer aktuellen Uhrzeit/einem aktuellen Datum ab, das bereitgestellt werden muss, um das dynamische Wetter basierend auf all diesen Parametern zu simulieren.",
+        "settingsTitle": "Szeneneinstellungen für die Region",
+        "settingsButton": "Einstellungen der Region Anpassen",
+        "settingsHint": "Die Einstellungen für die Region für diese Szene manuell anpassen. Aus diesen Einstellungen wird die Wettersimulation generiert und prozedural das aktuelle Wetter berechnet."
+      }
+    },
+    "general": {
+      "title": "Allgemeine Einstellungen",
+      "seedTitle": "Generator Seed",
+      "seedHint": "Zufälligen Seed auswürfeln",
+      "seedNote": "Startwert für die prozedural generierten Werte für diese Szene. Derselbe Seed in verschiedenen Szenen stellt sicher, dass das Wetter genau gleich ist, wenn alle anderen Wettereinstellungen gleich sind.",
+      "timeTitle": "Datum/Zeit Dienst",
+      "timeHint": "Wähle den Datums/Zeit Dienst für die dynamische Wettergenerierung aus. Wenn SceneWeather als als interner Dienst ausgewählt ist, werden in der WetterUI zusätzliche Elemente angezeigt, mit denen die aktuelle Uhrzeit und der aktuellen Tag vor- oder zurückgesetzt werden kann. Externe Zeit Dienste bewirken, dass sich SceneWeather auf ein anderes Mittel, um die aktuelle Zeit des Spiels/der Szene zu ändern verlässt und diese nur nutzt.",
+      "timeSources": {
+        "internal": {
+          "name": "SceneWeather steuert die Zeit",
+          "hint": ""
+        },
+        "external": {
+          "name": "SceneWeather nutzt einen externen Dienst",
+          "hint": ""
+        },
+        "simple-calendar": {
+          "name": "Nutze Simple-Calendar als externen Dienst",
+          "hint": ""
+        }
+      }
+    },
+    "rainMode": {
+      "title": "Niederschlags Darstellung",
+      "hint": "Definiere, wie die Niederschlagseffekte visuell wiedergegeben werden. Diese können statisch einfach vom oberen Rand des Bildschirms nach unten fallen, die Windrichtung anzeigen oder von der Windrichtung von oben nach unten beeinflusst werden."
+    },
+    "rainModes": {
+      "winddir": {
+        "name": "Selbe Richtung, wie der Wind",
+        "hint": ""
+      },
+      "topdown": {
+        "name": "Immer senkrecht nach Unten",
+        "hint": ""
+      },
+      "slanted": {
+        "name": "Immer leicht schräg nach Unten",
+        "hint": ""
+      },
+      "windinfluence": {
+        "name": "Beeinflusst durch Windrichtung und Geschwindigkeit",
+        "hint": ""
+      }
+    }
+  },
   "dialogs": {
     "degCelsius": "°C",
     "meters": "m",

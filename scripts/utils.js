@@ -20,35 +20,89 @@ import { MODULE } from './constants.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 /**
- * Console logger
+ * Foundry and console logging
  */
 export class Logger {
+
   static info(message, notify = false) {
-    console.log(MODULE.NAME + ` Info | ${message}`)
+    console.log('%c' + MODULE.NAME + ' | ' + message, 'color: cornflowerblue;')
     if (notify) ui.notifications.info(MODULE.NAME + ` | ${message}`)
   }
 
+  static warn(message, notify = false, permanent = false) {
+    console.error('%c' + MODULE.NAME + ' | ' + message, 'color: gold; background-color: darkgoldenrod;')
+    if (notify) ui.notifications.warn(MODULE.NAME + ` | ${message}`, { 'permanent': permanent })
+  }
+
   static error(message, notify = false, permanent = false) {
-    console.error(MODULE.NAME + ` Error | ${message}`)
+    console.error('%c' + MODULE.NAME + ' | ' + message, 'color: orangered; background-color: darkred;')
     if (notify) ui.notifications.error(MODULE.NAME + ` | ${message}`, { 'permanent': permanent })
   }
 
-  static debug(message, data) {
-    if (Fal.getSetting('debug', false)) {
-      if (!data) {
-        console.log(MODULE.NAME + ` Debug | ${message}`)
-        return
-      }
-      const dataClone = Utils.deepClone(data)
-      console.log(MODULE.NAME + ` Debug | ${message}`, dataClone)
+  static _dereferencer = {
+    'info': {
+      'debug': Logger._ignore,
+      'trace': Logger._ignore
+    },
+    'debug': {
+      'debug': Logger._debug,
+      'trace': Logger._ignore
+    },
+    'trace': {
+      'debug': Logger._debug,
+      'trace': Logger._trace
     }
   }
-}
 
+  static debug(message, data) {
+    Logger._dereferencer[Fal.getSetting('loglevel', 'info')].debug(message, data)
+  }
+
+  static trace(message, data) {
+    Logger._dereferencer[Fal.getSetting('loglevel', 'info')].trace(message, data)
+  }
+
+  static _ignore(message, data) {
+    // we ignore this
+  }
+
+  static _debug(message, data) {
+    if (data) {
+      const dataClone = Utils.deepClone(data)
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: darkgrey;', dataClone)
+    } else {
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: darkgrey;')
+    }
+  }
+
+  static _trace(message, data) {
+    if (data) {
+      const dataClone = Utils.deepClone(data)
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;', dataClone)
+    } else {
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;')
+    }
+  }
+
+}
 /**
  * Utilit class for generic fvtt ease-of-uses
  */
 export class Utils {
+
+  /**
+   * TODO
+   */
+  static getSeedFromString(string) {
+    let hash = 0
+    if (string.length === 0) return hash
+    for (let i = 0; i < string.length; i++) {
+      const char = string.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash |= 0 // Convert to 32bit integer
+    }
+    return Math.abs(hash)
+  }
 
   /**
   * Test if two objects contain the same enumerable keys and values.

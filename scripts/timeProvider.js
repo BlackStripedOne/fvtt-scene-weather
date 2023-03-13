@@ -171,7 +171,7 @@ export class TimeProvider {
     // format timeInfo to localized string
     const compiledTemplate = Handlebars.compile(Fal.i18n('time.formatted'))
     const timeText = compiledTemplate(timeInfo)
-    Logger.debug('TimeProvider.getI18nDateString', { 'TimeProvider._getProviderId()': TimeProvider._getProviderId(), 'timeInfo': timeInfo, 'timeText': timeText })
+    Logger.trace('TimeProvider.getI18nDateString', { 'TimeProvider._getProviderId()': TimeProvider._getProviderId(), 'timeInfo': timeInfo, 'timeText': timeText })
     return timeText
   }
 
@@ -263,8 +263,7 @@ export class TimeProvider {
    * @returns {string|undefined} - The currently set time provider ID for the current scene, or undefined if the flag is not set.
    */
   static _getProviderId() {
-    const providerId = Fal.getSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
-    Logger.debug('TimeProvider._getProviderId()', { 'providerId': providerId })
+    let providerId = Fal.getSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
     if (providerId == TIME_PROVIDERS.SIMPLE_CALENDAR && !Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
       Logger.info('Module [simple-calendar] is not installed or disabled. Reverting time provider to internal for this scene.', true)
       Fal.setSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
@@ -281,10 +280,7 @@ export class TimeProvider {
    * @returns {TimeProvider} - the implementation of the time provider as defined by configuration for the current scene.
    */
   static _getProviderInstance() {
-    const providerId = TimeProvider._getProviderId()
-    const instance = TimeProvider._instances[providerId]
-    Logger.debug('TimeProvider._getProviderInstance()', { 'providerId': providerId, 'instance': instance })
-    return instance
+    return TimeProvider._instances[TimeProvider._getProviderId()]
   }
 
 }

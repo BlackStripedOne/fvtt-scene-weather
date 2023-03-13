@@ -310,9 +310,12 @@
       "hint": "Die maximale Anzahl der dargestellten Partikel (Wolken, Regentropfen, Schneeflocken, usw.) kann begrenzt werden, falls dies die Performance auf dem Browser einschränkt. Typische Werte sind ~1000 bei einem älteren mobilen Gerät und ~28000 bei einer modernen Grafikkarte.",
       "name": "Maximale Anzahl der dargestellten Partikel"
     },
-    "debug": {
-      "hint": "Lokale Debug-Ausgabe für die Konsole aktivieren",
-      "name": "Debugging Aktivieren"
+    "loglevel": {
+      "hint": "Der Detailgrad legt fest, wie viele Informationen das Modul in der Konsole mitteilt. Info teilt nur allgemeine Information von Relevanz mit, wohingegen Debug beim Ermitteln von Fehlern oder Erstellen von Bug Reports helfen kann. Trace ist extrem detailiert.",
+      "name": "Detailgrad der lokale Konsolen Ausgabe",
+      "info": "[Info] Nur relevante Informationen",
+      "debug": "[Debug] Informationen zur Fehlererkennung",
+      "trace": "[Trace] Informationen über den internen Ablauf"
     }
   },
   "templates": {

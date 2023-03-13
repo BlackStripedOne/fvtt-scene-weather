@@ -274,13 +274,18 @@ export const registerSettingsPreInit = function () {
     default: false
   })
 
-  game.settings.register(MODULE.ID, 'debug', {
-    name: 'settings.debug.name',
-    hint: 'settings.debug.hint',
+  game.settings.register(MODULE.ID, 'loglevel', {
+    name: 'settings.loglevel.name',
+    hint: 'settings.loglevel.hint',
     scope: 'client',
     config: true,
-    type: Boolean,
-    default: false
+    type: String,
+    choices: {
+      'info': 'settings.loglevel.info',
+      'debug': 'settings.loglevel.debug',
+      'trace': 'settings.loglevel.trace'
+    },
+    default: 'info'
   })
 
   Logger.debug("Settings Registered");

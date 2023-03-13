@@ -280,9 +280,12 @@
       "hint": "The maximum number of displayed particles (clouds, raindrops, snowflakes, etc.) can be limited if this limits the performance on the browser. Typical values ​​are ~1000 on an older mobile device and ~28000 on a modern graphics card.",
       "name": "Maximum number of particles displayed"
     },
-    "debug": {
-      "hint": "Enable debug logging in the console",
-      "name": "Enable Debugging"
+    "loglevel": {
+      "hint": "The level of detail determines how much information the module reports to the console. Info only reports general information of relevance, while Debug can help identify errors or create bug reports. Trace is extremely detailed.",
+      "name": "Level of detail of the local console output",
+      "info": "[Info] Relevant information only",
+      "debug": "[Debug] Error detection information",
+      "trace": "[Trace] Information about the internal process"
     }
   },
   "templates": {

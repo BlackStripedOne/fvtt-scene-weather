@@ -22,7 +22,7 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { TimeProvider } from '../timeProvider.js'
 
 Hooks.once("init", () => {
-  Logger.debug('->Hook:InternalTimeProvider.init()')
+  Logger.trace('->Hook:InternalTimeProvider.init()')
   TimeProvider._instances[TIME_PROVIDERS.INTERNAL] = new InternalTimeProvider(true)
   TimeProvider._instances[TIME_PROVIDERS.EXTERNAL] = new InternalTimeProvider(false)
 })
@@ -43,7 +43,7 @@ export class InternalTimeProvider extends TimeProvider {
    */
   constructor(hasAuthority = false) {
     super()
-    Logger.debug('InternalTimeProvider:ctor(...)', { 'hasAuthority': hasAuthority })
+    Logger.trace('InternalTimeProvider:ctor(...)', { 'hasAuthority': hasAuthority })
     // Whether this module has authority over time control.
     this._hasAuthoriy = hasAuthority
     // An array that holds the days summed up for each previous month, for faster calculation.
@@ -102,7 +102,7 @@ export class InternalTimeProvider extends TimeProvider {
   getDayOfYear(dayDelta = 0, hourDelta = 0) {
     const date = new Date((Fal.getWorldTime() + (hourDelta * 3600) + (dayDelta * 86400)) * 1000)
     const doY = this._monthOffset[date.getMonth()] + date.getDate()
-    Logger.debug('InternalTimeProvider.getDayOfYear()', { 'month#': date.getMonth(), 'day#': date.getDate(), 'doY': doY })
+    Logger.trace('InternalTimeProvider.getDayOfYear()', { 'month#': date.getMonth(), 'day#': date.getDate(), 'doY': doY })
     return doY
   }
 
@@ -112,7 +112,7 @@ export class InternalTimeProvider extends TimeProvider {
   getHourOfDay(dayDelta = 0, hourDelta = 0) {
     const currentWorldTime = Fal.getWorldTime() + (hourDelta * 3600) + (dayDelta * 86400)
     const dayTime = Math.abs(Math.trunc((currentWorldTime % 86400) / 3600))
-    Logger.debug('InternalTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
+    Logger.trace('InternalTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
     if (currentWorldTime < 0) {
       return 24 - dayTime
     } else return dayTime

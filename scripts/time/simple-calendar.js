@@ -23,14 +23,14 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { TimeProvider } from '../timeProvider.js'
 
 Hooks.once("init", () => {
-  Logger.debug('->Hook:init -> ScTimeProvider.init()')
+  Logger.trace('->Hook:init -> ScTimeProvider.init()')
   if (Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
     TimeProvider._instances[TIME_PROVIDERS.SIMPLE_CALENDAR] = new ScTimeProvider()
   }
 })
 
 Hooks.once("simple-calendar-init", () => {
-  Logger.debug('->Hook:simple-calendar-init -> ScTimeProvider.initConfig()')
+  Logger.trace('->Hook:simple-calendar-init -> ScTimeProvider.initConfig()')
   if (Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
     ScTimeProvider.initConfig()
   }
@@ -84,7 +84,7 @@ export class ScTimeProvider extends TimeProvider {
    */
   constructor() {
     super()
-    Logger.debug('ScTimeProvider:ctor()')
+    Logger.trace('ScTimeProvider:ctor()')
   }
 
   /**
@@ -98,7 +98,7 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   async advanceGameTime(deltaSeconds = 0) {
-    Logger.debug('ScTimeProvider.advanceGameTime(...) -> no time authority, ignoring')
+    Logger.warn('ScTimeProvider.advanceGameTime(...) -> no time authority, ignoring')
   }
 
   /**
@@ -129,7 +129,7 @@ export class ScTimeProvider extends TimeProvider {
     const scInstance = SimpleCalendar.api.timestampToDate(
       Fal.getWorldTime() + (hourDelta * ScTimeProvider._config.secondsInHour) + (dayDelta * ScTimeProvider._config.secondsInDay)
     )
-    Logger.debug('ScTimeProvider.getDayOfYear()', { 'scInstance': scInstance, '_config': ScTimeProvider._config })
+    Logger.trace('ScTimeProvider.getDayOfYear()', { 'scInstance': scInstance, '_config': ScTimeProvider._config })
     return ScTimeProvider._config.monthOffset[scInstance.month] + scInstance.day
   }
 
@@ -139,7 +139,7 @@ export class ScTimeProvider extends TimeProvider {
   getHourOfDay(dayDelta = 0, hourDelta = 0) {
     const currentWorldTime = Fal.getWorldTime() + (hourDelta * ScTimeProvider._config.secondsInHour) + (dayDelta * ScTimeProvider._config.secondsInDay)
     const dayTime = Math.abs(Math.trunc((currentWorldTime % ScTimeProvider._config.secondsInDay) / ScTimeProvider._config.secondsInHour))
-    Logger.debug('ScTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
+    Logger.trace('ScTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
     if (currentWorldTime < 0) {
       return ScTimeProvider._config.hoursInDay - dayTime
     } else return dayTime
@@ -285,7 +285,7 @@ export class ScTimeProvider extends TimeProvider {
       acc.push(acc[acc.length - 1] + val)
       return acc
     }, [0]).slice(0, -1)
-    Logger.debug('ScTimeProvider._getStartingDays(...)', { 'daysInMonth': daysInMonth, 'dayOffsets': dayOffsets })
+    Logger.trace('ScTimeProvider._getStartingDays(...)', { 'daysInMonth': daysInMonth, 'dayOffsets': dayOffsets })
     return dayOffsets
   }
 
@@ -328,7 +328,7 @@ export class ScTimeProvider extends TimeProvider {
       const winterSeason = sortedSeasons.reduce((shortest, season) => shortest.dayLengthSeconds <= season.dayLengthSeconds ? shortest : season, null)
       ScTimeProvider._config.winterSolstice = winterSeason.startingDoY
     }
-    Logger.debug('ScTimeProvider._calculateSolstices()', { 'summerSolstice': ScTimeProvider._config.summerSolstice, 'winterSolstice': ScTimeProvider._config.winterSolstice })
+    Logger.trace('ScTimeProvider._calculateSolstices()', { 'summerSolstice': ScTimeProvider._config.summerSolstice, 'winterSolstice': ScTimeProvider._config.winterSolstice })
   }
 
 }

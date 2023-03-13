@@ -21,7 +21,15 @@ import { Logger } from './utils.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 /**
- *  TODO
+ * This is a utility as well as abstract base class for time/date representation and control for weather. Some weather simulations are dependant
+ * on the current time of day as well as the specific day throughout the year cycle for seasons and sun positions.
+ * 
+ * The actual inherited class is responsible for calculating this information as well as supply various display needs for time information and 
+ * time control if applicable.
+ * 
+ * If you are developing a module for foundry vtt that handles the game time and calendar in a certain way and want to integrate its special needs
+ * into SceneWeather, look at the sample implementations in the classes InternalTimeProvider or for the integration of SimpleCalendar that is already
+ * provided with this module in the ScTimeProvider class.
  */
 export class TimeProvider {
 

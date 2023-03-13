@@ -145,6 +145,53 @@ export class InternalTimeProvider extends TimeProvider {
   }
 
   /**
+   * Decodes a fractal string and returns the corresponding value for the given number.
+   *
+   * @param {number} number - The input number to decode.
+   * @param {string} codedString - The fractal string to decode.
+   * @returns {string} The decoded value for the given number.
+   *
+   * @example
+   *
+   * // returns 'st' for number = 1
+   * _decodeFractalString(1, '1:st,2:nd,3:rd,4-20:th,21:st,22:nd,23:rd,24-30:th,31:st,32:nd,33:rd,34-40:th')
+   *
+   * // returns 'th' for number = 15
+   * _decodeFractalString(15, '1:st,2:nd,3:rd,4-20:th,21:st,22:nd,23:rd,24-30:th,31:st,32:nd,33:rd,34-40:th')
+   *
+   * // returns 'nd' for number = 22
+   * _decodeFractalString(22, '1:st,2:nd,3:rd,4-20:th,21:st,22:nd,23:rd,24-30:th,31:st,32:nd,33:rd,34-40:th')
+   *
+   * @description
+   * The input fractal string should be formatted as a comma-separated list of key-value pairs. Each key-value
+   * pair should have a range and a value separated by a colon. The range can be either a single number or a range
+   * of numbers separated by a hyphen. The range specifies the numbers for which the corresponding value should
+   * be returned. For example, "1:st" means that the value "st" should be returned if the input number is 1.
+   * "4-20:th" means that the value "th" should be returned if the input number is between 4 and 20 (inclusive).
+   */
+  static _decodeFractalString(number = 0, codedString = '') {
+    if (codedString == '') return ''
+    let result = ''
+    codedString.split(',').find(element => {
+      const [range, value] = element.split(':')
+      if (range.includes('-')) {
+        const [start, end] = range.split('-')
+        if ((number <= Number(end)) && (number >= Number(start))) {
+          result = value
+          return true
+        }
+      } else {
+        if (Number(range) == number) {
+          result = value
+          return true
+        }
+      }
+      return false
+    })
+    return result
+  }
+
+  /**
    * Returns an object with information about the current time in the form of a string.
    * 
    * @returns {object} An object containing information about the current time.
@@ -171,15 +218,15 @@ export class InternalTimeProvider extends TimeProvider {
     return {
       'month': {
         'number': date.getMonth(),
-        'name': date.getMonth() + '#monat',
-        'prefix': '',
-        'suffix': ''
+        'name': Fal.i18n('time.months.' + date.getMonth()),
+        'prefix': InternalTimeProvider._decodeFractalString(date.getDate(), Fal.i18n('time.monthPrefixTypes')),
+        'suffix': InternalTimeProvider._decodeFractalString(date.getDate(), Fal.i18n('time.monthSuffixTypes'))
       },
       'day': {
         'number': date.getDate(),
-        'name': date.getDate() + '#day',
-        'prefix': '',
-        'suffix': ''
+        'name': date.getDate(),
+        'prefix': InternalTimeProvider._decodeFractalString(date.getDate(), Fal.i18n('time.dayPrefixTypes')),
+        'suffix': InternalTimeProvider._decodeFractalString(date.getDate(), Fal.i18n('time.daySuffixTypes'))
       },
       'hour': {
         'number': date.getHours(),

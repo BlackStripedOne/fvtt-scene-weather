@@ -42,6 +42,7 @@
     "/scene-weather.min.js"
   ],
   "scripts": [
+    "/lib/pixi-filters.js",
     "/lib/chart.min.js",
     "/lib/nouislider.min.js"
   ],

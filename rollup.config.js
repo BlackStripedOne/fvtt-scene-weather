@@ -9,7 +9,7 @@ export default [
         'scripts/*.js',
         'scripts/*/*.js',
         'scripts/*/*/*.js',
-        'styles/*.scss'
+        'styles/main.scss'
       ],
       exclude: ['scripts/scene-weather.min.js']
     },

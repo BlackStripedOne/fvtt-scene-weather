@@ -25,7 +25,7 @@ jobs:
       with:
         commit_message: 'Rollup Module'
         commit_options: '--no-verify --signoff'
-        file_pattern: 'scripts/scene-weather.min.js'
+        file_pattern: 'scene-weather.min.*'
         status_options: '--untracked-files=yes'
         add_options: '-u'
         push_options: '--force'

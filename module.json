@@ -36,18 +36,17 @@
       "path": "languages/de.json"
     }
   ],
-  "license": "LICENSE",
-  "readme": "README.md",
+  "license": "https://raw.githubusercontent.com/BlackStripedOne/fvtt-scene-weather/main/LICENSE",
+  "readme": "https://blackstripedone.github.io/fvtt-scene-weather/",
   "esmodules": [
-    "/scripts/scene-weather.min.js"
+    "/scene-weather.min.js"
   ],
   "scripts": [
     "/lib/chart.min.js",
     "/lib/nouislider.min.js"
   ],
   "styles": [
-    "/styles/scene-weather.css",
-    "/styles/nouislider.css"
+    "/scene-weather.min.css"
   ],
   "media": [
     {
@@ -59,8 +58,8 @@
   "coreTranslation": false,
   "packs": [],
   "socket": false,
-  "version": "THIS IS AUTO-REPLACED",
-  "url": "THIS IS AUTO-REPLACED",
-  "manifest": "THIS IS AUTO-REPLACED",
-  "download": "THIS IS AUTO-REPLACED"
+  "version": "development",
+  "url": "-",
+  "manifest": "-",
+  "download": "-"
 }

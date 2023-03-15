@@ -1,4 +1,5 @@
 import { terser } from 'rollup-plugin-terser'
+import scss from 'rollup-plugin-scss'
 import multi from '@rollup/plugin-multi-entry'
 
 export default [
@@ -17,7 +18,12 @@ export default [
     },
     plugins: [
       terser({ keep_classnames: true, keep_fnames: true }),
-      multi()
+      multi(),
+      scss({
+        include: ["styles/*.css"],
+        output: 'styles/scene-weather.min.css',
+        outputStyle: "compressed"
+      })
     ]
   }
 ]

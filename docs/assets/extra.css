@@ -1,0 +1,379 @@
+/* use image for grey color theme */
+body {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(60,60,60,1)), url(background.webp);
+  background-size: cover;
+  background-attachment: fixed;
+  color: #eee;
+}
+
+h1, h2, h3 {
+  color: var(--md-primary-fg-color) !important;
+}
+
+[data-md-color-primary="grey"] .md-tabs,
+[data-md-color-primary="grey"] .md-header,
+footer,
+header {
+    background-image: url("background.webp");
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.admonition {
+  background-color: #555 !important;
+  color: #eee !important;
+}
+
+p {
+    text-align: justify;
+}
+
+.md-footer-copyright {
+  color: rgba(255,255,255,0.2);
+  font-size: 0.8em;
+}
+
+.md-footer-nav,
+.md-footer-meta {
+    background: transparent;
+}
+
+/* change link colors for grey theme */
+.md-header-nav__button:hover {
+    opacity: 1;
+    color: #ff6a00;
+    transition: color 0.5s;
+}
+[data-md-color-primary="grey"] .md-typeset a {
+    color: #ba5e0e;
+}
+[data-md-color-primary="grey"] .md-typeset a:hover {
+    color: #ff7700;
+}
+[data-md-color-primary="grey"] .md-nav__link--active {
+    color: #cc8033;
+}
+.md-nav__link:hover {
+    color: #ffaa00;
+}
+.md-footer-nav__link {
+    font-weight: bold;
+}
+.md-footer-nav__link:hover {
+    opacity: 1;
+    color: #ff6a00;
+    transition: color 0.5s;
+}
+
+/* display external links with icon */
+div.md-content a[href^="http://"]:not([href*="blackstripedone.github.io"]):after,
+div.md-content a[href^="https://"]:not([href*="blackstripedone.github.io"]):after,
+div.md-content a[href^="//"]:not([href*="blackstripedone.github.io"]) {    
+    vertical-align: text-top;
+    padding-left: 0.2em;
+    font-size: 0.6em;
+    content: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' aria-hidden='true' focusable='false' data-prefix='fas' data-icon='external-link-alt' role='img' viewBox='0 0 0.125 0.125' class='svg-inline--fa fa-external-link-alt fa-w-16 fa-2x' version='1.1' id='svg4' sodipodi:docname='external-link.svg' width='8' height='8' inkscape:version='1.0.1 (3bc2e813f5, 2020-09-07)'%3E%3Cmetadata id='metadata10'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cdefs id='defs8' /%3E%3Csodipodi:namedview pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1' objecttolerance='10' gridtolerance='10' guidetolerance='10' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:window-width='2515' inkscape:window-height='1330' id='namedview6' showgrid='false' inkscape:zoom='1.96875' inkscape:cx='221.96825' inkscape:cy='253.96825' inkscape:window-x='3385' inkscape:window-y='395' inkscape:window-maximized='0' inkscape:current-layer='svg4' /%3E%3Cpath fill='currentColor' d='M 0.10546875,0.078125 H 0.09765625 A 0.00390625,0.00390625 0 0 0 0.09375,0.08203125 V 0.109375 H 0.015625 V 0.03125 H 0.05078125 A 0.00390625,0.00390625 0 0 0 0.0546875,0.02734375 V 0.01953125 A 0.00390625,0.00390625 0 0 0 0.05078125,0.015625 H 0.01171875 A 0.01171875,0.01171875 0 0 0 0,0.02734375 v 0.0859375 A 0.01171875,0.01171875 0 0 0 0.01171875,0.125 h 0.0859375 A 0.01171875,0.01171875 0 0 0 0.109375,0.11328125 v -0.03125 A 0.00390625,0.00390625 0 0 0 0.10546875,0.078125 Z M 0.11914065,0 h -0.03125 c -0.0052173,0 -0.0078247,0.00632568 -0.0041504,0.01000977 l 0.0087231,0.0087231 -0.0595044,0.05948242 a 0.00585938,0.00585938 0 0 0 0,0.0083008 l 0.0055347,0.0055249 a 0.00585938,0.00585938 0 0 0 0.0083008,0 l 0.0594751,-0.05949219 0.008721,0.0087109 C 0.11865235,0.04492188 0.125,0.0423584 0.125,0.03710937 V 0.00585938 A 0.00585938,0.00585938 0 0 0 0.11914065,0 Z' class='' id='path2' style='stroke-width:0.00024414' /%3E%3C/svg%3E%0A");
+    /* Add the SVG below (this one is the font-awesome external-link SVG sourced from `mkdocs-material/material/.icons/fontawesome/solid/external-link-alt.svg`) */
+    /* make sure it's encoded properly: https://yoksel.github.io/url-encoder/ */    
+}
+
+/* attribute classes to be used via {: .class} */
+.left {
+    /* left align with text float on the right */
+    float: left;
+    padding-right: 20px;
+}
+.right {
+    /* right align with text float on the left */
+    float: right;
+    padding-left: 20px;
+}
+.icon {
+    /* change image size */
+    width: 25%;
+}
+.border {
+    /* add drop shadow */
+    border: 1px solid #021a40;
+    -webkit-box-shadow: 0px 0px 18px 5px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0px 0px 18px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 18px 5px rgba(0, 0, 0, 0.5);
+}
+
+div.lightgallery {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);   
+}
+
+.md-ellipsis {
+  text-shadow: 2px 2px 4px #000000;
+}
+
+/* monokai for codehilite */
+pre { color: white !important; }
+
+.md-clipboard:before {
+    color: rgb(255, 255, 255);
+}
+
+.highlight:hover .md-clipboard:before,.md-typeset .highlight:hover .md-clipboard:before,pre:hover .md-clipboard:before {
+    color: rgba(255, 255, 255, 0.54) !important
+}
+
+/*
+/////////////////
+// Inline Code //
+/////////////////
+*/
+
+.md-typeset code {
+  color: white !important;
+  background-color: #44484e !important;
+  box-shadow: 0.29412em 0 0 hsla(0, 0%, 100%, 0.07), -0.29412em 0 0 hsla(0, 0%, 100%, 0.1);
+}
+
+.md-typeset a code {
+  color: #94acff !important;
+}
+
+.md-typeset a:hover code {
+  text-decoration: underline;
+}
+
+/*
+/////////////////
+// Code Blocks //
+/////////////////
+*/
+
+/*
+line number
+*/
+.linenos {
+  color: #f5f5f5 !important;
+  background-color: #313131 !important;
+}
+
+/*
+code block background
+*/
+.highlight {
+  background-color: #313439 !important;
+}
+
+/*
+scroll bar size
+*/
+
+.md-typeset .highlight::-webkit-scrollbar {
+  height: 1rem !important;
+}
+
+/*
+actual syntax highlighting
+*/
+.highlight pre {
+  color: #fafafa !important;
+  background-color: transparent !important;
+}
+.highlight .hll {
+  background-color: #272822 !important;
+}
+.highlight .c {
+  color: #8a8f98 !important;
+} /* Comment */
+.highlight .err {
+  color: #960050 !important;
+  background-color: #1e0010 !important;
+} /* Error */
+.highlight .k {
+  color: #66d9ef !important;
+} /* Keyword */
+.highlight .l {
+  color: #ae81ff !important;
+} /* Literal */
+.highlight .n {
+  color: #f8f8f2 !important;
+} /* Name */
+.highlight .o {
+  color: #f92672 !important;
+} /* Operator */
+.highlight .p {
+  color: #f8f8f2 !important;
+} /* Punctuation */
+.highlight .cm {
+  color: #8a8f98 !important;
+} /* Comment.Multiline */
+.highlight .ch {
+  color: #8a8f98 !important;
+} /* Comment.Highlight */
+.highlight .cp {
+  color: #8a8f98 !important;
+} /* Comment.Preproc */
+.highlight .c1 {
+  color: #8a8f98 !important;
+} /* Comment.Single */
+.highlight .cs {
+  color: #8a8f98 !important;
+} /* Comment.Special */
+.highlight .ge {
+  font-style: italic !important;
+} /* Generic.Emph */
+.highlight .gs {
+  font-weight: bold !important;
+} /* Generic.Strong */
+.highlight .kc {
+  color: #66d9ef !important;
+} /* Keyword.Constant */
+.highlight .kd {
+  color: #66d9ef !important;
+} /* Keyword.Declaration */
+.highlight .kn {
+  color: #f92672 !important;
+} /* Keyword.Namespace */
+.highlight .kp {
+  color: #66d9ef !important;
+} /* Keyword.Pseudo */
+.highlight .kr {
+  color: #66d9ef !important;
+} /* Keyword.Reserved */
+.highlight .kt {
+  color: #66d9ef !important;
+} /* Keyword.Type */
+.highlight .ld {
+  color: #e6db74 !important;
+} /* Literal.Date */
+.highlight .m {
+  color: #ae81ff !important;
+} /* Literal.Number */
+.highlight .s {
+  color: #e6db74 !important;
+} /* Literal.String */
+.highlight .na {
+  color: #a6e22e !important;
+} /* Name.Attribute */
+.highlight .nb {
+  color: #f8f8f2 !important;
+} /* Name.Builtin */
+.highlight .nc {
+  color: #a6e22e !important;
+} /* Name.Class */
+.highlight .no {
+  color: #66d9ef !important;
+} /* Name.Constant */
+.highlight .nd {
+  color: #a6e22e !important;
+} /* Name.Decorator */
+.highlight .ni {
+  color: #f8f8f2 !important;
+} /* Name.Entity */
+.highlight .ne {
+  color: #a6e22e !important;
+} /* Name.Exception */
+.highlight .nf {
+  color: #a6e22e !important;
+} /* Name.Function */
+.highlight .nl {
+  color: #f8f8f2 !important;
+} /* Name.Label */
+.highlight .nn {
+  color: #f8f8f2 !important;
+} /* Name.Namespace */
+.highlight .nx {
+  color: #a6e22e !important;
+} /* Name.Other */
+.highlight .py {
+  color: #f8f8f2 !important;
+} /* Name.Property */
+.highlight .nt {
+  color: #f92672 !important;
+} /* Name.Tag */
+.highlight .nv {
+  color: #f8f8f2 !important;
+} /* Name.Variable */
+.highlight .ow {
+  color: #f92672 !important;
+} /* Operator.Word */
+.highlight .w {
+  color: #f8f8f2 !important;
+} /* Text.Whitespace */
+.highlight .mf {
+  color: #ae81ff !important;
+} /* Literal.Number.Float */
+.highlight .mh {
+  color: #ae81ff !important;
+} /* Literal.Number.Hex */
+.highlight .mi {
+  color: #ae81ff !important;
+} /* Literal.Number.Integer */
+.highlight .mo {
+  color: #ae81ff !important;
+} /* Literal.Number.Oct */
+.highlight .sb {
+  color: #e6db74 !important;
+} /* Literal.String.Backtick */
+.highlight .sc {
+  color: #e6db74 !important;
+} /* Literal.String.Char */
+.highlight .sd {
+  color: #e6db74 !important;
+} /* Literal.String.Doc */
+.highlight .s2 {
+  color: #e6db74 !important;
+} /* Literal.String.Double */
+.highlight .se {
+  color: #ae81ff !important;
+} /* Literal.String.Escape */
+.highlight .sh {
+  color: #e6db74 !important;
+} /* Literal.String.Heredoc */
+.highlight .si {
+  color: #e6db74 !important;
+} /* Literal.String.Interpol */
+.highlight .sx {
+  color: #e6db74 !important;
+} /* Literal.String.Other */
+.highlight .sr {
+  color: #e6db74 !important;
+} /* Literal.String.Regex */
+.highlight .s1 {
+  color: #e6db74 !important;
+} /* Literal.String.Single */
+.highlight .ss {
+  color: #e6db74 !important;
+} /* Literal.String.Symbol */
+.highlight .bp {
+  color: #f8f8f2 !important;
+} /* Name.Builtin.Pseudo */
+.highlight .vc {
+  color: #f8f8f2 !important;
+} /* Name.Variable.Class */
+.highlight .vg {
+  color: #f8f8f2 !important;
+} /* Name.Variable.Global */
+.highlight .vi {
+  color: #f8f8f2 !important;
+} /* Name.Variable.Instance */
+.highlight .il {
+  color: #ae81ff !important;
+} /* Literal.Number.Integer.Long */
+
+.highlight .gh {
+} /* Generic Heading & Diff Header */
+.highlight .gu {
+  color: #8a8f98 !important ;
+} /* Generic.Subheading & Diff Unified/Comment? */
+.highlight .gd {
+  color: #f92672 !important ;
+} /* Generic.Deleted & Diff Deleted */
+.highlight .gi {
+  color: #a6e22e !important ;
+} /* Generic.Inserted & Diff Inserted */
+
+.md-clipboard:before {
+  color: rgba(255, 255, 255, 0.31);
+}
+.highlight:hover .md-clipboard:before,
+.md-typeset .highlight:hover .md-clipboard:before,
+pre:hover .md-clipboard:before {
+  color: rgba(255, 255, 255, 0.6);
+}

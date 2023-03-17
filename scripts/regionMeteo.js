@@ -27,29 +27,36 @@ import { SceneWeatherState } from './state.js'
  */
 export class RegionMeteo {
 
+  _id = 0
+  regionData = undefined
+  _noise = undefined
+
+  // key:timeHash
+  _cache = {}
+
   /**
    * Region Automatic lets you set RegionMeteo. uses TimeOfDy/DayInYear
    * 
    * @param {*} templateId 
    */
   constructor(templateId) {
-    Logger.debug('RegionMeteo:constrctor', { 'templateId': templateId })
+    this._id = randomID()
     if (templateId !== undefined) {
-      // TOOD set parameters from template
-      this.regionData = SceneWeatherState._regionTemplates[templateId]
+      // TODO set parameters from template
+      this.regionData = Utils.deepClone(SceneWeatherState._regionTemplates[templateId])
       if (this.regionData === undefined) {
-        this.regionData = Object.values(SceneWeatherState._regionTemplates)[0]
+        this.regionData = Utils.deepClone(Object.values(SceneWeatherState._regionTemplates)[0])
         Fal.setSceneFlag('regionTemplate', this.regionData.id)
         const [tId, mId] = templateId.split('.')
         Logger.error('Unable to set region template with id [' + tId + '], registered by module [' + mId + ']. Reverting to [' + Fal.i18n(this.regionData.name) + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true, true)
       }
     } else {
-      this.regionData = Fal.getSceneFlag('regionSettings', undefined)
-      if (this.regionData === undefined) {
-        // TODO set parameters from scene config or if none found, from game defaults
-      }
+      this.regionData = Utils.deepClone(Fal.getSceneFlag('regionSettings', Utils.deepClone(Fal.getSetting('defaultRegionSettings'))))
     }
-    this._noise = Noise.createNoise2D(0) // TODO use configurable seed
+    const seedString = Fal.getSceneFlag('seed', '')
+    const seedValue = Utils.getSeedFromString(seedString)
+    this._noise = Noise.createNoise2D(seedValue)
+    Logger.trace('RegionMeteo:ctor(...)', { 'templateId': templateId, 'id': this._id, 'noise': this._noise, 'regionData': this.regionData })
     this.updateConfig()
   }
 
@@ -99,48 +106,12 @@ export class RegionMeteo {
    * @returns 
    */
   getRegionBase(dayDelta = 0, hourDelta = 0) {
-    if (dayDelta === undefined) dayDelta = 0
-    if (hourDelta === undefined) hourDelta = 0
+    const timeHash = TimeProvider.getCurrentTimeHash(dayDelta, hourDelta)
 
-    // get current doy and hod
-    let dayOfYear = TimeProvider.getDayOfYear()
-    let hourOfDay = TimeProvider.getHourOfDay()
-
-    // Align hour
-    hourOfDay += hourDelta
-    if (hourOfDay < 0) {
-      while (hourOfDay < 0) {
-        hourOfDay += 24
-        dayOfYear--
-      }
-    }
-    if (hourOfDay >= 24) {
-      while (hourOfDay >= 24) {
-        hourOfDay -= 24
-        dayOfYear++
-      }
-    }
-
-    // Align day
-    dayOfYear += dayDelta
-    if (dayOfYear < 0) {
-      while (dayOfYear < 0) {
-        dayOfYear += TimeProvider.config.daysInYear
-      }
-    }
-    if (dayOfYear >= TimeProvider.config.daysInYear) {
-      while (dayOfYear >= TimeProvider.config.daysInYear) {
-        dayOfYear -= TimeProvider.config.daysInYear
-      }
-    }
-
-    let timeHash = TimeProvider.getTimeHash(dayOfYear, hourOfDay)
-
+    // caching
     if (this._cache[timeHash] !== undefined) {
       return this._cache[timeHash]
     }
-
-    // TODO implement cashing for calculated timeHash
 
     let baseValues = {
       'elevation': this.regionData.elevation,
@@ -155,8 +126,9 @@ export class RegionMeteo {
       baseValues.name = this.regionData.name
     }
 
-    let timeRelative = RegionMeteo._hodPct(hourOfDay) // 0.0 = midnight, 1.0 = noon
-    let dateRelative = RegionMeteo._doyPct(dayOfYear) // 0.0 = winter solstice, 1.0 = summer solstice
+    const hourOfDay = TimeProvider.getHourOfDay(dayDelta, hourDelta)
+    const timeRelative = TimeProvider.hourOfDayNoonPct(dayDelta, hourDelta) // 0.0 = midnight, 1.0 = noon
+    const dateRelative = TimeProvider.dayOfYearSummerPct(dayDelta, hourDelta) // 0.0 = winter solstice, 1.0 = summer solstice
 
     // calculate today's temperatures
     let todayTempDay = (this.regionData.summer.temperature.day - this.regionData.winter.temperature.day) * dateRelative + this.regionData.winter.temperature.day
@@ -205,55 +177,10 @@ export class RegionMeteo {
     baseValues.gusts = Utils.clamp(baseValues.wind + Noise.getNoisedValue(this._noise, timeHash + 12, 8, factor * todayWindVar, todayWindVar), 0, 80)
 
     this._cache[timeHash] = baseValues
+    Logger.debug('RegionMeteo.getRegionBase(...)', { 'dayDelta': dayDelta, 'hourDelta': hourDelta, 'timeHash': timeHash, 'baseValues': baseValues })
     return baseValues
   }
 
-  /**
-     * Hour on days as percentile
-     * 
-     * @param {*} hourOfDay 
-     * @returns 
-     * 
-     * @private
-     */
-  static _hodPct(hourOfDay) {
-    // Normalize hour value to the range [0, 24)
-    hourOfDay = hourOfDay % 24;
-    return (Math.sin(((hourOfDay / 12) - 0.5) * (Math.PI)) + 1) / 2	// TODO may use sinetable for speed
-  }
 
-  /**
-   * Day of year as percentile
-   * 
-   * @param {*} dayOfYear 
-   * @returns {number} - [0,1]
-   * 
-   * @private
-   */
-  static _doyPct(dayOfYear) {
-    // Summer solstice is around June 20th or 21st
-    const summerSolstice = TimeProvider.config.summerSolstice % TimeProvider.config.daysInYear
-    // Winter solstice is around December 21st or 22nd
-    const winterSolstice = TimeProvider.config.winterSolstice % TimeProvider.config.daysInYear
-    let wSb = winterSolstice
-    let wSa = winterSolstice
-    if (winterSolstice < summerSolstice) {
-      // winter solstice is at the beginning of the year
-      wSa = winterSolstice + TimeProvider.config.daysInYear
-    } else {
-      // winter solstice is at the end of the year
-      wSb = winterSolstice - TimeProvider.config.daysInYear // may be negative
-    }
-    if (dayOfYear > wSa) dayOfYear -= TimeProvider.config.daysInYear
-    let pct
-    if (dayOfYear == summerSolstice) {
-      pct = 1
-    } else if (dayOfYear < summerSolstice) {
-      pct = (dayOfYear - wSb) / (summerSolstice - wSb)
-    } else {
-      pct = 1 - ((dayOfYear - summerSolstice) / (wSa - summerSolstice))
-    }
-    return pct // TODO use sine
-  }
 
 }

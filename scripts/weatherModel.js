@@ -29,6 +29,11 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
  */
 export class WeatherModel {
 
+  useConfigSceneId = undefined
+  regionMeteo = undefined
+  weatherData = undefined
+  _cache = {}
+
   static DEFAULT_MODEL_STRUCT = {
     "source": "_DISABLED_",
     "name": "disabled",
@@ -66,24 +71,28 @@ export class WeatherModel {
     Logger.debug('WeatherModel:constrctor', { 'regionMeteo': regionMeteo, 'templateId': templateId, 'useWeatherConfig': useWeatherConfig })
     this._cache = {}
     if (regionMeteo !== undefined) {
+      // weatherMode -> GENERATOR_MODES.REGION_*
       this.regionMeteo = regionMeteo
       this.useConfigSceneId = undefined
       this.updateConfig()
     } else if (useWeatherConfig !== undefined) {
+      // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE
       this.regionMeteo = undefined
       this.useConfigSceneId = useWeatherConfig
       this.updateConfig()
     } else {
+      // weatherMode -> GENERATOR_MODES.WEATHER_TEMPLATE
       this.regionMeteo = undefined
       this.useConfigSceneId = undefined
-      this.weatherData = SceneWeatherState._weatherTemplates[templateId]
+      this.weatherData = Utils.deepClone(SceneWeatherState._weatherTemplates[templateId])
       if (this.weatherData === undefined) {
-        this.weatherData = Object.values(SceneWeatherState._weatherTemplates)[0]
-        canvas.scene.setFlag(MODULE.ID, 'weatherTemplate', this.weatherData.id)
+        this.weatherData = Utils.deepClone(Object.values(SceneWeatherState._weatherTemplates)[0])
+        canvas.scene.setFlag(MODULE.ID, 'weatherTemplate', this.weatherData.id) // TODO use FAL
         const [tId, mId] = templateId.split('.')
         Logger.error('Unable to set weather template with id [' + tId + '], registered by module [' + mId + ']. Reverting to [' + Fal.i18n(this.weatherData.name) + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true)
       }
       this.weatherData.precipitation.mode = Fal.getSceneFlag('rainMode', 'winddir')
+      this.weatherData.source = '_TEMPLATE_'
     }
   }
 
@@ -129,13 +138,16 @@ export class WeatherModel {
   updateConfig() {
     // update on potentially changed settings on the scene or default values
     // TODO    
+
     if (this.regionMeteo !== undefined) {
+      // weatherMode -> GENERATOR_MODES.REGION_*
       Logger.debug('WeatherModel.updateConfig() -> invalidating cache, invoking on regionMeteo...')
       // invalidate cache
       this._cache = {}
       // update with new settings
       return this.regionMeteo.updateConfig()
     } if (this.useConfigSceneId !== undefined) {
+      // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE
       Logger.debug('WeatherModel.updateConfig() -> getting weatherConfig from Scene.', { 'configSceneId': this.useConfigSceneId })
       // update weather from sceneConfig by sceneId of global
 
@@ -151,7 +163,10 @@ export class WeatherModel {
       }
 
       // initiate noise
-      this._noise = Noise.createNoise2D(0) // TODO use configurable seed
+      const seedString = Fal.getSceneFlag('seed', '')
+      const seedValue = Utils.getSeedFromString(seedString)
+      Logger.debug('WeatherModel:updateConfig(seed)', { 'seedString': seedString, 'seedValue': seedValue })
+      this._noise = Noise.createNoise2D(seedValue)
 
       const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
       const windDirection = Math.trunc(weatherConfig.wind.directionType == 1 ? WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(), windGusts) : weatherConfig.wind.direction)
@@ -197,6 +212,7 @@ export class WeatherModel {
         return true
       }
     } else {
+      // weatherMode -> GENERATOR_MODES.WEATHER_TEMPLATE
       if (this.weatherData.precipitation.mode == Fal.getSceneFlag('rainMode', 'winddir')) {
         Logger.debug('WeatherModel.updateConfig() -> static, nothing to do.')
         return false
@@ -216,15 +232,18 @@ export class WeatherModel {
    */
   getWeatherData(dayOffset = 0, hourOffset = 0) {
     if (this.regionMeteo !== undefined) {
-      let regionBaseValues = this.regionMeteo.getRegionBase(dayOffset, hourOffset)
+      // weatherMode -> GENERATOR_MODES.REGION_*
+      const regionBaseValues = this.regionMeteo.getRegionBase(dayOffset, hourOffset)
 
       // implement caching for already calculated regionBaseValues.timeHash
       if (this._cache[regionBaseValues.timeHash] !== undefined) {
         this.weatherData = this._cache[regionBaseValues.timeHash]
+        Logger.trace('WeatherModel.getWeatherData(GENERATOR_MODES.REGION_*) cacheHit', { 'dayOffset': dayOffset, 'hourOffset': hourOffset, 'regionBaseValues': regionBaseValues, 'weatherData': this.weatherData })
         return this._cache[regionBaseValues.timeHash]
       }
 
-      this.weatherData = Utils.mergeObject(WeatherModel.DEFAULT_MODEL_STRUCT, {
+      this.weatherData = Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), {
+        'source': '_REGION_',
         'name': regionBaseValues.name,
         'temp': {
           'ground': this._groundTemp(3, 3, dayOffset, hourOffset),
@@ -317,15 +336,18 @@ export class WeatherModel {
 
       // Store in cache
       this._cache[regionBaseValues.timeHash] = this.weatherData
+      Logger.trace('WeatherModel.getWeatherData(GENERATOR_MODES.REGION_*) cacheMiss', { 'dayOffset': dayOffset, 'hourOffset': hourOffset, 'regionBaseValues': regionBaseValues, 'weatherData': this.weatherData })
       return this.weatherData
     } else if (this.useConfigSceneId !== undefined) {
+      // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE      
       // Just update the wind direction
-      Logger.debug('Updating wind direction for weatherConfig based weatherData...', { 'this.weatherData': this.weatherData })
-      if (this.weatherData.wind.directionType == 1) {
+      if (this.weatherData.wind.directionType == 1) { // TODO use constant for winddirection
         this.weatherData.wind.direction = WeatherModel._getNoisedWindDirection(this._noise, TimeProvider.getCurrentTimeHash(dayOffset, hourOffset), this.weatherData.wind.gusts)
       }
+      Logger.trace('WeatherModel.getWeatherData(GENERATOR_MODES.WEATHER_GENERATE)', { 'dayOffset': dayOffset, 'hourOffset': hourOffset, 'weatherData': this.weatherData })
       return this.weatherData
     } else {
+      Logger.trace('WeatherModel.getWeatherData(GENERATOR_MODES.WEATHER_TEMPLATE)', { 'dayOffset': dayOffset, 'hourOffset': hourOffset, 'weatherData': this.weatherData })
       return this.weatherData
     }
   }

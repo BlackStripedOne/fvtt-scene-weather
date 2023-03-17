@@ -24,7 +24,65 @@
     "monthPrefixTypes": "",
     "monthSuffixTypes": "",
     "dayPrefixTypes": "",
-    "daySuffixTypes": "1:st,2:nd,3:rd,4-20:th,21:st,22:nd,23:rd,24-30:th,31:st,32:nd,33:rd,34-40:th"
+    "daySuffixTypes": "1:st,2:nd,3:rd,4-20:th,21:st,22:nd,23:rd,24-30:th,31:st,32:nd,33:rd,34-40:th",
+    "winter": "Winter",
+    "latewinter": "Late Winter",
+    "earlyspring": "Early Spring",
+    "spring": "Spring",
+    "latespring": "Late Spring",
+    "earlysummer": "Early Summer",
+    "summer": "Summer",
+    "latesummer": "Late Summer",
+    "earlyfall": "Early Fall",
+    "fall": "Fall",
+    "latefall": "Late Fall",
+    "earlywinter": "Early Winter"
+  },
+  "api": {
+    "noPermission": "Der Benutzer ist nicht berechtigt, diese API-Funktion zu verwenden.",
+    "noTimeAuthority": "Der aktuell eingestellte Zeit Service hat nicht die Befugnis, die Spielzeit einzustellen.",
+    "regRegionTemplate": "Registrierte Regionsvorlage für: ",
+    "regRegionTemplateFail": "Regionsvorlage kann nicht registriert werden für: ",
+    "regWeatherTemplate": "Registrierte Wettervorlage für: ",
+    "regWeatherTemplateFail": "Wettervorlage kann nicht registriert werden für: ",
+    "regFxGenerator": "Registrierter Wettereffektgenerator für ",
+    "regFxFilter": "Registrierter Wettereffektfilter für ",
+    "setTemplate": {
+      "idFormatInvalid": "Ungültiges Format für templateId angegeben.",
+      "moduleInactive": "Das Modul, von dem diese Vorlage abhängt, ist nicht installiert oder aktiviert: ",
+      "noSuchTemplate": "Es ist keine solche Vorlage bekannt: ",
+      "updateWeatherTemplate": "Wettervorlage aktualisiert auf ",
+      "updateRegionTemplate": "Aktualisierte Regionsvorlage auf "
+    },
+    "updateWeatherMode": "Wettermodus aktualisiert auf ",
+    "updateWeather": "Wettereinstellungen Aktualisiert",
+    "updateWeatherFail": "Wetter kann wegen ungültigem Feld nicht eingestellt werden: ",
+    "updateRegion": "Regioneneinstellungen Aktualisiert",
+    "updateRegionFail": "Region kann wegen ungültigem Feld nicht eingestellt werden: "
+  },
+  "macro": {
+    "header": "This is an automatically generated macro to set weather conditions for the current scene via the SceneWeather module. You can edit the following to suit your individual needs. For more insights about the available SceneWeather API see the documentation link.",
+    "setRegion": "Apply the given region settings to the current scene.",
+    "setRegionTemplate": {
+      "head": "Set scene region template to template for:",
+      "error": "Unable to set SceneWeather template, as required module is not installed or active: "
+    },
+    "setSeed": "Set the generator seed for the current scene",
+    "setCycleTimes": {
+      "head": "set the time/date of the current scene",
+      "daylightCycle": "This represents the percentage in the daylight cycle. 0.00 is midnight, start of the day, 50.00 is noon in the middle of the day.",
+      "seasonCycle": "This represents the percentage in the year's season cycle. 0.00 is the winter solstice, 50.00 is the summer solstice day in the year."
+    },
+    "setWeather": "Apply the given weather settings to the current scene.",
+    "setWeatherTemplate": {
+      "head": "Set scene weather template to template for:",
+      "error": "Unable to set SceneWeather template, as required module is not installed or active: "
+    },
+    "updateWeatherConfig": {
+      "head": "Update the weather configuration for the scene. This will procedurally generate all internal simulations based on the set configuration of the weather and region settings. If the update is forced, also all cached and precalculated data is discarded and calculated anew.",
+      "sceneId": "Id of the scene document to update its weather configuration for.",
+      "force": "Flag wether an update of all procedural generations shall be performed upon configuration update."
+    }
   },
   "permissions": {
     "percieverName": "Weather UI ",
@@ -143,6 +201,52 @@
     "kmh": "kph",
     "hday": "h/day",
     "ok": "Ok",
+    "macroConfig": {
+      "toggleName": "Macro Generator",
+      "toggleTitle": "Macro Generator",
+      "title": "Macro generation wizard",
+      "disabledWarn": "Unable to create macros from this scene, as SceneWeather is disabled for the scene.",
+      "notes": {
+        "intro": "Create a macro based on the current scene's settings to re-apply whatever elements of this scene to another scene. The generated macro enables you to reapply the exact same settings to another, then selected scene, when running that macro. Simply click on the respective button to have the macro generate. You can then edit its name or individual settings yourself in the macro editor popup.",
+        "disabled": "Please enable SceneWeather for this scene first, before wanting to generate macros based on the weather settings of this scene.",
+        "outro": "A scene that has SceneWeather enabled for ambience weather and clima generation will have settings like the template, that was used for the current static weather, or individual settings that create this current weather set to the scene. Or in case the weather simulated based on a procedurally generated region and climatic attributes that are dynamically dependant on the current time of day for the position of the sun and/or the current date in relation to the winter- or summer solstice for seasonal effects, these are also stored on the scene."
+      },
+      "season": {
+        "pctFrom": "% on the way from",
+        "winterToSummer": "winter solstice to summer solstice",
+        "summerToWinter": "summer solstice to winter solstice"
+      },
+      "mode": "Current SceneWeather mode is",
+      "seed": "Procedural generator seed is",
+      "includeTime": "Include Time of Day",
+      "includeTimeHint": "Include the current time of day to be applied to the scene when executing the macro. On dynamic scenes this will have an impact on the day-/night cycle based influecnes.",
+      "includeDay": "Include day of year",
+      "includeDayHint": "Include the current day in the course of the year to be applied to the scene when executing the macro. On dynamic scenes this will have an impact on seasonal influences.",
+      "includeSeed": "Include the generator seed",
+      "inlcudeSeedHint": "This will also apply the procedural generator seed of this scene to the scene when executing the macro. The seed will have an effect on all dynamically generated effects.",
+      "currentWeather": "Current Weather",
+      "currentRegion": "Current Region",
+      "weatherTemplate": {
+        "used": "Template used:",
+        "button": "Create Macro (Weather Template)",
+        "title": "Apply weather template to scene "
+      },
+      "weather": {
+        "info": "Detailed weather information",
+        "button": "Create Macro (Current Weather)",
+        "title": "Apply weather to scene (From: "
+      },
+      "regionTemplate": {
+        "used": "Template used:",
+        "button": "Create Macro (Region Template)",
+        "title": "Apply region template to scene "
+      },
+      "region": {
+        "info": "Detailed region information",
+        "button": "Create Macro (Current Region)",
+        "title": "Apply region to scene (From: "
+      }
+    },
     "permissionConfig": {
       "title": "Permission configuration",
       "hint": "Determine which user role or user has the right to perform which action or see which display. The game master can always do and see everything. Some changes will only take effect after restarting the game.",

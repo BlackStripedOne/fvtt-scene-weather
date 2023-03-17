@@ -24,7 +24,65 @@
     "monthPrefixTypes": "",
     "monthSuffixTypes": "",
     "dayPrefixTypes": "",
-    "daySuffixTypes": "1-31:ter"
+    "daySuffixTypes": "1-31:ter",
+    "winter": "Winter",
+    "latewinter": "Ende Winter",
+    "earlyspring": "Beginnender Frühling",
+    "spring": "Frühling",
+    "latespring": "Später Frühling",
+    "earlysummer": "Frühsommer",
+    "summer": "Sommer",
+    "latesummer": "Spätsommer",
+    "earlyfall": "Beginnender Herbst",
+    "fall": "Herbst",
+    "latefall": "Spätherbst",
+    "earlywinter": "Beginnender Winter"
+  },
+  "api": {
+    "noPermission": "User doesn't have permission to use this API function.",
+    "noTimeAuthority": "The currently set time provider does not have the authority to set the game time.",
+    "regRegionTemplate": "Registered region template for: ",
+    "regRegionTemplateFail": "Unable to register region template for: ",
+    "regWeatherTemplate": "Registered weather template for: ",
+    "regWeatherTemplateFail": "Unable to register weather template for: ",
+    "regFxGenerator": "Registered weather fx generator for ",
+    "regFxFilter": "Registered weather fx filter for ",
+    "setTemplate": {
+      "idFormatInvalid": "Invalid format for templateId given.",
+      "moduleInactive": "The module, this template depends upon is not installed or activated: ",
+      "noSuchTemplate": "There is no such template known: ",
+      "updateWeatherTemplate": "Updated weather template to ",
+      "updateRegionTemplate": "Updated region template to "
+    },
+    "updateWeatherMode": "Updated weather mode to ",
+    "updateWeather": "Updated weather settings",
+    "updateWeatherFail": "Unable to set weather, because of invalid field: ",
+    "updateRegion": "Updated region settings",
+    "updateRegionFail": "Unable to set region, because of invalid field: "
+  },
+  "macro": {
+    "header": "Dies ist ein automatisch generiertes Makro zum Einstellen der Wetterbedingungen für die aktuelle Szene über das SceneWeather-Modul. Du kannst die Einstellungen manuell anpassen, um sie deinen individuellen Bedürfnissen anzupassen. Weitere Details in die verfügbare SceneWeather-API findest dei dem Dokumentationslink.",
+    "setRegion": "Wende die angegebenen Regionseinstellungen auf die aktuelle Szene an.",
+    "setRegionTemplate": {
+      "head": "Regionen Vorlage für diese Szene setzen:",
+      "error": "Die Weather-Vorlage kann nicht festgelegt werden, da das erforderliche Modul nicht installiert oder aktiv ist: "
+    },
+    "setSeed": "Lege den Generator-Seed für die aktuelle Szene fest",
+    "setCycleTimes": {
+      "head": "Stelle Uhrzeit/Datum der aktuellen Szene ein",
+      "daylightCycle": "Einstellung für den Prozentsatz im Tageslicht-Zyklus: 0.00(%) ist Mitternacht, Beginn des Tages, 50.00(%) Uhr ist Mittag in der Mitte des Tages.",
+      "seasonCycle": "Einstellung für den Prozentsatz im Jahreszeiten-Zyklus eines Jahres: 0.00(%) ist der Zeitpunkt der Wintersonnenwende, 50.00(%) ist der Sommersonnenwendetag innerhalb eines Jahres."
+    },
+    "setWeather": "Wende die folgenden Wettereinstellungen auf die aktuelle Szene an.",
+    "setWeatherTemplate": {
+      "head": "Wetter Vorlage für die Szene setzen:",
+      "error": "Die Regions-Vorlage kann nicht festgelegt werden, da das erforderliche Modul nicht installiert oder aktiv ist: "
+    },
+    "updateWeatherConfig": {
+      "head": "Aktualisiert die Wetterkonfiguration für die Szene. Dadurch werden prozedural alle internen Simulationen basierend auf der eingestellten Konfiguration der Wetter- und Regionseinstellungen erneut generiert. Wird die Aktualisierung mittels force gestartet, werden auch alle im Cache befindlichen und vorberechneten Daten verworfen und neu berechnet.",
+      "sceneId": "ID des Szenendokuments, dessen Wetterkonfiguration aktualisiert werden soll.",
+      "force": "Flag, ob beim Konfigurationsupdate eine Aktualisierung aller Prozedurgenerationen durchgeführt werden soll."
+    }
   },
   "permissions": {
     "percieverName": "Wetter UI ",
@@ -143,6 +201,52 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "macroConfig": {
+      "toggleName": "Macro Generator",
+      "toggleTitle": "Macro Generator",
+      "title": "Macro Erzeugung",
+      "disabledWarn": "Aus dieser Szene können keine Makros erstellt werden, da SceneWeather für die Szene deaktiviert ist.",
+      "notes": {
+        "intro": "Erstelle ein Makro basierend auf den Einstellungen der aktuellen Szene, um beliebige Elemente dieser Szene auf eine andere Szene anzuwenden. Das generierte Makro ermöglicht es, genau dieselben Einstellungen auf eine andere, dann ausgewählte Szene erneut anzuwenden, wenn du dieses Makro ausführst. Klicke einfach auf die entsprechende Schaltfläche, um ein neues Makro zu erstellen. Dessen Namen oder einzelne Einstellungen kannst du dann im Popup-Fenster des Makro-Editors selbst bearbeiten.",
+        "disabled": "Bitte aktiviere zuerst SceneWeather für diese Szene, bevor du Makros basierend auf den Wettereinstellungen dieser Szene generieren kannst.",
+        "outro": "Eine Szene, in der SceneWeather für Umgebungswetter und Klimagenerierung aktiviert ist, verfügt über Einstellungen wie die Vorlage, die für das aktuelle statische Wetter verwendet wurde, oder individuelle Einstellungen, die dieses aktuelle Wetter für die Szene erstellen. Oder falls das Wetter auf der Grundlage einer prozedural generierten Region und klimatischer Eigenschaften simuliert wird, die dynamisch von der aktuellen Tageszeit für den Sonnenstand und/oder dem aktuellen Datum in Bezug auf die Winter- oder Sommersonnenwende für saisonale Effekte abhängig sind, diese werden auch auf der Szene gespeichert."
+      },
+      "season": {
+        "pctFrom": "% auf dem Weg von",
+        "winterToSummer": "der Wintersonnenwende zur Sommersonnenwende",
+        "summerToWinter": "der Sommersonnenwende zur Wintersonnenwende"
+      },
+      "mode": "Der aktuelle Generierungsmodus ist",
+      "seed": "Generator seed ist",
+      "includeTime": "Füge Tageslicht Zyklus hinzu",
+      "includeTimeHint": "Wird die aktuelle Position des Tageslicht Zyklus hinzugefügt, bezieht das Makro beim Ausführen die aktuelle Tageszeit mit ein, die auf die Szene angewendet werden soll. Bei dynamischen Szenen wirkt sich dies auf die Tag-/Nachtzyklus-basierten Einflüsse des Wetters aus.",
+      "includeDay": "Füge Jahreszeiten Zyklus hinzu",
+      "includeDayHint": "Wird die aktuelle Position des Jahreszeiten Zyklus hinzugefügt, bezieht das Makro bei der Ausführung den aktuellen Tag im Jahresverlauf, der auf die Szene angewendet werden soll mit ein. Bei dynamischen Szenen wirkt sich dies auf saisonale Einflüsse aus.",
+      "includeSeed": "Füge den Generator seed hinzu",
+      "inlcudeSeedHint": "Dadurch wird auch der prozedurale Generator seed dieser Szene auf die Szene angewendet, wenn das Makro ausgeführt wird. Der Seed wirkt sich auf alle dynamisch generierten Effekte aus.",
+      "currentWeather": "Aktuelles Wetter",
+      "currentRegion": "Aktuelle Region",
+      "weatherTemplate": {
+        "used": "Verwendete Vorlage:",
+        "button": "Erstelle Makro (Basis: Wetter-Vorlage)",
+        "title": "Setze Wettervorlage der Szene "
+      },
+      "weather": {
+        "info": "Detailierte Wetter Informationen",
+        "button": "Erstelle Makro (Basis: Aktuelles Wetter)",
+        "title": "Wende das Wetter auf die Szene an. (Quell Szene: "
+      },
+      "regionTemplate": {
+        "used": "Verwendete Vorlage:",
+        "button": "Erstelle Makro (Basis: Region-Vorlage)",
+        "title": "Setze Regionenvorlage der Szene "
+      },
+      "region": {
+        "info": "Detailierte Regionen Information",
+        "button": "Erstelle Makro (Basis: Aktuelle Region)",
+        "title": "Wende die Regionsinformationen auf die Szene an. (Quell Szene: "
+      }
+    },
     "permissionConfig": {
       "title": "Rechtekonfiguration",
       "hint": "Bestimme welche Nutzerrolle oder Benutzer das Recht hat welche Aktion durchzuführen oder welche Darstellung zu sehen. Die Spielleitung kann immer alles. Manche Änderungen werden erst nach einem Neustart des Spiels angewendet.",

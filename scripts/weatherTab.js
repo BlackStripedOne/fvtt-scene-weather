@@ -148,7 +148,7 @@ export class WeatherTab {
           }
         }
       })// each
-      app.setPosition({ height: 'auto' });
+      app.setPosition({ height: 'auto' })
       Logger.debug('onChange', { 'app': app, 'jQ': jQ })
     }) // on change
   }

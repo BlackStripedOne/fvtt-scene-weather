@@ -17,16 +17,16 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { MODULE, GENERATOR_MODES } from './constants.js'
+import { MODULE, EVENTS, GENERATOR_MODES } from './constants.js'
 import { TimeProvider } from './timeProvider.js'
 import { WeatherPerception } from './weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { Permissions } from './permissions.js'
 
-Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   Logger.debug('->Hook:WeatherUpdated -> WeatherUI.update(...)', { 'data': data })
   // TODO only for GMs?
-  if (data.sceneId == canvas.scene._id && data.info !== undefined) {
+  if (data.sceneId == canvas.scene._id && data.model !== undefined) {
     WeatherUi.update(data.model)
   }
 })

@@ -23,6 +23,7 @@ import { MeteoUi } from './meteoUi.js'
 import { WeatherEffectsLayer } from './weatherFxLayer.js'
 import { RegionConfigDialog } from './regionConfig.js'
 import { WeatherConfigDialog } from './weatherConfig.js'
+import { MacroConfigDialog } from './macros/macroConfig.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { WeatherPerception } from './weatherPerception.js'
 import { Permissions } from './permissions.js'
@@ -55,7 +56,7 @@ export class WeatherLayer extends InteractionLayer {
         name: 'dialogs.weatherUi.toggleName',
         title: 'dialogs.weatherUi.toggleTitle',
         icon: 'fas fa-solid fa-window-maximize',
-        visible: WeatherPerception.getAllowedIds(userId).length >= 1,
+        visible: (WeatherPerception.getAllowedIds(userId).length >= 1) && (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED),
         toggle: true,
         active: WeatherUi._isOpen,
         onClick: () => {
@@ -99,11 +100,26 @@ export class WeatherLayer extends InteractionLayer {
           }
         }
       },
+
+      {
+        name: 'dialogs.macroConfig.toggleName',
+        title: 'dialogs.macroConfig.toggleTitle',
+        icon: 'fas fa-solid fa-scroll',
+        visible: Permissions.hasPermission(userId, 'sceneSettings') && (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED),
+        button: true,
+        onClick: () => {
+          if (Permissions.hasPermission(userId, 'sceneSettings') && (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED)) {
+            MacroConfigDialog._app = new MacroConfigDialog()
+            MacroConfigDialog._app.render(true)
+          }
+        }
+      },
+
       {
         name: 'settings.enableFx.toggleName',
         title: 'settings.enableFx.toggleTitle',
         icon: 'fas fa-solid fa-eye',
-        visible: true,
+        visible: (Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED),
         toggle: true,
         active: Fal.getSetting('enableFx', true),
         onClick: () => {

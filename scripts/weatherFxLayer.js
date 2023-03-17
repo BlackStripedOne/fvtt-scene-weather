@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { WeatherEffect } from './weatherFx.js'
-import { MODULE } from './constants.js'
+import { MODULE, EVENTS } from './constants.js'
 import { SceneWeatherState } from './state.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 
@@ -46,7 +46,7 @@ Hooks.on(MODULE.LCCNAME + 'WeatherDisabled', async (data) => {
 })
 
 // TODO use EVENTS
-Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   Logger.debug('-> Hooks::WeatherUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
 
   if (canvas['sceneweatherfx'] !== undefined) {

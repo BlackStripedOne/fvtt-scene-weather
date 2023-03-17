@@ -169,7 +169,7 @@ export class WeatherConfigDialog extends FormApplication {
   _updateObject(event, formData) {
     const data = expandObject(formData);
     // TODO also have choice between setting and scene
-    Logger.debug('updateObject, weatherConfig', { 'data': data, 'scene': this.applyToScene })
+    Logger.trace('updateObject, weatherConfig', { 'data': data, 'scene': this.applyToScene })
     if (this.applyToScene === undefined) {
       Fal.setSetting('defaultWeatherSettings', data)
     } else {

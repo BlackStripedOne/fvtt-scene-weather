@@ -319,8 +319,18 @@ export class FoundryAbstractionLayer {
    * @param {any} value 
    * @param {String} sceneId 
    */
-  static setSceneFlag(key, value, sceneId = undefined) {
-    FoundryAbstractionLayer.getScene(sceneId).setFlag(MODULE.ID, key, value)
+  static async setSceneFlag(key, value, sceneId = undefined) {
+    return FoundryAbstractionLayer.getScene(sceneId).setFlag(MODULE.ID, key, value)
+  }
+
+  /**
+   * TODO
+   * 
+   * @param {String} key   
+   * @param {String} sceneId 
+   */
+  static async unsetSceneFlag(key, sceneId = undefined) {
+    return FoundryAbstractionLayer.getScene(sceneId).unsetFlag(MODULE.ID, key)
   }
 
   /**

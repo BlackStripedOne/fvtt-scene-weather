@@ -19,10 +19,11 @@ See the License for the specific language governing permissions and limitations 
 /**
  * Module-based constants
  */
-export const MODULE = {
+export let MODULE = {
   ID: 'scene-weather',
   NAME: 'Scene Weather',
-  LCCNAME: 'sceneWeather'
+  LCCNAME: 'sceneWeather',
+  VERSION: 'development'
 }
 
 export const GENERATOR_MODES = {
@@ -40,7 +41,13 @@ export const EVENTS = {
   'REG_TEMPLATE_REGION': MODULE.LCCNAME + 'RegisterRegionTemplate',
   'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate',
   'REG_WEATHER_PERCIEVERS': MODULE.LCCNAME + 'RegisterWeatherPercievers',
-  'MODULE_INITIALIZED': MODULE.LCCNAME + 'Initialized'
+  'MODULE_INITIALIZED': MODULE.LCCNAME + 'Initialized',
+  'WEATHER_UPDATED': MODULE.LCCNAME + 'WeatherUpdated'
+}
+
+export const WIND_MODES = {
+  'fixed': 0,
+  'procedural': 1
 }
 
 export const RAIN_MODES = {
@@ -65,6 +72,22 @@ export const METEO = {
   'R': 8.3144598, // universal gas constant: 8.3144598 J/(mol·K)'
   'Tzero': 237.7 // saturation vapor pressure in Kelvin, over a flat surface of water
 }
+
+export const SEASONS = {
+  'winter': 0.1667,
+  'latewinter': 0.3333,
+  'earlyspring': 0.5,
+  'spring': 0.6667,
+  'latespring': 0.8333,
+  'earlysummer': 1.0,
+  'summer': 1.1667,
+  'latesummer': 1.3333,
+  'earlyfall': 1.5,
+  'fall': 1.6667,
+  'latefall': 1.8333,
+  'earlywinter': 2.0
+}
+
 
 export const PRECI_TYPE = {
   'none': 0,

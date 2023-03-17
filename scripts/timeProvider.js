@@ -64,12 +64,21 @@ export class TimeProvider {
   }
 
   /**
-   * Returns the number of hours in a day.
+   * Returns the amount of hours in a day.
    *
-   * @returns {number} The number of hours in a day.
+   * @returns {number} The amount of hours in a day.
    */
   static getHoursInDay() {
     return TimeProvider._getProviderInstance().getHoursInDay()
+  }
+
+  /**
+   * Returns the amount of days in a year.
+   *
+   * @returns {number} The amount of days in a year.
+   */
+  static getDaysInYear() {
+    return TimeProvider._getProviderInstance().getDaysInYear()
   }
 
   /**
@@ -89,6 +98,40 @@ export class TimeProvider {
    */
   static getMonthOffset(monthNr) {
     return TimeProvider._getProviderInstance().getMonthOffset(monthNr)
+  }
+
+  /**
+   * Returns the summer solstice day in the year cycle.
+   * @returns the day in the year for the summer solstice
+   */
+  static getSummerSolsticeDay() {
+    return TimeProvider._getProviderInstance().getSummerSolsticeDay()
+  }
+
+  /**
+   * Returns the winter solstice day in the year cycle.
+   * @returns the day in the year for the winter solstice
+   */
+  static getWinterSolsticeDay() {
+    return TimeProvider._getProviderInstance().getWinterSolsticeDay()
+  }
+
+  /**
+   * Get the percent of the years season cycle. Range is 0.00 -> 2.00 where
+   * 0.00 and 2.00 is the winter solstice, 1.00 is summer solstice, 0.5 spring and 1.5 fall equinox
+   * @returns the percentge of the season cycle
+   */
+  static getSeasonCyclePct() {
+    return TimeProvider._getProviderInstance().getSeasonCyclePct()
+  }
+
+  /**
+   * Returns the daylight cycle of one day. Range is 0.00 -> 1.00 where 0.00 is midnight and 0.5 is
+   * hight noon.
+   * @returns  the percentage of the daylight cycle.
+   */
+  static getDaylightCyclePct() {
+    return TimeProvider._getProviderInstance().getDaylightCyclePct()
   }
 
   /**
@@ -152,6 +195,17 @@ export class TimeProvider {
   }
 
   /**
+   * Sets the hour in the day according the given percentage of the daylight cycle.
+   * Range 0.00 - 1.00, where 0.5 is high noon, 0 and 1 are midnight.
+   * 
+   * @param {number} daylightCyclePct - the percentage of the daylight cycle of one day.
+   * @returns 
+   */
+  static async setDaylightCyclePct(daylightCyclePct) {
+    return TimeProvider._getProviderInstance().setDaylightCyclePct(daylightCyclePct)
+  }
+
+  /**
    * Calculates the day of the year as a percentage of the summer solstice.
    * This function calculates the day of the year as a percentage of the summer solstice, which occurs around June 20th or 21st.
    * The result is useful for determining the season or other events in the game world that are tied to the progression of the year.
@@ -166,6 +220,17 @@ export class TimeProvider {
    */
   static dayOfYearSummerPct(dayDelta = 0, hourDelta = 0) {
     return TimeProvider._getProviderInstance().dayOfYearSummerPct(dayDelta, hourDelta)
+  }
+
+  /**
+   * Sets the day in the year according the given percentage of the season cycle.
+   * Range 0.00 - 1.00, where 0.5 is the day os summer solstice, 0 and 1 winter solstice.
+   * 
+   * @param {number} seasonCyclePct - the percentage of the season cycle of the year.
+   * @returns 
+   */
+  static async setSeasonCyclePct(seasonCyclePct) {
+    return TimeProvider._getProviderInstance().setSeasonCyclePct(seasonCyclePct)
   }
 
   /** 

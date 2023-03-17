@@ -111,6 +111,13 @@ export class ScTimeProvider extends TimeProvider {
   /**
    * @override
    */
+  getDaysInYear() {
+    return ScTimeProvider._config.daysInYear
+  }
+
+  /**
+   * @override
+   */
   getNumberOfMonths() {
     return ScTimeProvider._config.monthOffset.length
   }
@@ -120,6 +127,58 @@ export class ScTimeProvider extends TimeProvider {
    */
   getMonthOffset(monthNr) {
     return ScTimeProvider._config.monthOffset[Utils.clamp(monthNr, 0, ScTimeProvider._config.monthOffset.length - 1)]
+  }
+
+  /**
+   * @override
+   */
+  getSummerSolsticeDay() {
+    return ScTimeProvider._config.summerSolstice
+  }
+
+  /**
+   * @override
+   */
+  getWinterSolsticeDay() {
+    return ScTimeProvider._config.winterSolstice
+  }
+
+  /**
+   * @override
+   */
+  getDaylightCyclePct() {
+    return Utils.map(this.getHourOfDay(), 0, ScTimeProvider._config.hoursInDay, 0.0, 1.0)
+  }
+
+  /**
+   * @override
+   */
+  getSeasonCyclePct() {
+    const ssD = ScTimeProvider._config.summerSolstice
+    const wsD = ScTimeProvider._config.winterSolstice
+    const doY = this.getDayOfYear()
+    const summerWinterSolsticeDeltaDays = (wsD > ssD) ? wsD - ssD : ssD - wsD
+    let beforeSummerSolstice = doY < ssD
+    let distancePct = (beforeSummerSolstice) ? 1.0 - ((ssD - doY) / summerWinterSolsticeDeltaDays) : (doY - ssD) / summerWinterSolsticeDeltaDays
+    if (distancePct > 1.0) {
+      distancePct -= 1.0
+      beforeSummerSolstice = !beforeSummerSolstice
+    }
+    return (beforeSummerSolstice) ? distancePct : 1.0 + distancePct
+  }
+
+  /**
+   * @override
+   */
+  async setDaylightCyclePct(daylightCyclePct) {
+    Logger.trace('ScTimeProvider.setDaylightCyclePct(...) no time authority!', { 'daylightCyclePct': daylightCyclePct })
+  }
+
+  /**
+   * @override
+   */
+  async setSeasonCyclePct(seasonCyclePct) {
+    Logger.trace('ScTimeProvider.setSeasonCyclePct(...) no time authority!', { 'seasonCyclePct': seasonCyclePct })
   }
 
   /**
@@ -158,7 +217,7 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   dayOfYearSummerPct(dayDelta = 0, hourDelta = 0) {
-    const dayOfYear = this.getDayOfYear(dayDelta, hourDelta)
+    let dayOfYear = this.getDayOfYear(dayDelta, hourDelta)
     const summerSolstice = ScTimeProvider._config.summerSolstice
     const winterSolstice = ScTimeProvider._config.winterSolstice
     let wSb = winterSolstice
@@ -291,9 +350,13 @@ export class ScTimeProvider extends TimeProvider {
 
   /**
    * Calculates the summer and winter solstices based on information about the length of daylight during different seasons.
-   * This function uses the SimpleCalendar API to retrieve information about each season, including the season's starting month and day, and the length of daylight during that season.
+   * This function uses the SimpleCalendar API to retrieve information about each season, including the season's starting month
+   * and day, and the length of daylight during that season.
    * It then calculates the starting day of the year for each season, based on the month and day of the season's starting date.
-   * If the summer solstice or winter solstice has not been set in the ScTimeProvider configuration object, this function uses the length of daylight during each season to determine which season has the longest (for summer solstice) or shortest (for winter solstice) day, and sets the appropriate starting day of the year for that season as the summer solstice or winter solstice.
+   * If the summer solstice or winter solstice has not been set in the ScTimeProvider configuration object, this function uses
+   * the length of daylight during each season to determine which season has the longest (for summer solstice) or shortest
+   * (for winter solstice) day, and sets the appropriate starting day of the year for that season as the summer solstice
+   * or winter solstice.
    *
    * @private
    */

@@ -76,38 +76,40 @@ export const registerSettingsPreInit = function () {
       'waterAmount': 0,
       'summer': {
         'temperature': {
-          'max': 0,
-          'avg': 0,
-          'min': 0,
+          'day': 0,
+          'night': 0,
           'var': 0
         },
         'humidity': {
-          'max': 0,
-          'avg': 0,
-          'min': 0,
+          'day': 0,
+          'night': 0,
           'var': 0
         },
         'wind': {
           'avg': 0,
           'var': 0
+        },
+        'sun': {
+          'hours': 0
         }
       },
       'winter': {
         'temperature': {
-          'max': 0,
-          'avg': 0,
-          'min': 0,
+          'day': 0,
+          'night': 0,
           'var': 0
         },
         'humidity': {
-          'max': 0,
-          'avg': 0,
-          'min': 0,
+          'day': 0,
+          'night': 0,
           'var': 0
         },
         'wind': {
           'avg': 0,
           'var': 0
+        },
+        'sun': {
+          'hours': 0
         }
       }
     }

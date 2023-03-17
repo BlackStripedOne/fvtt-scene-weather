@@ -1,0 +1,98 @@
+<form class="flexcol" onsubmit="event.preventDefault();">
+
+  {{#if enabled}}
+  <p class="notes">{{localize 'dialogs.macroConfig.notes.intro'}}</p>
+  <fieldset class="sceneWeather-fieldSet">
+    <legend><a class="document-id-link" alt="{{localize 'dialogs.weatherUi.actionClipboard'}}"
+        data-tooltip="{{localize 'DOCUMENT.Scene'}}: {{scene.id}}" data-tooltip-direction="UP"><i
+          class="fas fa-map"></i></a> {{scene.name}}</legend>
+
+    <p><strong>{{time.summaryString}}</strong></p>
+    <p><strong>{{localize time.seasonString}}</strong>. ({{time.pctDistanceSummerSolstice}}{{localize
+      'dialogs.macroConfig.season.pctFrom'}} {{#if time.beforeSummerSolstice}}{{localize
+      'dialogs.macroConfig.season.winterToSummer'}}{{else}}{{localize
+      'dialogs.macroConfig.season.summerToWinter'}}{{/if}}.)</p>
+    <p>{{localize 'dialogs.macroConfig.mode'}} <strong>{{localize scene.modeName}}</strong></p>
+    <p class="hint">{{localize scene.modeHint}}</p>
+    <p><i class="fa-solid fa-dice"></i> {{localize 'dialogs.macroConfig.seed'}} <code>{{scene.seed}}</code></p>
+
+    <div class="form-group">
+      <label for="macro.includeTimeOfDay"><i class="fa-regular fa-clock"></i> {{localize
+        'dialogs.macroConfig.includeTime'}}</label>
+      <div class="form-fields">
+        <input type="checkbox" name="macro.includeTimeOfDay" data-dtype="Boolean" {{#if preCheckTime}} checked{{/if}}>
+      </div>
+    </div>
+    <p class="hint">{{localize 'dialogs.macroConfig.includeTimeHint'}}</p>
+
+    <div class="form-group">
+      <label for="macro.includeDayOfYear"><i class="fa-solid fa-calendar-days"></i> {{localize
+        'dialogs.macroConfig.includeDay'}}</label>
+      <div class="form-fields">
+        <input type="checkbox" name="macro.includeDayOfYear" data-dtype="Boolean" {{#if preCheckDate}} checked{{/if}}>
+      </div>
+    </div>
+    <p class="hint">{{localize 'dialogs.macroConfig.includeDayHint'}}</p>
+
+    <div class="form-group">
+      <label for="macro.includeSeed"><i class="fa-solid fa-dice"></i> {{localize
+        'dialogs.macroConfig.includeSeed'}}</label>
+      <div class="form-fields">
+        <input type="checkbox" name="macro.includeSeed" data-dtype="Boolean" checked>
+      </div>
+    </div>
+    <p class="hint">{{localize 'dialogs.macroConfig.inlcudeSeedHint'}}</p>
+  </fieldset>
+
+  <fieldset class="sceneWeather-fieldSet">
+    <legend><i class="fa-solid fa-cloud-bolt-sun"></i> {{localize 'dialogs.macroConfig.currentWeather'}}</legend>
+
+    {{#if weather.hasTemplate}}
+    <p><i class="fa-solid fa-file"></i> {{localize 'dialogs.macroConfig.weatherTemplate.used'}} {{weather.templateName}}
+    </p>
+    <div class="form-group">
+      <button type="generate" data-mode="weatherTemplate" name="generateFromWeatherTemplate">
+        <i class="fa-solid fa-file-plus"></i> {{localize 'dialogs.macroConfig.weatherTemplate.button'}}
+      </button>
+    </div>
+    {{/if}}
+
+    <p><i class="fa-solid fa-sliders"></i> {{localize 'dialogs.macroConfig.weather.info'}}</p>
+    {{{weather.detailHtml}}}
+    <div class="form-group">
+      <button type="generate" data-mode="weather" name="generateFromWeather">
+        <i class="fa-solid fa-file-plus"></i> {{localize 'dialogs.macroConfig.weather.button'}}
+      </button>
+    </div>
+  </fieldset>
+
+  {{#if region.hasRegion}}
+  <fieldset class="sceneWeather-fieldSet">
+    <legend><i class="fa-solid fa-location-dot"></i></i> {{localize 'dialogs.macroConfig.currentRegion'}}</legend>
+
+    {{#if region.hasTemplate}}
+    <p><i class="fa-solid fa-file"></i> {{localize 'dialogs.macroConfig.regionTemplate.used'}} {{region.templateName}}
+    </p>
+    <div class="form-group">
+      <button type="generate" data-mode="regionTemplate" name="generateFromWeatherTemplate">
+        <i class="fa-solid fa-file-plus"></i> {{localize 'dialogs.macroConfig.regionTemplate.button'}}
+      </button>
+    </div>
+    {{/if}}
+
+    <p><i class="fa-solid fa-sliders"></i> {{localize 'dialogs.macroConfig.region.info'}}</p>
+    <!-- TODO maybe add table with region infos like elevation, temperatures and so on... -->
+    <div class="form-group">
+      <button type="generate" data-mode="region" name="generateFromWeather">
+        <i class="fa-solid fa-file-plus"></i> {{localize 'dialogs.macroConfig.region.button'}}
+      </button>
+    </div>
+  </fieldset>
+  {{/if}}
+  {{else}}
+  <p class="notes">{{localize 'dialogs.macroConfig.notes.disabled'}}</p>
+  {{/if}}
+  <p class="hint"><i class="fa-solid fa-lightbulb"></i> {{localize 'dialogs.macroConfig.notes.outro'}}</p>
+
+  </br>
+</form>

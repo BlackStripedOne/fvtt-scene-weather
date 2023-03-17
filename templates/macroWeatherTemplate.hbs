@@ -1,0 +1,14 @@
+/*
+  {{localize 'macro.setWeatherTemplate.head'}} {{templateName}}
+*/
+{{#if moduleCheck}}
+const module = game.modules.get('{{moduleId}}');
+if (module && module.active) {
+  await SceneWeather.setWeatherTemplate('{{templateId}}');
+} else {
+  ui.notifications.info(' {{localize 'macro.setWeatherTemplate.error'}}'+'{{moduleId}}');
+}
+{{else}}
+await SceneWeather.setWeatherTemplate('{{templateId}}');
+{{/if}}
+

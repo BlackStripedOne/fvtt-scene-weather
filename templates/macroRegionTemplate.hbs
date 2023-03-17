@@ -1,0 +1,14 @@
+/*
+  {{localize 'macro.setRegionTemplate.head'}} {{templateName}}
+*/
+{{#if moduleCheck}}
+const module = game.modules.get('{{moduleId}}');
+if (module && module.active) {
+  SceneWeather.setRegionTemplate('{{templateId}}');
+} else {
+  ui.notifications.info('{{localize 'macro.setRegionTemplate.error'}}'+'{{moduleId}}');
+}
+{{else}}
+SceneWeather.setRegionTemplate('{{templateId}}');
+{{/if}}
+

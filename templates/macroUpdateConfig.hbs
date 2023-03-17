@@ -1,0 +1,15 @@
+/*
+  {{localize 'macro.updateWeatherConfig.head'}}
+*/
+{{#if hasSceneId}}
+// {{localize 'macro.updateWeatherConfig.sceneId'}}
+const sceneId = '{{data.forSceneId}}';
+{{/if}}
+{{#if hasForceParam}}
+// {{localize 'macro.updateWeatherConfig.force'}}
+const forceUpdate = {{data.force}};
+{{/if}}
+await SceneWeather.updateWeatherConfig({{#if hasParams}}{ {{#if hasSceneId}}  'forSceneId': sceneId,{{/if}}
+{{#if hasForceParam}}  'force': forceUpdate,{{/if}}
+}{{/if}});
+

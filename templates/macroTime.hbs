@@ -1,0 +1,9 @@
+/*
+  {{localize 'macro.setCycleTimes.head'}}
+  
+  @param {number} 0.00 <= cycleTimes.daylightCycle <= 100.00 - {{localize 'macro.setCycleTimes.daylightCycle'}}
+  @param {number} 0.00 <= cycleTimes.seasonCycle <= 100.00 - {{localize 'macro.setCycleTimes.seasonCycle'}}
+*/
+const cycleTimes = {{{data}}};
+SceneWeather.setCycleTimes(cycleTimes);
+

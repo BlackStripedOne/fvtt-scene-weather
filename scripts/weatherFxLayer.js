@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -21,31 +22,31 @@ import { WeatherEffect } from './weatherFx.js'
 import { MODULE, EVENTS } from './constants.js'
 import { SceneWeatherState } from './state.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { WeatherNodeData } from './layer/weatherNodeData.js'
+import { WeatherNodeMask } from './layer/weatherNodeMask.js'
 
-// TODO use EVENTS
-Hooks.on(MODULE.LCCNAME + 'SettingsUpdated', async (data) => {
-  Logger.debug('-> Hooks::SettingsUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
+
+Hooks.on(EVENTS.SETTINGS_UPDATED, async (data) => {
+  Logger.trace('-> Hooks::SettingsUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
   if (['cloudsAlpha', 'precipitationAlpha', 'maxParticles', 'enableFx'].includes(data.id)) {
     // Update weather to update effects
     SceneWeather.updateWeather({ force: true })
   }
 })
 
-// TODO use EVENTS
-Hooks.on(MODULE.LCCNAME + 'WeatherDisabled', async (data) => {
+Hooks.on(EVENTS.WEATHER_DISABLED, async (data) => {
   if (canvas.scene._id != data.scene.id) {
-    Logger.debug('WeatherDisabled for another scene, ignoring')
+    Logger.trace('WeatherDisabled for another scene, ignoring')
     return
   }
   if (canvas['sceneweatherfx'] !== undefined) {
     await Promise.all([canvas.sceneweatherfx.drawParticleEffects({ 'soft': false }),
     canvas.sceneweatherfx.drawFilterEffects({ 'soft': false })])
   } else {
-    Logger.debug('No canvas.sceneweatherfx') // Should not come to this.
+    Logger.trace('No canvas.sceneweatherfx') // Should not come to this.
   }
 })
 
-// TODO use EVENTS
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   Logger.debug('-> Hooks::WeatherUpdated -> WeatherEffectsLayer.draw*Effects', { 'data': data })
 
@@ -64,6 +65,14 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
 
 })
 
+/*
+In favor of using updateScene Hook in init.js
+Hooks.on('updateWeatherNodes', async (data) => {
+  Logger.trace('-> Hooks::updateWeatherNodes Call updateWeatherMask', {'data':data})
+  // await canvas.sceneweatherfx.updateWeatherMask()
+})*/
+
+
 export class WeatherEffectsLayer extends CanvasLayer {
 
   /**
@@ -72,6 +81,13 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * @type {PIXI.Container | undefined}
    */
   particleEffectsContainer
+
+  /**
+   * Sprite containing the weather effects masking texture.
+   * 
+   * @type {PIXI.Sprite}
+   */
+  spriteMask
 
   /**
    * List of currently active instances of WeatherEffect. Used for asynchronously keeping track of stopping and destroying effects
@@ -93,6 +109,52 @@ export class WeatherEffectsLayer extends CanvasLayer {
   constructor() {
     super()
     canvas.app.ticker.add(this.handleTick, this)
+  }
+
+
+  async updateWeatherMask() {
+    // draw all masking elements
+    let weatherMask = new PIXI.Container()
+
+    // add scene mask to particle mask
+    const sceneMask = weatherMask.addChild(new PIXI.LegacyGraphics())
+    await sceneMask
+      .clear()
+      // mask canvas in blue    
+      .beginFill(0x0000ff)
+      .drawShape(canvas.dimensions.rect)
+      .endFill()
+      // mask scene in red
+      .beginFill(0xff0000)
+      .drawShape(canvas.dimensions.sceneRect.intersection(canvas.dimensions.rect))
+      .endFill()
+    // basically set the "image" invisible to the renderer
+    sceneMask.mask = new PIXI.MaskData()
+
+
+    const promises = WeatherNodeData.loadAll().map(nodeData => {
+      // const weatherNode = new WeatherNode(nodeData)
+      // return weatherMask.addChild(weatherNode).drawMask()
+
+      const weatherNodeMask = new WeatherNodeMask(nodeData)
+      return weatherMask.addChild(weatherNodeMask).draw()
+    })
+    await Promise.all(promises)
+
+
+
+    // remove previously existing masks
+    if (this.spriteMask) {
+
+      this.removeChild(this.spriteMask)
+      delete this.spriteMask
+    }
+    // render composite mask    
+    const weatherMaskTexture = await canvas.app.renderer.generateTexture(weatherMask)
+    this.spriteMask = this.addChild(new PIXI.Sprite(weatherMaskTexture))
+
+    // set sprite mask to sceneweatherfx container
+    this.mask = this.spriteMask
   }
 
   /**
@@ -126,14 +188,36 @@ export class WeatherEffectsLayer extends CanvasLayer {
    * Return default layer options
    */
   static get layerOptions() {
-    return Utils.mergeObject(super.layerOptions, { name: "weather-particle-effects" })
+    return Utils.mergeObject(super.layerOptions, {
+      name: "weather-particle-effects",
+      zIndex: 479
+    })
   }
 
   /**
    * Draw this layer. All drawing will be handled via the draw*Effects methods.
    */
   async _draw() {
-    Logger.debug('WeatherEffectsLayer._draw()', { 'this': this })
+    Logger.trace('WeatherEffectsLayer._draw()', { 'this': this })
+
+
+    // render all weathernode masks to particle mask
+    this.updateWeatherMask()
+
+
+    // TODO apply mask to filters
+    // TODO maybe use one of    
+    // -> https://api.pixijs.io/@pixi/picture/MaskFilter.html
+    // -> canvas.environment.mask = canvas.sceneweatherfx.particleMask
+    // -> VisualEffectsMaskingFilter
+    // -> canvas.effects.coloration.mask
+    /*const weatherOcclusionFilter = InverseOcclusionMaskFilter.create({
+     alphaOcclusion: 1,
+     uMaskSampler: canvas.sceneweatherfx.particleMask,
+     channel: "b"
+    })
+    canvas.sceneweatherfx.filter = weatherOcclusionFilter*/
+
   }
 
   /**
@@ -143,6 +227,14 @@ export class WeatherEffectsLayer extends CanvasLayer {
    */
   async _tearDown() {
     Logger.debug('WeatherEffectsLayer._tearDown()', { 'effects': this.activeEffects })
+    // remove all filtes from canvas layer
+    const activeFilters = Object.values(this.activeFilters)
+    const filterContainer = canvas.environment
+    filterContainer.filters = filterContainer.filters?.filter(function (objFromA) {
+      return !activeFilters.find(function (objFromB) {
+        return objFromA === objFromB
+      })
+    }) ?? []
     this.activeEffects.forEach((effect => {
       effect.destroy()
     }))
@@ -170,6 +262,8 @@ export class WeatherEffectsLayer extends CanvasLayer {
    */
   async drawFilterEffects(options) {
     Logger.debug('WeatherEffectsLayer.drawFilterEffects(...)', { 'options': options })
+    const filterContainer = canvas.environment
+
     options = Utils.mergeObject({ 'soft': false }, options)
     if (!canvas.scene) return
 
@@ -179,7 +273,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
 
     // remove stopped filtes from canvas layer
     const activeFilters = Object.values(this.activeFilters)
-    canvas.environment.filters = canvas.environment.filters?.filter(function (objFromA) {
+    filterContainer.filters = filterContainer.filters?.filter(function (objFromA) {
       return !activeFilters.find(function (objFromB) {
         return objFromA === objFromB
       })
@@ -199,7 +293,7 @@ export class WeatherEffectsLayer extends CanvasLayer {
         'soft': options.soft,
         'options': Utils.mergeObject(config, { "-=type": null }, { performDeletions: true })
       })
-      canvas.environment.filters.push(this.activeFilters[id])
+      filterContainer.filters.push(this.activeFilters[id])
     })
   }
 

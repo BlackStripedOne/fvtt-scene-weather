@@ -38,6 +38,7 @@ export class WeatherModel {
     "source": "_DISABLED_",
     "name": "disabled",
     "temp": {
+      "underground": 14.5,  // average temperature at -20m below surface as default
       "ground": 0,
       "air": 0,
       "percieved": 0

@@ -19,12 +19,12 @@ See the License for the specific language governing permissions and limitations 
 import { Logger, Utils } from './utils.js'
 import { TimeProvider } from './timeProvider.js'
 import { WeatherPerception } from './weatherPerception.js'
-import { SceneWeather } from './sceneWeather.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { SceneWeatherState } from './state.js'
 import { MacroConfigDialog } from './macros/macroConfig.js'
 import { GENERATOR_MODES, CLOUD_TYPE, PRECI_TYPE, WIND_MODES } from './constants.js'
 import { Permissions } from './permissions.js'
+import { TokenAmbience } from './tokens/ambience.js'
 
 // will be available globally via SceneWeather.
 export function getSceneWeatherAPIv1() {
@@ -80,6 +80,7 @@ export function getSceneWeatherAPIv1() {
     'id': 'unknown',
     'name': 'unknown',
     'temp': {
+      'underground': 14.5,
       'ground': 0,
       'air': 0,
       'percieved': 0
@@ -133,7 +134,8 @@ export function getSceneWeatherAPIv1() {
       Fal.unsetSceneFlag('timeProvider'),
       Fal.unsetSceneFlag('weatherTemplate'),
       Fal.unsetSceneFlag('weatherSettings'),
-      Fal.unsetSceneFlag('regionSettings')
+      Fal.unsetSceneFlag('regionSettings'),
+      Fal.unsetSceneFlag('nodes')
     ])
   }
 
@@ -155,7 +157,7 @@ export function getSceneWeatherAPIv1() {
   async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
     Logger.debug('updateWeatherConfig', { 'forSceneId': forSceneId, 'force': force })
     // Update from configs
-    const weatherProvider = _getSceneWeatherProvider(forSceneId, force)
+    const weatherProvider = SceneWeatherState.getSceneWeatherProvider(forSceneId, force)
     if (weatherProvider !== undefined) {
       if (weatherProvider.updateConfig() || force) {
         updateWeather({
@@ -193,7 +195,7 @@ export function getSceneWeatherAPIv1() {
     const currentTimeHash = TimeProvider.getCurrentTimeHash()
     if (SceneWeatherState._lastUpdate == currentTimeHash) return
     SceneWeatherState._lastUpdate = currentTimeHash
-    const provider = _getSceneWeatherProvider(sceneId)
+    const provider = SceneWeatherState.getSceneWeatherProvider(sceneId)
     if (provider !== undefined) {
       provider.calculateWeather({
         'force': force
@@ -289,7 +291,7 @@ export function getSceneWeatherAPIv1() {
    */
   function getWeatherModel(dayOffset = 0, hourOffset = 0) {
     Logger.debug('getWeatherModel(...)', { 'dayOffset': dayOffset, 'hourOffset': hourOffset })
-    const weatherProvider = _getSceneWeatherProvider()
+    const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
     if (weatherProvider !== undefined) {
       return weatherProvider.getWeatherModel(dayOffset, hourOffset)
     }
@@ -302,10 +304,26 @@ export function getSceneWeatherAPIv1() {
    */
   function getWeatherSettings() {
     Logger.debug('getWeatherSettings()')
-    const weatherProvider = _getSceneWeatherProvider()
+    const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
     if (weatherProvider !== undefined) {
       return weatherProvider.getWeatherSettings()
     }
+  }
+
+  /**
+   * TODO
+   */
+  function getTokenAmbience(token) {
+    if (!token || (!token instanceof Token)) return undefined
+    if (!token || !canvas || !canvas.ready) return undefined
+    if (!Fal.getControlledTokens().includes(token)) {
+      Logger.warn('getTokenAmbience | No permission to get for non controlled tokens.')
+      return undefined
+    }
+    // no SceneWeather enabled, no ambience
+    const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
+    if (!weatherProvider) return undefined
+    return TokenAmbience.getAmbienceForPosition(token.center || { x: -1, y: -1 }, weatherProvider)
   }
 
   /**
@@ -633,45 +651,6 @@ export function getSceneWeatherAPIv1() {
   }
 
   /**
-   * This private function is used to get the SceneWeather provider instance for the specified scene ID, or for the
-   * currently active scene if no ID is specified. The function first checks if the canvas is ready, and if not, returns
-   * undefined. Otherwise, it checks if the provider instance is already cached for the specified scene ID, and if so,
-   * returns the cached instance. If the `ignoreCache` flag is set to true, the cached instance is invalidated, and a
-   * new instance is generated for the specified scene ID. If the provider instance is not cached for the specified
-   * scene ID, a new instance is generated and cached for future use. The function logs trace messages for cache hits
-   * and misses, along with the relevant parameters and the provider instance.
-   *
-   * @private
-   * @param {string|undefined} [forSceneId=undefined] - Optional scene ID to get the SceneWeather provider for. If not specified, the provider for the currently active scene will be returned.
-   * @param {boolean} [ignoreCache=false] - Flag indicating whether to ignore the cache and generate a new instance of SceneWeather provider.
-   * @returns {SceneWeather|undefined} The SceneWeather provider instance for the specified scene ID, or undefined if the canvas is not ready.
-   */
-  function _getSceneWeatherProvider(forSceneId = undefined, ignoreCache = false) {
-    if (!canvas || !canvas.ready) return undefined
-    let sceneId = canvas.scene._id
-    if (forSceneId !== undefined) {
-      sceneId = forSceneId
-    }
-
-    // invalidate cache, if flag set
-    if (ignoreCache) { SceneWeatherState._sceneWeather[sceneId] = undefined }
-
-    // on cache hit
-    if (SceneWeatherState._sceneWeather[sceneId] !== undefined) {
-      Logger.trace('getSceneWeatherProvider(...) cacheHit', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache, 'provider': SceneWeatherState._sceneWeather[sceneId] })
-      return SceneWeatherState._sceneWeather[sceneId]
-    }
-
-    // else, cache miss generate new instance
-    SceneWeatherState._sceneWeather[sceneId] = SceneWeather.fromConfig({
-      'sceneId': sceneId
-    })  // may also be undefined
-
-    Logger.trace('getSceneWeatherProvider(...) cacheMiss', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache, 'provider': SceneWeatherState._sceneWeather[sceneId] })
-    return SceneWeatherState._sceneWeather[sceneId]
-  }
-
-  /**
    * A utility function for checking if a key exists in an object and optionally performs type checking and transformation on the value. It can also handle nested object keys.
    * 
    * @private
@@ -725,6 +704,7 @@ export function getSceneWeatherAPIv1() {
     updateWeather: updateWeather,
     getWeatherModel: getWeatherModel,
     getWeatherSettings: getWeatherSettings,
+    getTokenAmbience: getTokenAmbience,
     setSeed: setSeed,
     setCycleTimes: setCycleTimes,
     setWeather: setWeather,

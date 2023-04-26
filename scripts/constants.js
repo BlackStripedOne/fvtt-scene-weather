@@ -41,14 +41,61 @@ export const EVENTS = {
   'REG_TEMPLATE_REGION': MODULE.LCCNAME + 'RegisterRegionTemplate',
   'REG_TEMPLATE_WEATHER': MODULE.LCCNAME + 'RegisterWeatherTemplate',
   'REG_WEATHER_PERCIEVERS': MODULE.LCCNAME + 'RegisterWeatherPercievers',
+  'REG_WEATHER_SFX': MODULE.LCCNAME + 'RegisterWeatherSfx',
   'MODULE_INITIALIZED': MODULE.LCCNAME + 'Initialized',
-  'WEATHER_UPDATED': MODULE.LCCNAME + 'WeatherUpdated'
+  'MODULE_READY': MODULE.LCCNAME + 'Ready',
+  'WEATHER_UPDATED': MODULE.LCCNAME + 'WeatherUpdated',
+  'WEATHER_DISABLED': MODULE.LCCNAME + 'WeatherDisabled',
+  'DRAW_WEATHER_NODE': 'drawWeatherNode',
+  'CONTROL_WEATHER_NODE': 'controlWeatherNode'    // (@type {WeatherNode}, @type {boolean})
+}
+
+/**
+     * Creation states affected to WeatherNodes during their construction.
+     * @enum {number}
+     */
+export const CREATION_STATES = {
+  NONE: 0,
+  POTENTIAL: 1,
+  CONFIRMED: 2,
+  COMPLETED: 3
+}
+
+export const MASK_BORDER_TYPE = {
+  SOLID: 0,
+  PERMEABLE: 1
+}
+
+export const NODE_TYPE = {
+  MASK: 0,
+  EMITTER: 1
 }
 
 export const WIND_MODES = {
   'fixed': 0,
   'procedural': 1
 }
+
+export const AMBIENCE_TYPE = {
+  'outside': 0,
+  'lightroof': 1,
+  'roof': 2,
+  'inside': 3,
+  'underground': 4
+}
+
+export const AMBIENCE_MASK_COLOR = [
+  0x77E7E8, // outside
+  0x81B90C, // lightroof
+  0xCA81FF, // roof
+  0xFFFFBB, // inside
+  0xFF2299  // underground
+]
+// 0x77E7E8 cyan, invisible wall
+// 0x81B90C green, terrain wall
+// 0xCA81FF purple, ethereal wall
+// 0xFFFFBB yellowish, generic
+// 0xFF2299 magenta, ?
 
 export const RAIN_MODES = {
   'WINDDIR': 'winddir',

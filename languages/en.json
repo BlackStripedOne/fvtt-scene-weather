@@ -47,6 +47,7 @@
     "regWeatherTemplateFail": "Wettervorlage kann nicht registriert werden für: ",
     "regFxGenerator": "Registrierter Wettereffektgenerator für ",
     "regFxFilter": "Registrierter Wettereffektfilter für ",
+    "regSfx": "Registrierter Wetter Sound Effekt für ",
     "setTemplate": {
       "idFormatInvalid": "Ungültiges Format für templateId angegeben.",
       "moduleInactive": "Das Modul, von dem diese Vorlage abhängt, ist nicht installiert oder aktiviert: ",
@@ -397,6 +398,10 @@
     "precipitationAlpha": {
       "hint": "How visible should the display of precipitation such as rain, drizzle, snow, hail, etc. be? 0% disables precipitation visually.",
       "name": "Visibility of precipitation"
+    },
+    "sfxVolume": {
+      "hint": "Volume relative amount as sub-volume inside foundry's environment volume.",
+      "name": "Volume of weather sound-effects"
     },
     "maxParticles": {
       "hint": "The maximum number of displayed particles (clouds, raindrops, snowflakes, etc.) can be limited if this limits the performance on the browser. Typical values ​​are ~1000 on an older mobile device and ~28000 on a modern graphics card.",

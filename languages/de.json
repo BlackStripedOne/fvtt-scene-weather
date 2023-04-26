@@ -47,6 +47,7 @@
     "regWeatherTemplateFail": "Unable to register weather template for: ",
     "regFxGenerator": "Registered weather fx generator for ",
     "regFxFilter": "Registered weather fx filter for ",
+    "regSfx": "Registered weather sfx for ",
     "setTemplate": {
       "idFormatInvalid": "Invalid format for templateId given.",
       "moduleInactive": "The module, this template depends upon is not installed or activated: ",
@@ -427,6 +428,10 @@
     "precipitationAlpha": {
       "hint": "Wie sichtbar soll die Darstellung von Niederschlägen, wie Regen, Niesel, Schnee, Hagel usw. sein. 0% deaktiviert Niederschläge visuell.",
       "name": "Sichtbarkeit von Niederschlägen"
+    },
+    "sfxVolume": {
+      "hint": "Die Lautstärke der Wetter Effekte innerhalb der Umgebungseffekt Lautstärke von Foundry.",
+      "name": "Lautstärke der Wetter Effekte"
     },
     "maxParticles": {
       "hint": "Die maximale Anzahl der dargestellten Partikel (Wolken, Regentropfen, Schneeflocken, usw.) kann begrenzt werden, falls dies die Performance auf dem Browser einschränkt. Typische Werte sind ~1000 bei einem älteren mobilen Gerät und ~28000 bei einer modernen Grafikkarte.",

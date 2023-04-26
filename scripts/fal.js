@@ -22,6 +22,8 @@ import { Logger } from './utils.js'
 export class FoundryAbstractionLayer {
 
 
+
+
   /**
    * Get the ID of the current world
    * 
@@ -320,7 +322,8 @@ export class FoundryAbstractionLayer {
    * @param {String} sceneId 
    */
   static async setSceneFlag(key, value, sceneId = undefined) {
-    return FoundryAbstractionLayer.getScene(sceneId).setFlag(MODULE.ID, key, value)
+    const scene = FoundryAbstractionLayer.getScene(sceneId)
+    return scene.setFlag(MODULE.ID, key, value)
   }
 
   /**
@@ -407,6 +410,15 @@ export class FoundryAbstractionLayer {
     return module && module.active
   }
 
+
+  /**
+   * Test whether a value is empty-like; either undefined or a content-less object.
+   * @param {*} value       The value to test
+   * @returns {boolean}     Is the value empty-like?
+   */
+  static isEmpty(value) {
+    return foundry.utils.isEmpty(value)
+  }
 
 
 }

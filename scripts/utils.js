@@ -26,7 +26,7 @@ export class Logger {
 
   static info(message, notify = false) {
     console.log('%c' + MODULE.NAME + ' | ' + message, 'color: cornflowerblue;')
-    if (notify) ui.notifications.info(MODULE.NAME + ` | ${message}`)
+    if (notify) ui.notifications.info(message)
   }
 
   static warn(message, notify = false, permanent = false) {
@@ -91,7 +91,88 @@ export class Logger {
 export class Utils {
 
   /**
-   * TODO
+   * Returns the nested leaf of an object's tree denoted by a period-separated string.
+   * @param {Object} obj - The object with nested objects.
+   * @param {string} str - The period-separated string that denotes the path to the nested leaf.
+   * @returns {*} The nested leaf of the object's tree that is denoted by the names in the string, or undefined if the path is not valid.
+   */
+  static getNestedLeaf(obj, str) {
+    const keys = str.split('.')
+    let value = obj
+
+    for (let key of keys) {
+      if (!value.hasOwnProperty(key)) {
+        return undefined
+      }
+      value = value[key]
+    }
+
+    return value
+  }
+
+  /**
+   * Creates a MouseInteractionManager with the given parameters.
+   * @param {Object} instance - The instance on which the interaction manager will be created.
+   * @param {Object} handlers - The event handlers for the interaction manager. Must be an object with functions for each event type.
+   * @param {Object} permissions - The permissions for each event handler. Must be an object with boolean values for each event type.
+   * @param {HTMLElement|null} [target=null] - The HTML element to use as the target for the interaction manager. If not provided, the entire document will be used.
+   * @returns {MouseInteractionManager} A MouseInteractionManager instance.
+   * @example
+   * const interactionManager = MouseInteractionManager.createInteractionManager(myInstance, {
+   *  hoverIn: myHoverInHandler,
+   *  hoverOut: myHoverOutHandler,
+   *  clickLeft: myclickLeftHandler,
+   *  clickLeft2: myclickLeft2Handler,
+   *  clickRight: myRightClickHandler,
+   *  clickRight2: myclickRight2Handler,
+   *  dragLeftStart: myDragStartHandler,
+   *  dragLeftMove: myDragMoveHandler,
+   *  dragLeftDrop: myDragEndHandler,
+   *  dragLeftCancel: myDragCancelHandler,
+   *  dragRightStart: mydragRightStartHandler,
+   *  dragRightMove: mydragRightMoveHandler,
+   *  dragRightDrop: mydragRightDropHandler,
+   *  dragRightCancel: mydragRightCancelHandler,
+   *  longPress: mylongPressHandler,
+   *  }, {
+   *  hoverIn: true,
+   *  ...
+   *  longPress: () => { return true; }
+   * });
+   */
+  static createInteractionManager(instance, handlers = {}, permissions = {}, target = null) {
+    const options = { 'target': target }
+    // merge manually set permissions with default perimssions for all given handlers
+    permissions = Utils.mergeObject(Object.fromEntries(
+      Object.keys(handlers)
+        .filter(key => typeof handlers[key] === 'function')
+        .map(key => [key, true])
+    ), permissions)
+    // Create the interaction manager
+    return new MouseInteractionManager(instance, canvas.stage, permissions, handlers, options)
+  }
+
+  /**
+   * Limits the rate of user interaction to a specific sample rate.
+   * @param {Object} instance - The instance of the class where the method is called.
+   * @returns {Boolean} - True if the rate of interaction is limited, False if not.
+   */
+  static throttleInteractivity(instance) {
+    // limit rate of interaction
+    const sampleRate = Math.ceil(1000 / (canvas.app.ticker.maxFPS || 60))
+    const last = instance._drawTime || 0
+    const now = Date.now()
+    if ((now - last) < sampleRate) {
+      return true
+    }
+    instance['_drawTime'] = Date.now()
+    return false
+  }
+
+  /**
+   * Calculates a 32-bit hash from a given string.
+   * @param {string} string - The input string to generate the hash from.
+   * @returns {number} The 32-bit hash generated from the input string.
    */
   static getSeedFromString(string) {
     let hash = 0
@@ -304,30 +385,38 @@ export class Utils {
    * 
    */
   static clamp(number, min, max) {
+    // TODO Math.clamped ?
     return Math.min(Math.max(number, min), max)
   }
 
   /**
    * Maps a value from one range to another range.
    * 
-   * @param {number} current - The value to map.
-   * @param {number} inMin - The minimum value of the current range.
-   * @param {number} inMax - The maximum value of the current range.
-   * @param {number} outMin - The minimum value of the target range.
-   * @param {number} outMax - The maximum value of the target range.
+   * @param {number} inputValue - The value to map.
+   * @param {number} inputMin - The minimum value of the current range.
+   * @param {number} inputMax - The maximum value of the current range.
+   * @param {number} outputMin - The minimum value of the target range.
+   * @param {number} outputMax - The maximum value of the target range.
    * @returns {number} The mapped value.
    * 
    * @example
-   * const current = 50
-   * const inMin = 0
-   * const inMax = 100
-   * const outMin = 0
-   * const outMax = 1
+   * const inputValue = 50
+   * const inputMin = 0
+   * const inputMax = 100
+   * const outputMin = 0
+   * const outputMax = 1
    * const mappedValue = map(current, inMin, inMax, outMin, outMax) // Returns 0.5
    */
-  static map(current, inMin, inMax, outMin, outMax) {
-    const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
-    return Utils.clamp(mapped, outMin, outMax)
+  static map(inputValue, inputMin, inputMax, outputMin, outputMax) {
+    if (inputMin < inputMax) {
+      inputValue = Math.max(Math.min(inputValue, inputMax), inputMin)
+    } else {
+      inputValue = Math.max(Math.min(inputValue, inputMin), inputMax)
+    }
+    const [inputRange, outputRange] = [inputMax - inputMin, outputMax - outputMin]
+    return (inputValue - inputMin) * (outputRange / inputRange) + outputMin
+    //const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+    //return Utils.clamp(mapped, outMin, outMax)
   }
 
   /**

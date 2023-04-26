@@ -214,6 +214,26 @@ export const registerSettingsPreInit = function () {
     }
   })
 
+  game.settings.register(MODULE.ID, 'sfxVolume', {
+    name: 'settings.sfxVolume.name',
+    hint: 'settings.sfxVolume.hint',
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 0,
+      max: 100,
+      step: 5
+    },
+    default: 100,
+    onChange: (value) => {
+      onChangeFunction({
+        'id': 'sfxVolume',
+        'value': value
+      })
+    }
+  })
+
   game.settings.register(MODULE.ID, 'maxParticles', {
     name: 'settings.maxParticles.name',
     hint: 'settings.maxParticles.hint',

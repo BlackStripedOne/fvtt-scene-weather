@@ -46,8 +46,12 @@ export const EVENTS = {
   'MODULE_READY': MODULE.LCCNAME + 'Ready',
   'WEATHER_UPDATED': MODULE.LCCNAME + 'WeatherUpdated',
   'WEATHER_DISABLED': MODULE.LCCNAME + 'WeatherDisabled',
-  'DRAW_WEATHER_NODE': 'drawWeatherNode',
-  'CONTROL_WEATHER_NODE': 'controlWeatherNode'    // (@type {WeatherNode}, @type {boolean})
+  'DRAW_WEATHER_NODE': MODULE.LCCNAME + 'DrawWeatherNode',
+  'CONTROL_WEATHER_NODE': MODULE.LCCNAME + 'ControlWeatherNode',    // (@type {WeatherNode}, @type {boolean})
+  'CREATE_WEATHER_NODES': MODULE.LCCNAME + 'CreateWeatherNodes',
+  'UPDATE_WEATHER_NODES': MODULE.LCCNAME + 'UpdateWeatherNodes',  // { 'update': [], 'deletion': [], 'addition': [
+  'DELETE_WEATHER_NODES': MODULE.LCCNAME + 'DeleteWeatherNodes',
+  'PASTE_WEATHER_NODES': MODULE.LCCNAME + 'PasteWeatherNode',     // this._clipboard, toCreate)
 }
 
 /**

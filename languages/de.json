@@ -194,6 +194,14 @@
       }
     }
   },
+  "layer": {
+    "controls": {
+      "select": "Wetter Elemente Auswählen",
+      "createMask": "Wetter Maske erstellen",
+      "purgeNodes": "Wetter Elemente löschen",
+      "snapToGrid": "An Gitter ausrichten"
+    }
+  },
   "dialogs": {
     "degCelsius": "°C",
     "meters": "m",
@@ -202,6 +210,10 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "deleteAllNodes": {
+      "title": "Entferne alle Wetter Elemente?",
+      "content": "<p>Alle Wetter Elements von dieser Szene entfernen?</p><p>Dies kann nicht rückgängig gemacht werden!</p>"
+    },
     "macroConfig": {
       "toggleName": "Macro Generator",
       "toggleTitle": "Macro Generator",

@@ -195,11 +195,13 @@
     }
   },
   "layer": {
+    "title": "Scene Weather Layer",
     "controls": {
-      "select": "Wetter Elemente Auswählen",
-      "createMask": "Wetter Maske erstellen",
+      "select": "Wetter Elemente Auswählen",      
       "purgeNodes": "Wetter Elemente löschen",
-      "snapToGrid": "An Gitter ausrichten"
+      "snapToGrid": "An Gitter ausrichten",
+      "maskWeatherNode": "Wetter Maske erstellen",
+      "emitterWeatherNode": "Wetter Emitter erstellen"
     }
   },
   "dialogs": {
@@ -210,6 +212,17 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "weatherNodeConfig": {
+      "titleMask": "Wetter Maske",
+      "titleEmitter": "Wetter Emitter",
+      "maskType": {
+        "outside": "Aussen (unter freiem Himmel)",
+        "lightroof": "Leicht überdacht (Baum, Stoffsegel)",
+        "roof": "Überdacht (Unterstand, Veranda)",
+        "inside": "Innenraum (Haus, Hütte)",
+        "underground": "Unterirdisch (Höhle, Keller)"
+      }
+    },
     "deleteAllNodes": {
       "title": "Entferne alle Wetter Elemente?",
       "content": "<p>Alle Wetter Elements von dieser Szene entfernen?</p><p>Dies kann nicht rückgängig gemacht werden!</p>"

@@ -1,0 +1,240 @@
+/*
+Copyright (c) 2023 BlackStripedOne
+This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
+
+You may obtain a copy of the License at:
+https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Code written by BlackStripedOne can be found at:
+https://github.com/BlackStripedOne
+
+This source is part of the SceneWeather module for FoundryVTT virtual tabletop game that can be found at:
+https://github.com/BlackStripedOne/fvtt-scene-weather
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+*/
+
+import { Logger, Utils } from '../utils.js'
+import { MODULE } from '../constants.js'
+
+// inject a new template to the static built hud container of foundry.
+Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
+  Logger.trace('->Hook:renderHeadsUpDisplay', {'app':app, 'jQ':jQ, 'options':options, 'hud':canvas.hud.weatherNode})
+  const hud = canvas.hud.weatherNode?.options || {
+    'id': 'weathernode-hud'
+  }
+  if (jQ.find('#'+hud.id).length == 0) {
+    jQ.append('<template id="'+hud.id+'"></template>')
+  }
+})
+
+export class WeatherNodeHud extends Application {
+
+
+  /**
+   * Reference a WeatherNode this HUD is currently bound to
+   * @type {WeatherNode|undefined}
+   */
+  weatherNode = undefined
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static get defaultOptions() {
+    return Utils.mergeObject(super.defaultOptions, {
+      id: 'weathernode-hud',
+      template: 'modules/' + MODULE.ID + '/templates/weatherNodeHud.hbs',
+      classes: ['placeable-hud'],
+      popOut: false
+    })
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Convenience access for the canvas layer which this HUD modifies
+   * @type {PlaceablesLayer}
+   */
+  get layer() {
+    return canvas.sceneweather
+  }
+
+  /* -------------------------------------------- */
+
+  /*  Methods
+	/* -------------------------------------------- */
+
+  /**
+   * Bind the HUD to a new PlaceableObject and display it
+   * @param {PlaceableObject} object    A PlaceableObject instance to which the HUD should be bound
+   */
+  bind(weatherNode) {
+    const states = this.constructor.RENDER_STATES
+    if ([states.CLOSING, states.RENDERING].includes(this._state)) return
+    if (this.weatherNode) this.clear()
+    this.weatherNode = weatherNode
+    // Render the HUD
+    this.render(true)
+    this.element.hide().fadeIn(200)
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Clear the HUD by fading out it's active HTML and recording the new display state
+   */
+  clear() {
+    const states = this.constructor.RENDER_STATES
+    if (this._state <= states.NONE) return
+    this._state = states.CLOSING
+
+    // Unbind
+    this.weatherNode = null
+    this.element.hide()
+    this._element = null
+    this._state = states.NONE
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _render(...args) {
+    await super._render(...args)
+    this.setPosition()
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  getData(options = {}) {
+    const data = this.weatherNode.data.toObject()
+    return Utils.mergeObject(data, {
+      id: this.id,
+      classes: this.options.classes.join(' '),
+      appId: this.appId,
+      lockedClass: data.locked ? 'active' : '',
+      enabledClass: data.enabled ? 'active' : ''
+    })
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  setPosition(options) {
+    const { x, y, width, height } = this.weatherNode.data
+    const c = 70  // center
+    const p = 10  // padding
+    const position = {
+      'width': width + (c * 2) + (p * 2),
+      'height': height + (p * 2),
+      'left': x - c - p,
+      'top': y - p
+    }
+    this.element.css(position)
+  }
+
+  /* -------------------------------------------- */
+  /*  Event Listeners and Handlers                */
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  activateListeners(html) {
+    html.find('.control-icon').click(this._onClickControl.bind(this))
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle mouse clicks to control a HUD control button
+   * @param {PointerEvent} event    The originating click event
+   * @protected
+   */
+  _onClickControl(event) {
+    const button = event.currentTarget;
+    switch (button.dataset.action) {
+      case 'enabled':
+        return this._onToggleEnabled(event)
+      case 'locked':
+        return this._onToggleLocked(event)
+      case 'sort-up':
+        return this._onSort(event, true)
+      case 'sort-down':
+        return this._onSort(event, false)
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Toggle the enabled state of all controlled objects in the Layer
+   * @param {PointerEvent} event    The originating click event
+   * @private
+   */
+  async _onToggleEnabled(event) {    
+    event.preventDefault()
+    // Toggle the visible state
+    const isEnabled = this.weatherNode.data.enabled
+    const updates = canvas.sceneweather.controlled.map(weatherNode => {
+      return { id: weatherNode.id, enabled: !isEnabled }
+    })
+    // update all objects
+    event.currentTarget.classList.toggle('active', !isEnabled)
+    return canvas.sceneweather.updateNodes(updates)
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Toggle locked state of all controlled objects in the Layer
+   * @param {PointerEvent} event    The originating click event
+   * @private
+   */
+  async _onToggleLocked(event) {
+    event.preventDefault()
+    // Toggle the visible state
+    const isLocked = this.weatherNode.data.locked
+    const updates = canvas.sceneweather.controlled.map(weatherNode => {
+      return { id: weatherNode.id, locked: !isLocked }
+    })
+    // update all objects
+    event.currentTarget.classList.toggle('active', !isLocked)
+    return canvas.sceneweather.updateNodes(updates)
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle sorting the z-order of the object
+   * @param {boolean} up            Move the object upwards in the vertical stack?
+   * @param {PointerEvent} event    The originating mouse click event
+   * @returns {Promise}
+   * @protected
+   */
+  async _onSort(event, up) {
+    event.preventDefault()
+    const siblings = canvas.sceneweather.nodes
+    const controlled = canvas.sceneweather.controlled.filter(weatherNode => !weatherNode.data.locked)
+
+    // Determine target sort index
+    let z = 0
+    if (up) {
+      controlled.sort((a, b) => a.data.z - b.data.z);
+      z = siblings.length ? Math.max(...siblings.map(weatherNode => weatherNode.data.z)) + 1 : 1
+    } else {
+      controlled.sort((a, b) => b.data.z - a.data.z)
+      z = siblings.length ? Math.min(...siblings.map(weatherNode => weatherNode.data.z)) - 1 : -1
+    }
+
+    // Update all controlled objects
+    const updates = controlled.map((weatherNode, i) => {
+      let d = up ? i : i * -1
+      return { id: weatherNode.id, z: z + d }
+    })
+    return canvas.sceneweather.updateNodes(updates)
+  }
+
+}

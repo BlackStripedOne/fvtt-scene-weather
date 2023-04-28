@@ -1,0 +1,73 @@
+<form class="flexcol" autocomplete="off">
+
+  <!-- Sheet Navigation Tabs -->
+  <nav class="sheet-tabs tabs">
+    <a class="item" data-tab="form">{{#if (eq data.type 'mask')}}<i
+        class="fas fa-regular fa-draw-polygon"></i>{{/if}}{{#if (eq data.type 'emitter')}}<i class="fas fa-regular fa-circle-dashed></i>{{/if}} Form</a>
+        {{#if (eq data.type 'mask')}}<a class=" item" data-tab="mask"><i class="fas fa-regular fa-filter-list"></i>
+        Maske</a>{{/if}}
+    {{#if (eq data.type 'emitter')}}<a class="item" data-tab="emitter"><i class="fas fa-regular fa-signal-stream"></i>
+      Emitter</a>{{/if}}
+  </nav>
+
+  <!-- Form Tab -->
+  <div class="tab" data-tab="form">
+    <p class="notes">Form</p>
+    <div class="form-group">
+      <label>X-Koordinate Mitte <span class="units">(Pixels)</span></label>
+      {{numberInput data.x name="x" step=1}}
+    </div>
+
+    <div class="form-group">
+      <label>Y-Koordinate Mitte <span class="units">(Pixels)</span></label>
+      {{numberInput data.y name="y" step=1}}
+    </div>
+
+    <div class="form-group">
+      <label>Z-Index</label>
+      {{numberInput data.z name="z" step=1}}
+    </div>
+  </div>
+
+  {{#if (eq data.type 'mask')}}
+  <!-- Mask Tab -->
+  <div class="tab" data-tab="mask">
+    <p class="notes">Maske</p>
+
+    <div class="form-group">
+      <label for="mask">Art der Maske</label>
+      <div class="form-fields">
+        <select name="mask" data-dtype="String">
+          {{selectOptions data.masks selected=data.mask nameAttr="id" labelAttr="name" localize=true}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Enabled</label>
+      <input type="checkbox" name="enabled" {{checked data.enabled}}>
+    </div>
+
+    <div class="form-group">
+      <label for="feather">Feather {{localize 'dialogs.percent'}}</label>
+      <div class="form-fields">
+        <input type="range" data-dtype="Number" min="0" max="100" step="1" value="{{data.feather}}">
+        <input type="number" data-dtype="Number" class="range-value unit small" name="feather"
+          placeholder="{{data.feather}}" value="{{data.feather}}">
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq data.type 'emitter')}}
+  <!-- Emitter Tab -->
+  <div class="tab" data-tab="emitter">
+    <p class="notes">Emitter</p>
+  </div>
+  {{/if}}
+
+  <!-- Sheet Footer -->
+  <footer class="sheet-footer flexrow">
+    <button type="submit"><i class="far fa-save"></i> Save changes</button>
+  </footer>
+</form>

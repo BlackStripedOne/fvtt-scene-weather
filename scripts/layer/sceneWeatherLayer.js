@@ -17,10 +17,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-
-
-import { MODULE, GENERATOR_MODES, CREATION_STATES, EVENTS } from '../constants.js'
-import { Logger } from '../utils.js'
+import { MODULE, GENERATOR_MODES, CREATION_STATES, EVENTS, NODE_TYPE } from '../constants.js'
+import { Logger, Utils } from '../utils.js'
 import { WeatherUi } from '../weatherUi.js'
 import { MeteoUi } from '../meteoUi.js'
 import { WeatherEffectsLayer } from '../weatherFxLayer.js'
@@ -30,14 +28,34 @@ import { MacroConfigDialog } from '../macros/macroConfig.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { WeatherPerception } from '../weatherPerception.js'
 import { Permissions } from '../permissions.js'
-import { WeatherNode } from './weatherNode.js'
 import { WeatherNodeData } from './weatherNodeData.js'
 import { WeatherNodeHud } from './weatherNodeHud.js'
 import { NodeFrame } from './nodeFrame.js'
+import { MaskWeatherNode } from './maskWeatherNode.js'
+import { EmitterWeatherNode } from './emitterWeatherNode.js'
 
-/**
- * TODO
- */
+Hooks.on(EVENTS.MODULE_READY, () => {
+  Hooks.on("renderSceneControls", (controls, html) => {
+    if (controls.activeControl == 'sceneweather') {
+      const nodeBtn = $('li[data-tool="weatherNode"]', html)
+      const activeTool = game.activeTool
+      let nodeTypes = $('<ol>').addClass('control-tools').appendTo($('<div>').attr('id', 'node-types').appendTo(nodeBtn))
+      for (let type of Object.keys(SceneWeatherLayer.nodeTypes)) {
+        $('li[data-tool="' + type + '"]', html).appendTo(nodeTypes)
+        if (activeTool == 'weatherNode') $('li[data-tool="' + type + '"]', html).toggleClass('active', type === canvas.sceneweather.selectedTool)
+      }
+      //const sceneWeatherControl = controls.controls.find(e => e.name == 'sceneweather')
+      nodeBtn.toggleClass('active', Object.keys(SceneWeatherLayer.nodeTypes).includes(controls.activeTool) || controls.activeTool == 'weatherNode')
+      nodeBtn.attr('data-tooltip', 'layer.controls.' + canvas.sceneweather.selectedTool)
+      nodeBtn.children('i').first().attr('class', SceneWeatherLayer.nodeTypes[canvas.sceneweather.selectedTool].icon)
+      const pos = nodeBtn.position()
+      nodeTypes.parent().css({ top: pos.top, left: pos.left + nodeBtn.width() })
+    } else {
+      $('#node-types').remove()
+    }
+  })
+})
+
 Hooks.once('setup', () => {
   Logger.trace('->Hook:setup')
 
@@ -155,10 +173,28 @@ Hooks.once('setup', () => {
         }
       },
       {
-        name: "mask",
+        name: "weatherNode",
         title: "layer.controls.createMask",
         icon: "fa-regular fa-draw-polygon",
         visible: Permissions.hasPermission(userId, 'sceneSettings')
+      },
+      {
+        name: "maskWeatherNode",
+        title: "layer.controls.maskWeatherNode",
+        icon: "fa-regular fa-draw-polygon",
+        visible: Permissions.hasPermission(userId, 'sceneSettings'),
+        onClick: () => {
+          canvas.sceneweather.selectedTool = 'maskWeatherNode'
+        }
+      },
+      {
+        name: "emitterWeatherNode",
+        title: "layer.controls.emitterWeatherNode",
+        icon: "fa-regular fa-signal-stream",
+        visible: Permissions.hasPermission(userId, 'sceneSettings'),
+        onClick: () => {
+          canvas.sceneweather.selectedTool = 'emitterWeatherNode'
+        }
       },
       {
         name: "clear",
@@ -175,8 +211,8 @@ Hooks.once('setup', () => {
     ]
 
     btns.splice(btns.findIndex(e => e.name === 'sounds') + 1, 0, {
-      name: 'settings.buttonName',
-      title: 'settings.buttonTitle',
+      name: 'sceneweather',
+      title: 'layer.title',
       icon: 'fas fa-solid fa-cloud-bolt-sun',
       layer: 'sceneweather',
       activeTool: 'select',
@@ -187,13 +223,40 @@ Hooks.once('setup', () => {
 })
 
 
-
 /**
  * The SceneWeather layer, containing all WeatherNodes for controlling spatial weather and ambience
  * generation for tokens. See various WeatherNode attributes for an overview about the different kind
  * of modifierts for weather on the current scene to ambience.
  */
 export class SceneWeatherLayer extends InteractionLayer {
+
+  /**
+   * Collection of possible weatherNode types to be selected for creating new nodes.
+   */
+  static nodeTypes = {
+    'maskWeatherNode': {
+      'icon': 'fa-regular fa-draw-polygon',
+      'builder': (origin) => {
+        // Start the new polygon mask
+        const newWeatherNode = MaskWeatherNode.createMaskNodeAt(origin)
+        return newWeatherNode
+      }
+    },
+    'emitterWeatherNode': {
+      'icon': 'fa-regular fa-signal-stream',
+      'builder': (origin) => {
+        // Start the new emitter
+        const newWeatherNode = EmitterWeatherNode.createEmitterNodeAt(origin)
+        return newWeatherNode
+      }
+    }
+  }
+
+  /**
+   * Name of the currently selected key for the weatherNode type as per key of SceneWeatherLayer.nodeTypes
+   * @type {string}
+   */
+  selectedTool = 'maskWeatherNode'
 
   /**
    * Modifiable WeatherNode instances as children of the Container.
@@ -341,6 +404,22 @@ export class SceneWeatherLayer extends InteractionLayer {
 
   /* --------------------- Static functions ----------------------- */
 
+  /**
+   * TODO
+   
+   */
+  newInstanceFromData(weatherNodeData) {
+    switch (weatherNodeData.type) {
+      case NODE_TYPE.MASK:
+        return new MaskWeatherNode(weatherNodeData)
+      case NODE_TYPE.EMITTER:
+        return new EmitterWeatherNode(weatherNodeData)
+      default:
+        return undefined
+    }
+  }
+
+
   /** @inheritdoc */
   static get layerOptions() {
     const layerOptions = foundry.utils.mergeObject(super.layerOptions, {
@@ -372,7 +451,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     const promises = nodeDatas.map(async nodeData => {
       // TODO don't update each individually, if there are more then one to be more resource friendly on client updates
       const createdNodeData = await WeatherNodeData.create(nodeData, forceId)
-      const weatherNode = new WeatherNode(createdNodeData)
+      const weatherNode = this.weatherNodeFromData(createdNodeData)
       if (addToContainer) {
         await addToContainer.addChild(weatherNode).draw()
       }
@@ -635,16 +714,37 @@ export class SceneWeatherLayer extends InteractionLayer {
   /* --------------------- Private functions, tool specific ----------------------- */
 
   /**
-   * TODO
+   * Creates a weather node object based on the given data.
+   * @param {object} weatherNodeData - The data of the weather node to be created.
+   * @param {string} weatherNodeData.type - The type of the weather node to be created.
+   * @returns {object|undefined} - A weather node object or undefined if the type is unknown.
    */
-  _startNewNodeAt(origin) {
-
-    // Start the new polygon mask
-    const newWeatherNode = WeatherNode.createNodeAt(origin)
-
-    return newWeatherNode
+  weatherNodeFromData(weatherNodeData) {
+    switch (weatherNodeData.type) {
+      case NODE_TYPE.MASK:
+        return new MaskWeatherNode(weatherNodeData)
+      case NODE_TYPE.EMITTER:
+        return new EmitterWeatherNode(weatherNodeData)
+      default:
+        return undefined
+    }
   }
 
+  /**
+   * Creates a new node based on the selected tool at the specified origin
+   * 
+   * @param {Vector2} origin - The location where the new node will be created
+   * @returns {Object|undefined} - Returns a new node object based on the selected tool or undefined if the active tool is not a weather or node tool
+   */
+  _startNewNodeAt(origin) {
+    if (Object.keys(SceneWeatherLayer.nodeTypes).includes(game.activeTool) || game.activeTool == 'weatherNode') {
+      Logger.trace('SceneWeatherLayer._startNewNodeAt(...)', { 'selectedTool': this.selectedTool })
+      if (Object.keys(SceneWeatherLayer.nodeTypes).includes(this.selectedTool)) {
+        return SceneWeatherLayer.nodeTypes[this.selectedTool].builder(origin)
+      }
+      return undefined
+    }
+  }
 
   /* --------------------- Private functions ----------------------- */
 
@@ -677,7 +777,7 @@ export class SceneWeatherLayer extends InteractionLayer {
 
     // draw the WeatherNodes of this scene
     const promises = WeatherNodeData.loadAll().map(nodeData => {
-      return this.weatherNodesContainer.addChild(new WeatherNode(nodeData)).draw()
+      return this.weatherNodesContainer.addChild(this.weatherNodeFromData(nodeData)).draw()
     })
 
     // wait for all nodes to draw, before setting them visible in the container
@@ -799,13 +899,16 @@ export class SceneWeatherLayer extends InteractionLayer {
     if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
       event.data.origin = canvas.grid.getSnappedPosition(origin.x, origin.y, this.gridPrecision)
     }
-    // Register the ongoing creation
-    this.createState = CREATION_STATES.POTENTIAL
+
     // start new weatherNode, type depending on selected tool
     const newWeatherNode = this._startNewNodeAt(event.data.origin)
-    // Set the new node to the preview container for rendering...
-    event.data.preview = this.preview.addChild(newWeatherNode)
-    return newWeatherNode.draw()
+    if (newWeatherNode) {
+      // Register the ongoing creation
+      this.createState = CREATION_STATES.POTENTIAL
+      // Set the new node to the preview container for rendering...
+      event.data.preview = this.preview.addChild(newWeatherNode)
+      return newWeatherNode.draw()
+    }
   }
 
   /**
@@ -814,12 +917,29 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {PIXI.InteractionEvent} event      The PIXI InteractionEvent which wraps a PointerEvent
    * @protected
    */
-  _onDragLeftMove(event) {
+  async _onDragLeftMove(event) {
     const { preview } = event.data
     if (!preview) return
     if (this.createState >= CREATION_STATES.POTENTIAL) {
+
+      // limit rate of interaction
+      if (Utils.throttleInteractivity(this)) return
+
+      let { destination, origin, originalEvent } = event.data
+
+      // Snap the origin to the grid
+      if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
+        origin = canvas.grid.getSnappedPosition(origin.x, origin.y, canvas.sceneweather.gridPrecision)
+        destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
+      }
+
       // placing the second border point for the polygon mask
-      preview._updateNewBorderNode(event)
+      this.createState = await preview.creationDragLeftMove(this.createState, destination)
+      // end creation
+      if (this.createState == CREATION_STATES.NONE) {
+        // clear the preview
+        this.clearPreviewContainer()
+      }
     }
   }
 
@@ -831,7 +951,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    */
   async _onDragLeftDrop(event) {
     const { preview } = event.data
-    // In-progress polygon
+    // In-progress creation of new weatherNode
     if ((this.createState === CREATION_STATES.POTENTIAL)) {
       event.data.originalEvent.preventDefault()
       // Snap the origin to the grid
@@ -839,7 +959,12 @@ export class SceneWeatherLayer extends InteractionLayer {
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
         event.data.destination = canvas.grid.getSnappedPosition(destination.x, destination.y, this.gridPrecision)
       }
-      preview.data.addBorderNode(event.data.destination, canvas.dimensions.size * 0.5)
+      this.createState = await preview.creationDragLeftDrop(this.createState, event.data.destination)
+      // end creation
+      if (this.createState == CREATION_STATES.NONE) {
+        // clear the preview
+        this.clearPreviewContainer()
+      }
     }
   }
 
@@ -856,15 +981,13 @@ export class SceneWeatherLayer extends InteractionLayer {
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
         event.data.destination = canvas.grid.getSnappedPosition(destination.x, destination.y, this.gridPrecision)
       }
+
+      this.createState = await preview.creationClickLeft2(this.createState, event.data.destination)
       // end creation
-      this.createState = CREATION_STATES.NONE
-      // get data from preview containers node
-      const nodeData = preview.data.toObject()
-      // remove last borderNode for duplicate
-      nodeData.borderNodes.splice(-1, 1)
-      // clear the preview
-      this.clearPreviewContainer()
-      await this.createWeatherNodes([nodeData], { 'control': true, 'controlOptions': { 'releaseOthers': true } })
+      if (this.createState == CREATION_STATES.NONE) {
+        // clear the preview
+        this.clearPreviewContainer()
+      }
     }
   }
 

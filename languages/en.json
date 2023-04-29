@@ -213,6 +213,12 @@
     "hday": "h/day",
     "ok": "Ok",
     "pixels": "pixels",
+    "weatherNodeHud": {
+      "enabled": "Activate/Deactivate",
+      "locked": "Lock/Unlock",
+      "sortUp": "Bring to front",
+      "sortDown": "Push to back"
+    },
     "weatherNodeConfig": {
       "titleMask": "Weather Mask",
       "titleEmitter": "Weather Emitter",

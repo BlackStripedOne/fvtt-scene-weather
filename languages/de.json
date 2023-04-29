@@ -213,6 +213,12 @@
     "hday": "h/Tag",
     "ok": "Ok",
     "pixels": "Pixels",
+    "weatherNodeHud": {
+      "enabled": "Aktivieren/Deaktivieren",
+      "locked": "Sperrzustand umschalten",
+      "sortUp": "In den Vordergrund bringen",
+      "sortDown": "In den Hintergrund stellen"
+    },
     "weatherNodeConfig": {
       "titleMask": "Wetter Maske",
       "titleEmitter": "Wetter Emitter",

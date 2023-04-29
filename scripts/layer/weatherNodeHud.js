@@ -22,17 +22,19 @@ import { MODULE } from '../constants.js'
 
 // inject a new template to the static built hud container of foundry.
 Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
-  Logger.trace('->Hook:renderHeadsUpDisplay', {'app':app, 'jQ':jQ, 'options':options, 'hud':canvas.hud.weatherNode})
+  Logger.trace('->Hook:renderHeadsUpDisplay', { 'app': app, 'jQ': jQ, 'options': options, 'hud': canvas.hud.weatherNode })
   const hud = canvas.hud.weatherNode?.options || {
     'id': 'weathernode-hud'
   }
-  if (jQ.find('#'+hud.id).length == 0) {
-    jQ.append('<template id="'+hud.id+'"></template>')
+  if (jQ.find('#' + hud.id).length == 0) {
+    jQ.append('<template id="' + hud.id + '"></template>')
   }
 })
 
+/**
+ * The WeatherNodeHud is a UI element for controlling the state of a WeatherNode.
+ */
 export class WeatherNodeHud extends Application {
-
 
   /**
    * Reference a WeatherNode this HUD is currently bound to
@@ -40,7 +42,7 @@ export class WeatherNodeHud extends Application {
    */
   weatherNode = undefined
 
-  /* -------------------------------------------- */
+  /* --------------------- static ----------------------- */
 
   /** @inheritdoc */
   static get defaultOptions() {
@@ -52,26 +54,14 @@ export class WeatherNodeHud extends Application {
     })
   }
 
-  /* -------------------------------------------- */
-
-  /**
-   * Convenience access for the canvas layer which this HUD modifies
-   * @type {PlaceablesLayer}
-   */
-  get layer() {
-    return canvas.sceneweather
-  }
-
-  /* -------------------------------------------- */
-
-  /*  Methods
-	/* -------------------------------------------- */
+  /* --------------------- Functions, public ----------------------- */
 
   /**
    * Bind the HUD to a new PlaceableObject and display it
    * @param {PlaceableObject} object    A PlaceableObject instance to which the HUD should be bound
    */
   bind(weatherNode) {
+    Logger.trace('WeatherNodeHud.bind(...)', { 'weatherNode': weatherNode })
     const states = this.constructor.RENDER_STATES
     if ([states.CLOSING, states.RENDERING].includes(this._state)) return
     if (this.weatherNode) this.clear()
@@ -81,7 +71,19 @@ export class WeatherNodeHud extends Application {
     this.element.hide().fadeIn(200)
   }
 
-  /* -------------------------------------------- */
+  /** @override */
+  getData(options = {}) {
+    const data = this.weatherNode.data.toObject()
+    return Utils.mergeObject(data, {
+      id: this.id,
+      classes: this.options.classes.join(' '),
+      appId: this.appId,
+      lockedClass: data.locked ? 'active' : '',
+      lockedIcon: this._getLockedIcon(data),
+      enabledClass: data.enabled ? 'active' : '',
+      enabledIcon: this._getEnabledIcon(data)
+    })
+  }
 
   /**
    * Clear the HUD by fading out it's active HTML and recording the new display state
@@ -98,35 +100,12 @@ export class WeatherNodeHud extends Application {
     this._state = states.NONE
   }
 
-  /* -------------------------------------------- */
-
-  /** @override */
-  async _render(...args) {
-    await super._render(...args)
-    this.setPosition()
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  getData(options = {}) {
-    const data = this.weatherNode.data.toObject()
-    return Utils.mergeObject(data, {
-      id: this.id,
-      classes: this.options.classes.join(' '),
-      appId: this.appId,
-      lockedClass: data.locked ? 'active' : '',
-      enabledClass: data.enabled ? 'active' : ''
-    })
-  }
-
-  /* -------------------------------------------- */
-
   /** @override */
   setPosition(options) {
+    Logger.trace('WeatherNodeHud.setPosition(...)', { 'options': options })
     const { x, y, width, height } = this.weatherNode.data
-    const c = 70  // center
-    const p = 10  // padding
+    const c = 80  // center
+    const p = 5  // padding
     const position = {
       'width': width + (c * 2) + (p * 2),
       'height': height + (p * 2),
@@ -136,24 +115,47 @@ export class WeatherNodeHud extends Application {
     this.element.css(position)
   }
 
-  /* -------------------------------------------- */
-  /*  Event Listeners and Handlers                */
-
-  /* -------------------------------------------- */
-
   /** @override */
   activateListeners(html) {
+    Logger.trace('WeatherNodeHud.activateListeners(...)', { 'html': html })
     html.find('.control-icon').click(this._onClickControl.bind(this))
   }
 
-  /* -------------------------------------------- */
+
+  /* ---------------------- Functions, private ---------------------- */
+
+  /** @override */
+  async _render(...args) {
+    await super._render(...args)
+    this.setPosition()
+  }
+
+  /**
+   * Returns the appropriate icon for a given data object based on whether it is locked or unlocked.
+   * @param {Object} data - The data object to determine the icon for.
+   * @param {boolean} [invert=false] - Whether to invert the icon based on the locked state.
+   * @returns {string} - The icon string representing the locked or unlocked state of the data object.
+   */
+  _getLockedIcon(data, invert = false) {
+    return (invert ? !data.locked : data.locked) ? 'fa-lock' : 'fa-lock-open'
+  }
+
+  /**
+   * Returns the appropriate icon for a given data object based on whether it is enabled or disabled.
+   * @param {Object} data - The data object to determine the icon for.
+   * @param {boolean} [invert=false] - Whether to invert the icon based on the enabled state.
+   * @returns {string} - The icon string representing the endabled or disabled state of the data object.
+   */
+  _getEnabledIcon(data, invert = false) {
+    return (invert ? !data.enabled : data.enabled) ? 'fa-eye' : 'fa-eye-slash'
+  }
 
   /**
    * Handle mouse clicks to control a HUD control button
-   * @param {PointerEvent} event    The originating click event
-   * @protected
+   * @param {PointerEvent} event - The originating click event
    */
   _onClickControl(event) {
+    Logger.trace('WeatherNodeHud._onClickControl(...)', { 'event': event })
     const button = event.currentTarget;
     switch (button.dataset.action) {
       case 'enabled':
@@ -167,14 +169,12 @@ export class WeatherNodeHud extends Application {
     }
   }
 
-  /* -------------------------------------------- */
-
   /**
    * Toggle the enabled state of all controlled objects in the Layer
-   * @param {PointerEvent} event    The originating click event
-   * @private
+   * @param {PointerEvent} event - The originating click event
+   * @returns {Promise}
    */
-  async _onToggleEnabled(event) {    
+  async _onToggleEnabled(event) {
     event.preventDefault()
     // Toggle the visible state
     const isEnabled = this.weatherNode.data.enabled
@@ -183,15 +183,14 @@ export class WeatherNodeHud extends Application {
     })
     // update all objects
     event.currentTarget.classList.toggle('active', !isEnabled)
+    $(event.currentTarget).children('i').first().attr('class', 'fas fa-solid ' + this._getEnabledIcon(this.weatherNode.data, true))
     return canvas.sceneweather.updateNodes(updates)
   }
 
-  /* -------------------------------------------- */
-
   /**
    * Toggle locked state of all controlled objects in the Layer
-   * @param {PointerEvent} event    The originating click event
-   * @private
+   * @param {PointerEvent} event - The originating click event
+   * @returns {Promise}
    */
   async _onToggleLocked(event) {
     event.preventDefault()
@@ -202,17 +201,15 @@ export class WeatherNodeHud extends Application {
     })
     // update all objects
     event.currentTarget.classList.toggle('active', !isLocked)
+    $(event.currentTarget).children('i').first().attr('class', 'fas fa-solid ' + this._getLockedIcon(this.weatherNode.data, true))
     return canvas.sceneweather.updateNodes(updates)
   }
-
-  /* -------------------------------------------- */
 
   /**
    * Handle sorting the z-order of the object
    * @param {boolean} up            Move the object upwards in the vertical stack?
    * @param {PointerEvent} event    The originating mouse click event
    * @returns {Promise}
-   * @protected
    */
   async _onSort(event, up) {
     event.preventDefault()
@@ -222,7 +219,7 @@ export class WeatherNodeHud extends Application {
     // Determine target sort index
     let z = 0
     if (up) {
-      controlled.sort((a, b) => a.data.z - b.data.z);
+      controlled.sort((a, b) => a.data.z - b.data.z)
       z = siblings.length ? Math.max(...siblings.map(weatherNode => weatherNode.data.z)) + 1 : 1
     } else {
       controlled.sort((a, b) => b.data.z - a.data.z)
@@ -231,7 +228,7 @@ export class WeatherNodeHud extends Application {
 
     // Update all controlled objects
     const updates = controlled.map((weatherNode, i) => {
-      let d = up ? i : i * -1
+      const d = up ? i : i * -1
       return { id: weatherNode.id, z: z + d }
     })
     return canvas.sceneweather.updateNodes(updates)

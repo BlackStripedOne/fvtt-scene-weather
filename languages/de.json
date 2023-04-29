@@ -197,7 +197,7 @@
   "layer": {
     "title": "Scene Weather Layer",
     "controls": {
-      "select": "Wetter Elemente Auswählen",      
+      "select": "Wetter Elemente Auswählen",
       "purgeNodes": "Wetter Elemente löschen",
       "snapToGrid": "An Gitter ausrichten",
       "maskWeatherNode": "Wetter Maske erstellen",
@@ -212,16 +212,27 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "pixels": "Pixels",
     "weatherNodeConfig": {
       "titleMask": "Wetter Maske",
       "titleEmitter": "Wetter Emitter",
+      "copyId": "Node ID Kopieren",
       "maskType": {
         "outside": "Aussen (unter freiem Himmel)",
         "lightroof": "Leicht überdacht (Baum, Stoffsegel)",
         "roof": "Überdacht (Unterstand, Veranda)",
         "inside": "Innenraum (Haus, Hütte)",
         "underground": "Unterirdisch (Höhle, Keller)"
-      }
+      },
+      "shape": "Form",
+      "mask": "Maske",
+      "emitter": "Emitter",
+      "xcenter": "X-Koordinate Mitte",
+      "ycenter": "Y-Koordinate Mitte",
+      "zindex": "Z-Index",
+      "typeOfMask": "Art der Maske",
+      "enabled": "Enabled",
+      "feather": "Übergang"
     },
     "deleteAllNodes": {
       "title": "Entferne alle Wetter Elemente?",

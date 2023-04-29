@@ -212,16 +212,27 @@
     "kmh": "kph",
     "hday": "h/day",
     "ok": "Ok",
+    "pixels": "pixels",
     "weatherNodeConfig": {
       "titleMask": "Weather Mask",
       "titleEmitter": "Weather Emitter",
+      "copyId": "Copy node id",
       "maskType": {
         "outside": "Outside (beneath the sky)",
         "lightroof": "Slightly Roofed (Tree, Tarp)",
         "roof": "Roofed (Shelter, Veranda)",
         "inside": "Inside (House, Shed)",
         "underground": "Underground (Cave, Cellar)"
-      }
+      },
+      "shape": "Shape",
+      "mask": "Mask",
+      "emitter": "Emitter",
+      "xcenter": "Center X-position",
+      "ycenter": "Center Y-position",
+      "zindex": "Z-level",
+      "typeOfMask": "Type of amsk",
+      "enabled": "Enabled",
+      "feather": "Feather"
     },
     "deleteAllNodes": {
       "title": "Remove all weather nodes",

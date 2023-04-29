@@ -143,27 +143,27 @@ export class WeatherNodeConfig extends FormApplication {
    * @protected
    */
   _injectWeatherNodeHeader(html) {
-    const title = html.find(".window-title")
+    const title = html.find('.window-title')
     const enabled = this.weatherNode.data.enabled ? '<i class="fa-solid fa-eye"></i> ' : '<i class="fa-solid fa-eye-slash"></i> '
     const locked = this.weatherNode.data.locked ? '<i class="fa-solid fa-lock"></i> ' : '<i class="fa-solid fa-lock-open"></i> '
     title.prepend(enabled)
     title.prepend(locked)
     const label = 'WeatherNode'
-    const idLink = document.createElement("a")
-    idLink.classList.add("document-id-link")
-    idLink.setAttribute("alt", "Copy document id")
-    idLink.dataset.tooltip = `${label}: ${this.weatherNode.data.id}`
-    idLink.dataset.tooltipDirection = "UP"
+    const idLink = document.createElement('a')
+    idLink.classList.add('document-id-link')
+    idLink.setAttribute('alt', Fal.i18n('dialogs.weatherNodeConfig.copyId'))
+    idLink.dataset.tooltip = label + ': ' + this.weatherNode.data.id
+    idLink.dataset.tooltipDirection = 'UP'
     idLink.innerHTML = '<i class="fa-solid fa-passport"></i>'
-    idLink.addEventListener("click", event => {
+    idLink.addEventListener('click', event => {
       event.preventDefault()
       Utils.copyToClipboard(this.weatherNode.data.id)
-      Logger.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", { label, type: "id", id: this.weatherNode.data.id }), true)  // TODO use Fal
+      Logger.info(game.i18n.format('DOCUMENT.IdCopiedClipboard', { label, type: 'id', id: this.weatherNode.data.id }), true)  // TODO use Fal
     })
     idLink.addEventListener("contextmenu", event => {
       event.preventDefault()
       Utils.copyToClipboard(this.weatherNode.data.id)
-      Logger.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", { label, type: "uuid", id: this.weatherNode.data.id }), true)  // TODO use Fal
+      Logger.info(game.i18n.format('DOCUMENT.IdCopiedClipboard', { label, type: 'uuid', id: this.weatherNode.data.id }), true)  // TODO use Fal
     })
     title.append(idLink)
   }

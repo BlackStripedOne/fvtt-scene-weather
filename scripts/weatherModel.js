@@ -556,18 +556,16 @@ export class WeatherModel {
    * @private
    */
   static _windChill(temperature, windSpeed) {
-    if (temperature >= 10) return Tc
-    let Rc
+    if (temperature >= 10) return temperature
     if (windSpeed >= 4.8 && windSpeed <= 177) {
       // stronger wind cooling with more precise polynomial approximation
-      Rc = 13.12 + 0.6215 * temperature + (0.3965 * temperature - 11.37) * Math.pow(windSpeed, 0.16)
+      return 13.12 + 0.6215 * temperature + (0.3965 * temperature - 11.37) * Math.pow(windSpeed, 0.16)
     } else if (windSpeed < 4.8) {
       // less wind cooling with faster polynomial approximation
-      Rc = temperature + 0.2 * (0.1345 * temperature - 1.59) * windSpeed
+      return temperature + 0.2 * (0.1345 * temperature - 1.59) * windSpeed
     } else {
-      Rc = temperature
-    }
-    return Rc
+      return temperature
+    }    
   }
 
   /**

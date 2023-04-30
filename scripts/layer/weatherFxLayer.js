@@ -17,13 +17,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
+import { Logger, Utils } from '../utils.js'
 import { WeatherEffect } from './weatherFx.js'
-import { MODULE, EVENTS } from './constants.js'
-import { SceneWeatherState } from './state.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
-import { WeatherNodeData } from './layer/weatherNodeData.js'
-import { WeatherNodeMask } from './layer/weatherNodeMask.js'
+import { EVENTS } from '../constants.js'
+import { SceneWeatherState } from '../state.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { WeatherNodeData } from './weatherNodeData.js'
+import { WeatherNodeMask } from './weatherNodeMask.js'
 
 
 Hooks.on(EVENTS.SETTINGS_UPDATED, async (data) => {

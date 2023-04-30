@@ -17,9 +17,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger } from './utils.js'
-import { SceneWeatherState } from './state.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { Logger } from '../utils.js'
+import { SceneWeatherState } from '../state.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 /**
  * A particle effect class that generates an array of emitter configurations based on the generators in the game's

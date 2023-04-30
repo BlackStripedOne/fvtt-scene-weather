@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -16,21 +17,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
-import { MODULE } from './constants.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
-import { Permissions } from './permissions.js'
+import { Logger, Utils } from '../utils.js'
+import { MODULE } from '../constants.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Permissions } from '../permissions.js'
 
 export class PermissionConfigDialog extends FormApplication {
 
-  /**
-   * TODO
-   * @param {*} applyToScene 
-   */
   constructor() {
     super()
-    Logger.debug('PermissionConfigDialog.ctor')
   }
+
+  /* --------------------- static ----------------------- */
 
   /** @override */
   static get defaultOptions() {
@@ -49,41 +47,9 @@ export class PermissionConfigDialog extends FormApplication {
   }
 
   /**
-   * Activare listeners. Specifically for the reset permission setting button.
-   * 
-   * @param {jQuery} jQ 
-   */
-  activateListeners(jQ) {
-    super.activateListeners(jQ)
-    jQ.find("button[name='reset']").click(this._onResetDefaults.bind(this))
-  }
-
-  /**
-   * Handle button click to reset default settings
-   * 
-   * @param {Event} event   The initial button click event
-   * @private
-   */
-  async _onResetDefaults(event) {
-    event.preventDefault()
-    await Permissions.resetPermissions()
-    Logger.info(Fal.i18n('dialogs.permissionConfig.defaultsNotice'), true)
-    return this.render()
-  }
-
-  /** @override */
-  async _onSubmit(event, options) {
-    event.target.querySelectorAll("input[disabled]").forEach(i => i.disabled = false)
-    return super._onSubmit(event, options)
-  }
-
-
-  /**
    * Internal helper to collect all user roles and usernames as structure with localized
-   * names, the type and id. For players also their color will be set. 
-   * 
+   * names, the type and id. For players also their color will be set.
    * @returns {Array(Obejct)} - an array of all usernames and roles as structure.
-   * @private
    */
   static _getUserIds() {
     let userIds = [
@@ -114,10 +80,41 @@ export class PermissionConfigDialog extends FormApplication {
     return userIds
   }
 
+
+  /* --------------------- Functions, public ----------------------- */
+
+  /**
+   * Activare listeners. Specifically for the reset permission setting button.
+   * @param {jQuery} jQ 
+   */
+  activateListeners(jQ) {
+    super.activateListeners(jQ)
+    jQ.find("button[name='reset']").click(this._onResetDefaults.bind(this))
+  }
+
+  /* --------------------- Functions, private ----------------------- */
+
+  /**
+   * Handle button click to reset default settings
+   * @param {Event} event   The initial button click event
+   * @private
+   */
+  async _onResetDefaults(event) {
+    event.preventDefault()
+    await Permissions.resetPermissions()
+    Logger.info(Fal.i18n('dialogs.permissionConfig.defaultsNotice'), true)
+    return this.render()
+  }
+
+  /** @override */
+  async _onSubmit(event, options) {
+    event.target.querySelectorAll("input[disabled]").forEach(i => i.disabled = false)
+    return super._onSubmit(event, options)
+  }
+
   /**
    * Returns the form data to render in the handlebars template
-   * 
-   * @returns 
+   * @returns {Object} An object containing weather configuration data.
    */
   getData() {
     const userIds = PermissionConfigDialog._getUserIds()
@@ -148,8 +145,6 @@ export class PermissionConfigDialog extends FormApplication {
 
     // Sort for consistency
     additionalData.matrix.sort((a, b) => (a.permissionName.localeCompare(b.permissionName)))
-
-    Logger.debug('PermissionConfigDialog.getData()', { 'additionalData': additionalData })
     return additionalData
   }
 
@@ -171,7 +166,6 @@ export class PermissionConfigDialog extends FormApplication {
         permissions[permissionId].users.push(userId)
       }
     })
-    Logger.debug('PermissionConfigDialog._updateObject(...)', { 'formData': formData, 'permissions': permissions })
     Permissions.updatePermissions(permissions)
   }
 }

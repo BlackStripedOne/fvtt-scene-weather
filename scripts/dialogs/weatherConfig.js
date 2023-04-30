@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -16,25 +17,35 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE, WIND_SPEED, CLOUD_TYPE, PRECI_TYPE } from './constants.js'
-import { Logger } from './utils.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { MODULE, WIND_SPEED, CLOUD_TYPE, PRECI_TYPE } from '../constants.js'
+import { Logger, Utils } from '../utils.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
+/**
+ * A dialog form for configuring the weather settings.
+ */
 export class WeatherConfigDialog extends FormApplication {
 
   /**
-   * TODO
-   * @param {*} applyToScene 
+   * Reference to the scene these settings shall be applied to. If not set, the settings shall be applied globally
+   * @type {Scene|undefined}
+   */
+  applyToScene = undefined
+
+  /**
+   * Creates an instance of WeatherConfigDialog:
+   * @param {Scene|undefined} applyToScene - The Scene object to apply the settings to or undefined in case global settings shall be edited
    */
   constructor(applyToScene) {
-    super();
+    super()
     this.applyToScene = applyToScene
-    Logger.debug('WeatherConfigDialog:constrctor', { 'applyToScene': applyToScene })
   }
+
+  /* --------------------- static ----------------------- */
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return Utils.mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
       template: 'modules/' + MODULE.ID + '/templates/weatherConfig.hbs',
@@ -46,15 +57,14 @@ export class WeatherConfigDialog extends FormApplication {
     })
   }
 
-
+  /* --------------------- Public functions ----------------------- */
 
   /**
-   * TODO
-   * @param {jQuery} jQ 
+   * Sets up the event listeners for the form.
+   * @param {jQuery} jQ - The jQuery object of the form.
    */
   activateListeners(jQ) {
-    super.activateListeners(jQ);
-    Logger.debug('WeatherConfigDialog:activateListeners')
+    super.activateListeners(jQ)
 
     // set initial visibilities
     const directionType = jQ.find('select[name="wind.directionType"]').find(":selected").val()
@@ -71,14 +81,12 @@ export class WeatherConfigDialog extends FormApplication {
     })
 
     const cloudsType = jQ.find('select[name="clouds.type"]').find(":selected").val()
-    Logger.debug('cloudsType', cloudsType)
     if (cloudsType == 0) {
       jQ.find('#cloudSectionGrp').addClass('disabled')
       jQ.find('#preciGrp').addClass('disabled')
     }
     jQ.find('select[name="clouds.type"]').on('change', function () {
       const cloudsType = $(this).find(":selected").val()
-      Logger.debug('cloudsType.change', cloudsType)
       if (cloudsType == 0) {
         jQ.find('#cloudSectionGrp').addClass('disabled')
         jQ.find('#preciGrp').addClass('disabled')
@@ -89,13 +97,11 @@ export class WeatherConfigDialog extends FormApplication {
     })
 
     const preciType = jQ.find('select[name="precipitation.type"]').find(":selected").val()
-    Logger.debug('preciType', preciType)
     if (preciType == 0) {
       jQ.find('#previAmtGrp').addClass('disabled')
     }
     jQ.find('select[name="precipitation.type"]').on('change', function () {
       const preciType = $(this).find(":selected").val()
-      Logger.debug('preciType', preciType)
       if (preciType == 0) {
         jQ.find('#previAmtGrp').addClass('disabled')
       } else {
@@ -105,8 +111,8 @@ export class WeatherConfigDialog extends FormApplication {
   }
 
   /**
-   * TODO
-   * @returns 
+   * Retrieves weather configuration data for a given scene or the default region.
+   * @returns {Object} An object containing weather configuration data.
    */
   getData() {
     let additionalData = {
@@ -147,34 +153,34 @@ export class WeatherConfigDialog extends FormApplication {
 
     if (this.applyToScene === undefined) {
       // Settings default region
-      mergeObject(additionalData, Fal.getSetting('defaultWeatherSettings'))
-      Logger.debug('WeatherConfigDialog:getData(general)', { 'applyToScene': this.applyToScene, 'data': additionalData })
+      Utils.mergeObject(additionalData, Fal.getSetting('defaultWeatherSettings'))
       return additionalData
     } else {
       // Setting for a specific scene
       let sceneData = Fal.getSceneFlag('weatherSettings', undefined, this.applyToScene)
       // if no scene data set, use game setting defaults
       if (!sceneData) sceneData = Fal.getSetting('defaultWeatherSettings')
-      mergeObject(additionalData, sceneData)
+      Utils.mergeObject(additionalData, sceneData)
       Logger.debug('WeatherConfigDialog:getData(scene)', { 'applyToScene': this.applyToScene, 'data': additionalData })
       return additionalData
     }
   }
 
+  /* --------------------- Private  functions ----------------------- */
+
   /**
-   * TODO
-   * @param {*} event 
-   * @param {*} formData 
+   * Updates an object with form data.
+   * If 'applyToScene' is undefined, updates the default weather settings.
+   * Otherwise, updates the weather settings for the specified scene.
+   * @param {Event} event - The event triggering the update.
+   * @param {FormData} formData - The data to expand and use for the update.
    */
   _updateObject(event, formData) {
-    const data = expandObject(formData);
-    // TODO also have choice between setting and scene
-    Logger.trace('updateObject, weatherConfig', { 'data': data, 'scene': this.applyToScene })
+    const data = expandObject(formData)
     if (this.applyToScene === undefined) {
       Fal.setSetting('defaultWeatherSettings', data)
     } else {
       Fal.setSceneFlag('weatherSettings', data, this.applyToScene)
-      // TODO fire event
     }
   }
 

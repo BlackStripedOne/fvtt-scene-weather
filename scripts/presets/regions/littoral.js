@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -21,47 +22,47 @@ import { EVENTS, MODULE } from '../../constants.js'
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   // https://en.wikipedia.org/wiki/Littoral_zone
   SceneWeather.registerRegionTemplate(MODULE.ID, 'littoral', {
-    'name': 'templates.region.littoral.name',
-    'description': 'templates.region.littoral.description',
-    'elevation': 0,
-    'vegetation': 1,
-    'waterAmount': 50,
-    'summer': {
-      'temperature': {
-        'day': 25,
-        "night": 15,
-        "var": 10
+    name: 'templates.region.littoral.name',
+    description: 'templates.region.littoral.description',
+    elevation: 0,
+    vegetation: 1,
+    waterAmount: 50,
+    summer: {
+      temperature: {
+        day: 25,
+        night: 15,
+        var: 10
       },
-      'humidity': {
-        'day': 60,
-        'night': 60,
-        'var': 5
+      humidity: {
+        day: 60,
+        night: 60,
+        var: 5
       },
-      'wind': {
-        'avg': 10,
-        'var': 5
+      wind: {
+        avg: 10,
+        var: 5
       },
-      'sun': {
-        'hours': 16
+      sun: {
+        hours: 16
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 15,
-        "night": 5,
-        "var": 10
+    winter: {
+      temperature: {
+        day: 15,
+        night: 5,
+        var: 10
       },
-      'humidity': {
-        'day': 60,
-        'night': 60,
-        'var': 10
+      humidity: {
+        day: 60,
+        night: 60,
+        var: 10
       },
-      'wind': {
-        'avg': 15,
-        'var': 10
+      wind: {
+        avg: 15,
+        var: 10
       },
-      'sun': {
-        'hours': 8
+      sun: {
+        hours: 8
       }
     }
   })

@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,47 +21,47 @@ import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   SceneWeather.registerRegionTemplate(MODULE.ID, 'temperate', {
-    'name': 'templates.region.temperate.name',
-    'description': 'templates.region.temperate.description',
-    'elevation': 400,
-    'vegetation': 50,
-    'waterAmount': 10,
-    'summer': {
-      'temperature': {
-        'day': 25,
-        "night": 15,
-        "var": 10
+    name: 'templates.region.temperate.name',
+    description: 'templates.region.temperate.description',
+    elevation: 400,
+    vegetation: 50,
+    waterAmount: 10,
+    summer: {
+      temperature: {
+        day: 25,
+        night: 15,
+        var: 10
       },
-      'humidity': {
-        'day': 70,
-        'night': 60,
-        'var': 10
+      humidity: {
+        day: 70,
+        night: 60,
+        var: 10
       },
-      'wind': {
-        'avg': 15,
-        'var': 10
+      wind: {
+        avg: 15,
+        var: 10
       },
-      'sun': {
-        'hours': 15
+      sun: {
+        hours: 15
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 10,
-        "night": 0,
-        "var": 10
+    winter: {
+      temperature: {
+        day: 10,
+        night: 0,
+        var: 10
       },
-      'humidity': {
-        'day': 60,
-        'night': 65,
-        'var': 5
+      humidity: {
+        day: 60,
+        night: 65,
+        var: 5
       },
-      'wind': {
-        'avg': 20,
-        'var': 10
+      wind: {
+        avg: 20,
+        var: 10
       },
-      'sun': {
-        'hours': 9
+      sun: {
+        hours: 9
       }
     }
   })

@@ -24,16 +24,15 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 /**
  * This is a utility as well as abstract base class for time/date representation and control for weather. Some weather simulations are dependant
  * on the current time of day as well as the specific day throughout the year cycle for seasons and sun positions.
- * 
- * The actual inherited class is responsible for calculating this information as well as supply various display needs for time information and 
+ *
+ * The actual inherited class is responsible for calculating this information as well as supply various display needs for time information and
  * time control if applicable.
- * 
+ *
  * If you are developing a module for foundry vtt that handles the game time and calendar in a certain way and want to integrate its special needs
  * into SceneWeather, look at the sample implementations in the classes InternalTimeProvider or for the integration of SimpleCalendar that is already
  * provided with this module in the ScTimeProvider class.
  */
 export class TimeProvider {
-
   static _instances = {}
 
   /**
@@ -47,7 +46,7 @@ export class TimeProvider {
 
   /**
    * Returns an array of available ids for TimeProvider instances.
-   * 
+   *
    * @returns {string[]} - the ids of available time provider instances
    */
   static getProviderIds() {
@@ -137,7 +136,7 @@ export class TimeProvider {
 
   /**
    * Calculates the day of the year for a given time, taking into account any day or hour delta specified.
-   * 
+   *
    * @param {number} [dayDelta=0] - An optional number of days to add or subtract from the current date.
    * @param {number} [hourDelta=0] - An optional number of hours to add or subtract from the current time.
    * @returns {number} - The day of the year as an integer, with January 1st being 1 and December 31st being 365 (or 366 for a leap year).
@@ -157,7 +156,7 @@ export class TimeProvider {
    * Fal.getWorldTime() function. If the current world time is negative, the function will return the current hour of
    * the day in reverse order (e.g., if the current hour of the day is 4 and the current world time is -14400 seconds,
    * the function will return 20).
-   *   
+   *
    * @param {number} dayDelta - An optional parameter that represents the number of days to add or subtract from the current day.
    * @param {number} hourDelta - An optional parameter that represents the number of hours to add or subtract from the current hour.
    * @returns {number} The current hour of the day as an integer between 0 and 24, inclusive.
@@ -198,9 +197,9 @@ export class TimeProvider {
   /**
    * Sets the hour in the day according the given percentage of the daylight cycle.
    * Range 0.00 - 1.00, where 0.5 is high noon, 0 and 1 are midnight.
-   * 
+   *
    * @param {number} daylightCyclePct - the percentage of the daylight cycle of one day.
-   * @returns 
+   * @returns
    */
   static async setDaylightCyclePct(daylightCyclePct) {
     return TimeProvider._getProviderInstance().setDaylightCyclePct(daylightCyclePct)
@@ -226,18 +225,18 @@ export class TimeProvider {
   /**
    * Sets the day in the year according the given percentage of the season cycle.
    * Range 0.00 - 1.00, where 0.5 is the day os summer solstice, 0 and 1 winter solstice.
-   * 
+   *
    * @param {number} seasonCyclePct - the percentage of the season cycle of the year.
-   * @returns 
+   * @returns
    */
   static async setSeasonCyclePct(seasonCyclePct) {
     return TimeProvider._getProviderInstance().setSeasonCyclePct(seasonCyclePct)
   }
 
-  /** 
+  /**
    * Returns the localized string representation of the current scene time, dependant on the TimeProvider's
    * implementation and dependant modules.
-   * 
+   *
    * @returns {string} The localized string representation of the current scene time, implementation dependant.
    * */
   static getI18nDateString() {
@@ -245,36 +244,43 @@ export class TimeProvider {
     // format timeInfo to localized string
     const compiledTemplate = Handlebars.compile(Fal.i18n('time.formatted'))
     const timeText = compiledTemplate(timeInfo)
-    Logger.trace('TimeProvider.getI18nDateString', { 'TimeProvider._getProviderId()': TimeProvider._getProviderId(), 'timeInfo': timeInfo, 'timeText': timeText })
+    Logger.trace('TimeProvider.getI18nDateString', {
+      'TimeProvider._getProviderId()': TimeProvider._getProviderId(),
+      timeInfo: timeInfo,
+      timeText: timeText
+    })
     return timeText
   }
 
   /**
    * Returns the unique timeHash of the current scene/game time modified by the optional offsett in days and
    * hours.
-   * 
+   *
    * @param {number} [dayDelta=0] - Optional number of days to add to the current day of the year.
    * @param {number} [hourDelta=0] - Optional number of hours to add to the current hour of the day.
    * @returns {number} A unique number, representing the point in time over the course of a year. Used for cache keys.
    */
   static getCurrentTimeHash(dayOfYearOffset = 0, hourOfDayOffset = 0) {
-    return TimeProvider.getTimeHash(TimeProvider.getDayOfYear() + dayOfYearOffset, TimeProvider.getHourOfDay() + hourOfDayOffset)
+    return TimeProvider.getTimeHash(
+      TimeProvider.getDayOfYear() + dayOfYearOffset,
+      TimeProvider.getHourOfDay() + hourOfDayOffset
+    )
   }
 
   /**
    * Returns the unique timeHash of a given day and hour of the course of the year.
-   * 
+   *
    * @param {number} [dayDelta=0] - Optional number of days to add to the current day of the year.
    * @param {number} [hourDelta=0] - Optional number of hours to add to the current hour of the day.
    * @returns {number} A unique number, representing the point in time over the course of a year. Used for cache keys.
    */
   static getTimeHash(dayOfYear, hourOfDay) {
-    return (dayOfYear * TimeProvider.getHoursInDay()) + hourOfDay
+    return dayOfYear * TimeProvider.getHoursInDay() + hourOfDay
   }
 
   /**
    * Returns the day of the year from a given timeHash.
-   * 
+   *
    * @param {number} timeHash - the timeHash to be used to derive the day of the year from.
    * @returns - The day of the year, beginning at day 1.
    */
@@ -285,7 +291,7 @@ export class TimeProvider {
   /**
    * Returns the month of the year from a given timeHash. Note that this returns 0 for the first
    * month to speed up calculations.
-   * 
+   *
    * @param {number} timeHash - the timeHash to be used to derive the month of the year from.
    * @returns - The month of the year, beginning at month 0 for the first month.
    */
@@ -301,22 +307,24 @@ export class TimeProvider {
 
   /**
    * Returns the day of the respective month from a given timeHash.
-   * 
+   *
    * @param {number} timeHash - the timeHash to be used to derive the day of the month from.
    * @returns - The day of the month, beginning at day 1 for the first day in the month.
    */
   static getDayOfMonthFromTimeHash(timeHash) {
     let monthOfYear = TimeProvider.getMonthOfYearFromTimeHash(timeHash)
-    return TimeProvider.getDayOfYearFromTimeHash(timeHash) - TimeProvider.getMonthOffset(monthOfYear - 1)
+    return (
+      TimeProvider.getDayOfYearFromTimeHash(timeHash) - TimeProvider.getMonthOffset(monthOfYear - 1)
+    )
   }
 
   /**
-  * Returns the hour of the day from a given timeHash. Note that this returns 0 for the first
-  * hour to speed up calculations.
-  * 
-  * @param {number} timeHash - the timeHash to be used to derive the hour of the day from.
-  * @returns - The hour of the day, beginning at month 0 for the first hour.
-  */
+   * Returns the hour of the day from a given timeHash. Note that this returns 0 for the first
+   * hour to speed up calculations.
+   *
+   * @param {number} timeHash - the timeHash to be used to derive the hour of the day from.
+   * @returns - The hour of the day, beginning at month 0 for the first hour.
+   */
   static getTimeOfDayFromTimeHash(timeHash) {
     return timeHash % TimeProvider.getHoursInDay()
   }
@@ -333,13 +341,19 @@ export class TimeProvider {
    *
    * If the providerId is different from the _config property of the TimeProvider class, this function calls
    * the _initConfig() method of the TimeProvider class with the providerId value as an argument.
-   * 
+   *
    * @returns {string|undefined} - The currently set time provider ID for the current scene, or undefined if the flag is not set.
    */
   static _getProviderId() {
     let providerId = Fal.getSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
-    if (providerId == TIME_PROVIDERS.SIMPLE_CALENDAR && !Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
-      Logger.info('Module [simple-calendar] is not installed or disabled. Reverting time provider to internal for this scene.', true)
+    if (
+      providerId == TIME_PROVIDERS.SIMPLE_CALENDAR &&
+      !Fal.isModuleEnabled('foundryvtt-simple-calendar')
+    ) {
+      Logger.info(
+        'Module [simple-calendar] is not installed or disabled. Reverting time provider to internal for this scene.',
+        true
+      )
       Fal.setSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
       providerId = TIME_PROVIDERS.INTERNAL
     }
@@ -350,11 +364,10 @@ export class TimeProvider {
   /**
    * Returns a usable instance of the TimeProvider implementation set for the current scene settings. This also makes
    * sure that in case of a misconfiguration, the settings are reset and a usable instance is reterned anytime.
-   * 
+   *
    * @returns {TimeProvider} - the implementation of the time provider as defined by configuration for the current scene.
    */
   static _getProviderInstance() {
     return TimeProvider._instances[TimeProvider._getProviderId()]
   }
-
 }

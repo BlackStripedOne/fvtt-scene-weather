@@ -22,11 +22,10 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { WeatherPerception } from './percievers/weatherPerception.js'
 
 /**
- * The Permissions class manages permissions for various features related to weather perception. * 
+ * The Permissions class manages permissions for various features related to weather perception. *
  * @class
  */
 export class Permissions {
-
   static _permissions = undefined
 
   /**
@@ -34,10 +33,10 @@ export class Permissions {
    * @type {object}
    */
   static DEFAULT_PERMISSION_STRUCT = {
-    'player': false,
-    'trustedPlayer': false,
-    'assistantGameMaster': false,
-    'users': []
+    player: false,
+    trustedPlayer: false,
+    assistantGameMaster: false,
+    users: []
   }
 
   /**
@@ -49,10 +48,10 @@ export class Permissions {
     'perciever.scene-weather.icon': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
     'perciever.scene-weather.perceptive': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
     'perciever.scene-weather.precise': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    'sceneSettings': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    'weatherUiControls': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    'timeControls': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    'meteogramUi': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    sceneSettings: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    weatherUiControls: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    timeControls: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    meteogramUi: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
   }
 
   /**
@@ -61,26 +60,26 @@ export class Permissions {
    */
   static DEFAULT_PERMISSIONS = {
     'perciever.scene-weather.vague': {
-      'player': true,
-      'trustedPlayer': true,
-      'assistantGameMaster': true
+      player: true,
+      trustedPlayer: true,
+      assistantGameMaster: true
     },
     'perciever.scene-weather.icon': {
-      'trustedPlayer': true,
-      'assistantGameMaster': true
+      trustedPlayer: true,
+      assistantGameMaster: true
     },
     'perciever.scene-weather.perceptive': {
-      'assistantGameMaster': true
+      assistantGameMaster: true
     },
-    'sceneSettings': Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    'weatherUiControls': {
-      'assistantGameMaster': true
+    sceneSettings: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    weatherUiControls: {
+      assistantGameMaster: true
     },
-    'timeControls': {
-      'assistantGameMaster': true
+    timeControls: {
+      assistantGameMaster: true
     },
-    'meteogramUi': {
-      'assistantGameMaster': true
+    meteogramUi: {
+      assistantGameMaster: true
     }
   }
 
@@ -91,10 +90,13 @@ export class Permissions {
    */
   static _getDefaultPermissions() {
     let defaultPermissions = Utils.deepClone(Permissions.DEFAULT_PERMISSIONS)
-    Object.keys(WeatherPerception._registeredPercievers).forEach(percieverId => {
-      defaultPermissions['perciever.' + percieverId] = Utils.mergeObject(Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT), defaultPermissions['perciever.' + percieverId] || {})
+    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
+      defaultPermissions['perciever.' + percieverId] = Utils.mergeObject(
+        Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+        defaultPermissions['perciever.' + percieverId] || {}
+      )
     })
-    Logger.debug('Permissions._getDefaultPermissions()', { 'defaultPermissions': defaultPermissions })
+    Logger.debug('Permissions._getDefaultPermissions()', { defaultPermissions: defaultPermissions })
     return defaultPermissions
   }
 
@@ -107,12 +109,21 @@ export class Permissions {
     const defaultPermissions = Permissions._getDefaultPermissions()
     const storedPermissions = Fal.getSetting('permissions', null)
     if (storedPermissions == null) {
-      Logger.debug('Permissions._loadPermissions -> no stored permissions', { 'default': defaultPermissions })
+      Logger.debug('Permissions._loadPermissions -> no stored permissions', {
+        default: defaultPermissions
+      })
       Permissions._permissions = defaultPermissions
       return Permissions._permissions
     } else {
-      const effectivePermissions = Utils.mergeObject(defaultPermissions, storedPermissions, { insertKeys: false, expand: false })
-      Logger.debug('Permissions._loadPermissions -> loaded from settings', { 'default': defaultPermissions, 'effective': effectivePermissions, 'stored': storedPermissions })
+      const effectivePermissions = Utils.mergeObject(defaultPermissions, storedPermissions, {
+        insertKeys: false,
+        expand: false
+      })
+      Logger.debug('Permissions._loadPermissions -> loaded from settings', {
+        default: defaultPermissions,
+        effective: effectivePermissions,
+        stored: storedPermissions
+      })
       Permissions._permissions = effectivePermissions
       return Permissions._permissions
     }
@@ -124,14 +135,20 @@ export class Permissions {
    */
   static async resetPermissions() {
     let emptyPermissions = Utils.deepClone(Permissions.EMPTY_PERMISSIONS)
-    Object.keys(WeatherPerception._registeredPercievers).forEach(percieverId => {
+    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
       if (!('perciever.' + percieverId in emptyPermissions)) {
-        emptyPermissions['perciever.' + percieverId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
+        emptyPermissions['perciever.' + percieverId] = Utils.deepClone(
+          Permissions.DEFAULT_PERMISSION_STRUCT
+        )
       }
     })
-    Permissions._permissions = Utils.mergeObject(emptyPermissions, Permissions.DEFAULT_PERMISSIONS, { expand: false })
+    Permissions._permissions = Utils.mergeObject(
+      emptyPermissions,
+      Permissions.DEFAULT_PERMISSIONS,
+      { expand: false }
+    )
     Fal.setSetting('permissions', Permissions._permissions)
-    Logger.debug('Permissions.resetPermissions()', { 'permissions': Permissions._permissions })
+    Logger.debug('Permissions.resetPermissions()', { permissions: Permissions._permissions })
   }
 
   /**
@@ -140,14 +157,20 @@ export class Permissions {
    * @param {object} permissions - The permissions to update.
    */
   static async updatePermissions(permissions) {
-    Object.keys(WeatherPerception._registeredPercievers).forEach(percieverId => {
+    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
       if (!('perciever.' + percieverId in permissions)) {
-        permissions['perciever.' + percieverId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
+        permissions['perciever.' + percieverId] = Utils.deepClone(
+          Permissions.DEFAULT_PERMISSION_STRUCT
+        )
       }
     })
-    Permissions._permissions = Utils.mergeObject(Utils.deepClone(Permissions.EMPTY_PERMISSIONS), permissions, { expand: false })
+    Permissions._permissions = Utils.mergeObject(
+      Utils.deepClone(Permissions.EMPTY_PERMISSIONS),
+      permissions,
+      { expand: false }
+    )
     Fal.setSetting('permissions', Permissions._permissions)
-    Logger.debug('Permissions.updatePermissions(...)', { 'permissions': Permissions._permissions })
+    Logger.debug('Permissions.updatePermissions(...)', { permissions: Permissions._permissions })
   }
 
   /**
@@ -158,7 +181,10 @@ export class Permissions {
   static getPermissionNameI18n(permissionId = undefined) {
     if (!permissionId) return Fal.i18n('permissions.unknown.name')
     if (permissionId.startsWith('perciever.')) {
-      return Fal.i18n('permissions.percieverName') + WeatherPerception.getInfo(permissionId.replace('perciever.', '')).name
+      return (
+        Fal.i18n('permissions.percieverName') +
+        WeatherPerception.getInfo(permissionId.replace('perciever.', '')).name
+      )
     } else {
       return Fal.i18n('permissions.' + permissionId + '.name')
     }
@@ -172,7 +198,10 @@ export class Permissions {
   static getPermissionHintI18n(permissionId = undefined) {
     if (!permissionId) return Fal.i18n('permissions.unknown.hint') + permissionId
     if (permissionId.startsWith('perciever.')) {
-      return Fal.i18n('permissions.percieverHint') + WeatherPerception.getInfo(permissionId.replace('perciever.', '')).name
+      return (
+        Fal.i18n('permissions.percieverHint') +
+        WeatherPerception.getInfo(permissionId.replace('perciever.', '')).name
+      )
     } else {
       return Fal.i18n('permissions.' + permissionId + '.hint')
     }
@@ -185,7 +214,7 @@ export class Permissions {
   static getPermissionIds() {
     if (Permissions._permissions === undefined) Permissions._loadPermissions()
     const permissionIds = Object.keys(Permissions._permissions)
-    Logger.debug('Permissions.getPermissionIds()', { 'permissionIds': permissionIds })
+    Logger.debug('Permissions.getPermissionIds()', { permissionIds: permissionIds })
     return permissionIds
   }
 
@@ -200,10 +229,17 @@ export class Permissions {
     if (!permissionId) return Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
     if (Permissions._permissions === undefined) Permissions._loadPermissions()
     if (permissionId in Permissions._permissions) {
-      Logger.debug('Permissions.getPermissionForId(...)', { 'permissionId': permissionId, 'permission': Permissions._permissions[permissionId] })
-      return Utils.mergeObject(Permissions.DEFAULT_PERMISSION_STRUCT, Permissions._permissions[permissionId], { inplace: false, expand: false })
+      Logger.debug('Permissions.getPermissionForId(...)', {
+        permissionId: permissionId,
+        permission: Permissions._permissions[permissionId]
+      })
+      return Utils.mergeObject(
+        Permissions.DEFAULT_PERMISSION_STRUCT,
+        Permissions._permissions[permissionId],
+        { inplace: false, expand: false }
+      )
     } else {
-      Logger.debug('Permissions.getPermissionForId(unknown)', { 'permissionId': permissionId })
+      Logger.debug('Permissions.getPermissionForId(unknown)', { permissionId: permissionId })
       return Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
     }
   }
@@ -225,11 +261,11 @@ export class Permissions {
     const permission = Permissions.getPermissionForId(permissionId)
     switch (userId) {
       case 'player':
-        return !!(permission.player)
+        return !!permission.player
       case 'trustedPlayer':
-        return !!(permission.trustedPlayer)
+        return !!permission.trustedPlayer
       case 'assistantGameMaster':
-        return !!(permission.assistantGameMaster)
+        return !!permission.assistantGameMaster
       default:
         // GM has all the rights
         if (Fal.isGm(userId) && derived) return true
@@ -242,5 +278,4 @@ export class Permissions {
         return false
     }
   }
-
 }

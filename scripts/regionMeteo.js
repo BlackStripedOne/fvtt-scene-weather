@@ -27,7 +27,6 @@ import { SceneWeatherState } from './state.js'
  *  RegionMeteo in combination with TimeOfDy/DayInYear will generate WeatherModel
  */
 export class RegionMeteo {
-
   _id = 0
   regionData = undefined
   _noise = undefined
@@ -37,8 +36,8 @@ export class RegionMeteo {
 
   /**
    * Region Automatic lets you set RegionMeteo. uses TimeOfDy/DayInYear
-   * 
-   * @param {*} templateId 
+   *
+   * @param {*} templateId
    */
   constructor(templateId) {
     this._id = randomID()
@@ -49,37 +48,54 @@ export class RegionMeteo {
         this.regionData = Utils.deepClone(Object.values(SceneWeatherState._regionTemplates)[0])
         Fal.setSceneFlag('regionTemplate', this.regionData.id)
         const [tId, mId] = templateId.split('.')
-        Logger.error('Unable to set region template with id [' + tId + '], registered by module [' + mId + ']. Reverting to [' + Fal.i18n(this.regionData.name) + ']. Maybe you removed a SceneWeather plugin after configuring your scene.', true, true)
+        Logger.error(
+          'Unable to set region template with id [' +
+            tId +
+            '], registered by module [' +
+            mId +
+            ']. Reverting to [' +
+            Fal.i18n(this.regionData.name) +
+            ']. Maybe you removed a SceneWeather plugin after configuring your scene.',
+          true,
+          true
+        )
       }
     } else {
-      this.regionData = Utils.deepClone(Fal.getSceneFlag('regionSettings', Utils.deepClone(Fal.getSetting('defaultRegionSettings'))))
+      this.regionData = Utils.deepClone(
+        Fal.getSceneFlag('regionSettings', Utils.deepClone(Fal.getSetting('defaultRegionSettings')))
+      )
     }
     const seedString = Fal.getSceneFlag('seed', '')
     const seedValue = Utils.getSeedFromString(seedString)
     this._noise = Noise.createNoise2D(seedValue)
-    Logger.trace('RegionMeteo:ctor(...)', { 'templateId': templateId, 'id': this._id, 'noise': this._noise, 'regionData': this.regionData })
+    Logger.trace('RegionMeteo:ctor(...)', {
+      templateId: templateId,
+      id: this._id,
+      noise: this._noise,
+      regionData: this.regionData
+    })
     this.updateConfig()
   }
 
   /**
-  * TODO
-  * 
-  * @returns - array of dictionaries containing 'id' and 'name'
-  */
+   * TODO
+   *
+   * @returns - array of dictionaries containing 'id' and 'name'
+   */
   static getTemplates() {
-    return Object.entries(SceneWeatherState._regionTemplates).map(template => {
+    return Object.entries(SceneWeatherState._regionTemplates).map((template) => {
       return {
-        'id': template[0],
-        'name': template[1].name
+        id: template[0],
+        name: template[1].name
       }
     })
   }
 
   /**
    * Region Template sets specific RegionMeteo as well as given TimeOfDay/SeasonInYear
-   * 
-   * @param {*} templateId 
-   * @returns 
+   *
+   * @param {*} templateId
+   * @returns
    */
   static fromTemplate(templateId) {
     return new RegionMeteo(templateId) // from template
@@ -101,10 +117,10 @@ export class RegionMeteo {
 
   /**
    * Calculate base values of the region based on date and time with optional offset
-   * 
-   * @param {*} dayDelta 
-   * @param {*} hourDelta 
-   * @returns 
+   *
+   * @param {*} dayDelta
+   * @param {*} hourDelta
+   * @returns
    */
   getRegionBase(dayDelta = 0, hourDelta = 0) {
     const timeHash = TimeProvider.getCurrentTimeHash(dayDelta, hourDelta)
@@ -115,10 +131,10 @@ export class RegionMeteo {
     }
 
     let baseValues = {
-      'elevation': this.regionData.elevation,
-      'vegetation': this.regionData.vegetation,   // TODO diminish from fall to early spring
-      'waterAmount': this.regionData.waterAmount,  // TODO set to 0 for freezing temperatures
-      'timeHash': timeHash
+      elevation: this.regionData.elevation,
+      vegetation: this.regionData.vegetation, // TODO diminish from fall to early spring
+      waterAmount: this.regionData.waterAmount, // TODO set to 0 for freezing temperatures
+      timeHash: timeHash
     }
 
     if (this.regionData.name === undefined) {
@@ -132,33 +148,76 @@ export class RegionMeteo {
     const dateRelative = TimeProvider.dayOfYearSummerPct(dayDelta, hourDelta) // 0.0 = winter solstice, 1.0 = summer solstice
 
     // calculate today's temperatures
-    let todayTempDay = (this.regionData.summer.temperature.day - this.regionData.winter.temperature.day) * dateRelative + this.regionData.winter.temperature.day
-    let todayTempNight = (this.regionData.summer.temperature.night - this.regionData.winter.temperature.night) * dateRelative + this.regionData.winter.temperature.night
-    let todayTempVar = (this.regionData.summer.temperature.var - this.regionData.winter.temperature.var) * dateRelative + this.regionData.winter.temperature.var
-    baseValues.baseTemp = Noise.getNoisedValue(this._noise, timeHash + 1282, 64, (todayTempDay - todayTempNight) * timeRelative + todayTempNight, todayTempVar)
+    let todayTempDay =
+      (this.regionData.summer.temperature.day - this.regionData.winter.temperature.day) *
+        dateRelative +
+      this.regionData.winter.temperature.day
+    let todayTempNight =
+      (this.regionData.summer.temperature.night - this.regionData.winter.temperature.night) *
+        dateRelative +
+      this.regionData.winter.temperature.night
+    let todayTempVar =
+      (this.regionData.summer.temperature.var - this.regionData.winter.temperature.var) *
+        dateRelative +
+      this.regionData.winter.temperature.var
+    baseValues.baseTemp = Noise.getNoisedValue(
+      this._noise,
+      timeHash + 1282,
+      64,
+      (todayTempDay - todayTempNight) * timeRelative + todayTempNight,
+      todayTempVar
+    )
 
     // set waterAmount based on temperature
     if (baseValues.baseTemp < 0) baseValues.waterAmount = 0
 
     // calculate humidity
-    let todayHumiDay = (this.regionData.summer.humidity.day - this.regionData.winter.humidity.day) * dateRelative + this.regionData.winter.humidity.day
-    let todayHumiNight = (this.regionData.summer.humidity.night - this.regionData.winter.humidity.night) * dateRelative + this.regionData.winter.humidity.night
-    let todayHumiVar = (this.regionData.summer.humidity.var - this.regionData.winter.humidity.var) * dateRelative + this.regionData.winter.humidity.var
-    baseValues.baseHumidity = Utils.clamp(Noise.getNoisedValue(this._noise, timeHash + 732, 64, (todayHumiDay - todayHumiNight) * timeRelative + todayHumiNight, todayHumiVar), 0, 100)
+    let todayHumiDay =
+      (this.regionData.summer.humidity.day - this.regionData.winter.humidity.day) * dateRelative +
+      this.regionData.winter.humidity.day
+    let todayHumiNight =
+      (this.regionData.summer.humidity.night - this.regionData.winter.humidity.night) *
+        dateRelative +
+      this.regionData.winter.humidity.night
+    let todayHumiVar =
+      (this.regionData.summer.humidity.var - this.regionData.winter.humidity.var) * dateRelative +
+      this.regionData.winter.humidity.var
+    baseValues.baseHumidity = Utils.clamp(
+      Noise.getNoisedValue(
+        this._noise,
+        timeHash + 732,
+        64,
+        (todayHumiDay - todayHumiNight) * timeRelative + todayHumiNight,
+        todayHumiVar
+      ),
+      0,
+      100
+    )
 
     // calculate sun amount TODO better calculation needed
-    let todaySunHoursHlf = ((this.regionData.summer.sun.hours - this.regionData.winter.sun.hours) * dateRelative + this.regionData.winter.sun.hours) / 2
+    let todaySunHoursHlf =
+      ((this.regionData.summer.sun.hours - this.regionData.winter.sun.hours) * dateRelative +
+        this.regionData.winter.sun.hours) /
+      2
     let noonDeltaHrs = Math.abs(12 - hourOfDay)
-    if (noonDeltaHrs > (todaySunHoursHlf)) {
+    if (noonDeltaHrs > todaySunHoursHlf) {
       // already after sunset or before sunrise
       baseValues.sunAmount = 0
     } else {
-      baseValues.sunAmount = Utils.clamp((1 - (1 / (todaySunHoursHlf / noonDeltaHrs))) * (todaySunHoursHlf / 3), 0, 1)
+      baseValues.sunAmount = Utils.clamp(
+        (1 - 1 / (todaySunHoursHlf / noonDeltaHrs)) * (todaySunHoursHlf / 3),
+        0,
+        1
+      )
     }
 
     // calculate wind
-    let todayWindAvg = (this.regionData.summer.wind.avg - this.regionData.winter.wind.avg) * dateRelative + this.regionData.winter.wind.avg
-    let todayWindVar = (this.regionData.summer.wind.var - this.regionData.winter.wind.var) * dateRelative + this.regionData.winter.wind.var
+    let todayWindAvg =
+      (this.regionData.summer.wind.avg - this.regionData.winter.wind.avg) * dateRelative +
+      this.regionData.winter.wind.avg
+    let todayWindVar =
+      (this.regionData.summer.wind.var - this.regionData.winter.wind.var) * dateRelative +
+      this.regionData.winter.wind.var
     let factor = 1
     if (baseValues.sunAmount < 0.1) {
       factor = 0.9
@@ -174,14 +233,25 @@ export class RegionMeteo {
     } else {
       factor = 1.1
     }
-    baseValues.wind = Utils.clamp(Noise.getNoisedValue(this._noise, timeHash + 978, 16, factor * todayWindAvg, todayWindVar), 0, 80) // Maximum 80 m/s wind. Maybe overthink this.
-    baseValues.gusts = Utils.clamp(baseValues.wind + Noise.getNoisedValue(this._noise, timeHash + 12, 8, factor * todayWindVar, todayWindVar), 0, 80)
+    baseValues.wind = Utils.clamp(
+      Noise.getNoisedValue(this._noise, timeHash + 978, 16, factor * todayWindAvg, todayWindVar),
+      0,
+      80
+    ) // Maximum 80 m/s wind. Maybe overthink this.
+    baseValues.gusts = Utils.clamp(
+      baseValues.wind +
+        Noise.getNoisedValue(this._noise, timeHash + 12, 8, factor * todayWindVar, todayWindVar),
+      0,
+      80
+    )
 
     this._cache[timeHash] = baseValues
-    Logger.debug('RegionMeteo.getRegionBase(...)', { 'dayDelta': dayDelta, 'hourDelta': hourDelta, 'timeHash': timeHash, 'baseValues': baseValues })
+    Logger.debug('RegionMeteo.getRegionBase(...)', {
+      dayDelta: dayDelta,
+      hourDelta: hourDelta,
+      timeHash: timeHash,
+      baseValues: baseValues
+    })
     return baseValues
   }
-
-
-
 }

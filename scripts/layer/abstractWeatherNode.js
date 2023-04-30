@@ -23,7 +23,6 @@ import { WeatherNodeData } from './weatherNodeData.js'
 import { EVENTS, CREATION_STATES } from '../constants.js'
 
 export class AbstractWeatherNode extends PIXI.Container {
-
   static weatherNodeType = 'WeatherNode'
 
   /**
@@ -79,7 +78,7 @@ export class AbstractWeatherNode extends PIXI.Container {
   /*--------------------- Properties --------------------- */
 
   /**
-   * Direct access to the data of the WeatherNodeData instance        
+   * Direct access to the data of the WeatherNodeData instance
    * @readonly
    * @returns {WeatherNodeData}
    */
@@ -116,7 +115,7 @@ export class AbstractWeatherNode extends PIXI.Container {
   get center() {
     Logger.trace('WeatherNode.center > get')
     const { x, y, width, height } = this.data
-    return new PIXI.Point(x + (width / 2), y + (height / 2))
+    return new PIXI.Point(x + width / 2, y + height / 2)
   }
 
   /*--------------------- Functions, public, generic --------------------- */
@@ -140,7 +139,7 @@ export class AbstractWeatherNode extends PIXI.Container {
 
   /**
    * Clone the WeatherNode, returning a new WeatherNode with identical attributes.
-   * The returned WeatherNode is non-interactive, and has no assigned ID.     
+   * The returned WeatherNode is non-interactive, and has no assigned ID.
    * @returns {WeatherNode}  A new WeatherNode with identical data
    */
   clone() {
@@ -153,11 +152,11 @@ export class AbstractWeatherNode extends PIXI.Container {
   }
 
   /**
-  * Assume control over a WeatherNode, flagging it as controlled and enabling downstream behaviors
-  * @param {Object} options                  Additional options which modify the control request
-  * @param {boolean} options.releaseOthers   Release any other controlled objects first
-  * @returns {boolean}                        A flag denoting whether control was successful
-  */
+   * Assume control over a WeatherNode, flagging it as controlled and enabling downstream behaviors
+   * @param {Object} options                  Additional options which modify the control request
+   * @param {boolean} options.releaseOthers   Release any other controlled objects first
+   * @returns {boolean}                        A flag denoting whether control was successful
+   */
   control(options = {}) {
     // release other controlled WeatherNodes
     if (options.releaseOthers !== false) {
@@ -191,9 +190,10 @@ export class AbstractWeatherNode extends PIXI.Container {
     if (!this.controlled) return true
     this.controlled = false
     // remove potential huds
-    if (canvas.sceneweather.hud && (canvas.sceneweather.hud.weatherNode === this)) canvas.sceneweather.hud.clear()
+    if (canvas.sceneweather.hud && canvas.sceneweather.hud.weatherNode === this)
+      canvas.sceneweather.hud.clear()
     this.refresh()
-    // fire an on-release Hook        
+    // fire an on-release Hook
     Hooks.callAll(EVENTS.CONTROL_WEATHER_NODE, this, this.controlled)
     return true
   }
@@ -211,7 +211,9 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @returns {SceneWeatherLayer.INTERACTION_STATE|number} - the new state reached after calling this handler
    */
   async creationDragLeftMove(creationState, position) {
-    throw new Error('abstract method creationDragLeftMove needs to be implemented by inheriting class')
+    throw new Error(
+      'abstract method creationDragLeftMove needs to be implemented by inheriting class'
+    )
   }
 
   /**
@@ -225,7 +227,9 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @returns {SceneWeatherLayer.INTERACTION_STATE|number} - the new state reached after calling this handler
    */
   async creationDragLeftDrop(creationState, position) {
-    throw new Error('abstract method creationDragLeftDrop needs to be implemented by inheriting class')
+    throw new Error(
+      'abstract method creationDragLeftDrop needs to be implemented by inheriting class'
+    )
   }
 
   /**
@@ -239,7 +243,9 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @returns {SceneWeatherLayer.INTERACTION_STATE|number} - the new state reached after calling this handler
    */
   async creationClickLeft2(creationState, position) {
-    throw new Error('abstract method creationClickLeft2 needs to be implemented by inheriting class')
+    throw new Error(
+      'abstract method creationClickLeft2 needs to be implemented by inheriting class'
+    )
   }
 
   /**
@@ -249,7 +255,9 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @param {object} outsideWeatherModel - An object representing the outside weather model that will be used to filter the incoming weather model.
    */
   filterWeatherModel(incomingFilterModel, outsideWeatherModel) {
-    throw new Error('abstract method filterWeatherModel needs to be implemented by inheriting class')
+    throw new Error(
+      'abstract method filterWeatherModel needs to be implemented by inheriting class'
+    )
   }
 
   /**
@@ -275,7 +283,7 @@ export class AbstractWeatherNode extends PIXI.Container {
    * Checks wether the point given by the coordinates is covered by this WeatherNode.
    * For masks it simply means, the point is inside of the masking-area and for emitters
    * this is, when the point is in the spere of influence of the emitter.
-   * 
+   *
    * @abstract
    * @param {number} x    The x coordinate to check against
    * @param {number} y    The y coordinate to check against
@@ -290,13 +298,14 @@ export class AbstractWeatherNode extends PIXI.Container {
    */
   destroy() {
     // remove potential huds
-    if (canvas.sceneweather.hud && (canvas.sceneweather.hud.weatherNode === this)) canvas.sceneweather.hud.clear()
+    if (canvas.sceneweather.hud && canvas.sceneweather.hud.weatherNode === this)
+      canvas.sceneweather.hud.clear()
     super.destroy()
   }
 
   /**
    * Synchronize the appearance of this WeatherNode with the properties of
-   * its represented WeatherNodeData.       
+   * its represented WeatherNodeData.
    */
   refresh() {
     this._nodeGraphic.refresh()
@@ -356,16 +365,13 @@ export class AbstractWeatherNode extends PIXI.Container {
 
   /*--------------------- Enent Handling, Abstract --------------------- */
 
-
-
-
   /**
    * Callback actions which occur when a mouse-drag action is first begun.
    * @see MouseInteractionManager#_handleDragStart
    * @param {PIXI.InteractionEvent} event  The triggering canvas interaction event
    */
   async _onDragLeftStart(event) {
-    Logger.trace('WeatherNode._onDragLeftStart(...)', { 'event': event, 'this': this })
+    Logger.trace('WeatherNode._onDragLeftStart(...)', { event: event, this: this })
 
     // if weatherNode is locked, pass this event through
     if (this._nodeData.locked) {
@@ -384,19 +390,19 @@ export class AbstractWeatherNode extends PIXI.Container {
       clonedWeatherNodes.push(c)
 
       // draw the clone
-      c.draw().then(c => {
+      c.draw().then((c) => {
         canvas.sceneweather.preview.addChild(c)
         c._onDragStart()
-      });
+      })
     }
     event.data.clones = clonedWeatherNodes
   }
 
   /**
-  * Begin a drag operation from the perspective of the preview clone.
-  * Modify the appearance of both the clone (this) and the original (_original) object.
-  * @protected
-  */
+   * Begin a drag operation from the perspective of the preview clone.
+   * Modify the appearance of both the clone (this) and the original (_original) object.
+   * @protected
+   */
   _onDragStart() {
     this.alpha = 0.8
     this._original.alpha = 0.4
@@ -409,7 +415,7 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @protected
    */
   _onDragEnd() {
-    Logger.trace('WeatherNode._onDragEnd(...)', { 'this': this })
+    Logger.trace('WeatherNode._onDragEnd(...)', { this: this })
     this.visible = false
     if (this._original) {
       if (this._original.data.locked) this._original.data.locked = false
@@ -419,10 +425,10 @@ export class AbstractWeatherNode extends PIXI.Container {
   }
 
   /**
-       * Callback actions which occur on a mouse-move operation.
-       * @see MouseInteractionManager#_handleDragMove
-       * @param {PIXI.InteractionEvent} event  The triggering canvas interaction event
-       */
+   * Callback actions which occur on a mouse-move operation.
+   * @see MouseInteractionManager#_handleDragMove
+   * @param {PIXI.InteractionEvent} event  The triggering canvas interaction event
+   */
   _onDragLeftMove(event) {
     // ignore events when this weatherNode is not controlled
     if (!this.controlled) return
@@ -436,7 +442,11 @@ export class AbstractWeatherNode extends PIXI.Container {
     // Snap the origin to the grid
     if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
       origin = canvas.grid.getSnappedPosition(origin.x, origin.y, canvas.sceneweather.gridPrecision)
-      destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
+      destination = canvas.grid.getSnappedPosition(
+        destination.x,
+        destination.y,
+        canvas.sceneweather.gridPrecision
+      )
     }
 
     const dx = destination.x - origin.x
@@ -451,8 +461,12 @@ export class AbstractWeatherNode extends PIXI.Container {
 
       clonedWeatherNode.data.normalize()
       const rect = canvas.dimensions.rect
-      if (clonedWeatherNode.data.x >= rect.x && (clonedWeatherNode.data.x + clonedWeatherNode.data.width) <= (rect.x + rect.width) &&
-        clonedWeatherNode.data.y >= rect.y && (clonedWeatherNode.data.y + clonedWeatherNode.data.height) <= (rect.y + rect.height)) {
+      if (
+        clonedWeatherNode.data.x >= rect.x &&
+        clonedWeatherNode.data.x + clonedWeatherNode.data.width <= rect.x + rect.width &&
+        clonedWeatherNode.data.y >= rect.y &&
+        clonedWeatherNode.data.y + clonedWeatherNode.data.height <= rect.y + rect.height
+      ) {
         clonedWeatherNode.refresh()
       } else {
         clonedWeatherNode.data.dimensionsFrom(validDimensions)
@@ -479,7 +493,7 @@ export class AbstractWeatherNode extends PIXI.Container {
 
     if (!clones || !canvas.dimensions.rect.contains(destination.x, destination.y)) return false
 
-    const updates = clones.map(c => {
+    const updates = clones.map((c) => {
       let dest = { x: c.data.x, y: c.data.y }
       // Snap the origin to the grid
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
@@ -488,7 +502,13 @@ export class AbstractWeatherNode extends PIXI.Container {
       c.data.x = dest.x
       c.data.y = dest.y
       c.data.normalize()
-      return { id: c._original.id, x: c.data.x, y: c.data.y, width: c.data.width, height: c.data.height }
+      return {
+        id: c._original.id,
+        x: c.data.x,
+        y: c.data.y,
+        width: c.data.width,
+        height: c.data.height
+      }
     })
     // return canvas.scene.updateEmbeddedDocuments(this.document.documentName, updates)
     return canvas.sceneweather.updateNodes(updates)
@@ -502,7 +522,7 @@ export class AbstractWeatherNode extends PIXI.Container {
    * @param {MouseEvent} event  The triggering mouse click event
    */
   _onDragLeftCancel(event) {
-    Logger.trace('WeatherNode._onDragLeftCancel(...)', { 'this': this })
+    Logger.trace('WeatherNode._onDragLeftCancel(...)', { this: this })
     if (this._dragPassthrough) {
       this._dragPassthrough = false
       return canvas._onDragLeftCancel(event)
@@ -526,7 +546,7 @@ export class AbstractWeatherNode extends PIXI.Container {
       }
     }
     this.hover = true
-    Hooks.callAll(`hoverWeatherNode`, this, this.hover)
+    Hooks.callAll('hoverWeatherNode', this, this.hover)
   }
 
   /**
@@ -535,7 +555,7 @@ export class AbstractWeatherNode extends PIXI.Container {
    */
   _onHoverOut(event) {
     this.hover = false
-    Hooks.callAll(`hoverWeatherNode`, this, this.hover) // TODO namespace
+    Hooks.callAll('hoverWeatherNode', this, this.hover) // TODO namespace
   }
 
   /* -------------------------------------------- */
@@ -569,7 +589,6 @@ export class AbstractWeatherNode extends PIXI.Container {
     }
   }
 
-
   /* -------------------------------------------- */
 
   /**
@@ -589,7 +608,4 @@ export class AbstractWeatherNode extends PIXI.Container {
       }
     }
   }
-
-
-
 }

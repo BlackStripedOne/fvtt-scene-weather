@@ -17,52 +17,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { EVENTS, MODULE } from '../../constants.js'
+import { MODULE, EVENTS, PRECI_TYPE, AMBIENCE_TYPE } from '../constants.js'
 
-Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
-  SceneWeather.registerRegionTemplate(MODULE.ID, 'mediterranean', {
-    name: 'templates.region.mediterranean.name',
-    description: 'templates.region.mediterranean.description',
-    elevation: 500,
-    vegetation: 50,
-    waterAmount: 20,
-    summer: {
-      temperature: {
-        day: 30,
-        night: 17.5,
-        var: 7.5
-      },
-      humidity: {
-        day: 60,
-        night: 65,
-        var: 5
-      },
-      wind: {
-        avg: 15,
-        var: 10
-      },
-      sun: {
-        hours: 15
-      }
+Hooks.on(EVENTS.REG_WEATHER_SFX, (sfxHandler) => {
+  sfxHandler.registerSfx('lightRain', 'modules/' + MODULE.ID + '/assets/light_rain.ogg', {
+    matchAny: {
+      'base.precipitation.type': [PRECI_TYPE.drizzle, PRECI_TYPE.rain],
+      'precipitation.type': [PRECI_TYPE.drizzle, PRECI_TYPE.rain]
     },
-    winter: {
-      temperature: {
-        day: 17.5,
-        night: 7.5,
-        var: 5
-      },
-      humidity: {
-        day: 70,
-        night: 60,
-        var: 10
-      },
-      wind: {
-        avg: 20,
-        var: 10
-      },
-      sun: {
-        hours: 9
-      }
-    }
+    gainMatrix: [
+      [0.0, 1.0], // outside
+      [0.0, 1.0], // lightroof
+      [0.3, 1.0], // roof
+      [0.0, 1.0], // inside
+      [0.0, 1.0] // underground
+    ],
+    baseValue: 'base.precipitation.amount',
+    actualValue: 'precipitation.amount',
+    baseGain: [
+      { position: 0.05, gain: 0.0 },
+      { position: 0.3, gain: 1.0 },
+      { position: 0.4, gain: 0.0 }
+    ],
+    actualGain: [
+      { position: 0.05, gain: 0.0 },
+      { position: 0.3, gain: 1.0 },
+      { position: 0.4, gain: 0.0 }
+    ]
   })
 })

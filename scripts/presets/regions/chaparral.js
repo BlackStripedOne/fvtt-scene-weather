@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -21,47 +22,47 @@ import { EVENTS, MODULE } from '../../constants.js'
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   // https://en.wikipedia.org/wiki/Chaparral
   SceneWeather.registerRegionTemplate(MODULE.ID, 'chaparral', {
-    'name': 'templates.region.chaparral.name',
-    'description': 'templates.region.chaparral.description',
-    'elevation': 1000,
-    'vegetation': 5,
-    'waterAmount': 5,
-    'summer': {
-      'temperature': {
-        'day': 32.5,
-        "night": 17.5,
-        "var": 5
+    name: 'templates.region.chaparral.name',
+    description: 'templates.region.chaparral.description',
+    elevation: 1000,
+    vegetation: 5,
+    waterAmount: 5,
+    summer: {
+      temperature: {
+        day: 32.5,
+        night: 17.5,
+        var: 5
       },
-      'humidity': {
-        'day': 60,
-        'night': 40,
-        'var': 5
+      humidity: {
+        day: 60,
+        night: 40,
+        var: 5
       },
-      'wind': {
-        'avg': 25,
-        'var': 10
+      wind: {
+        avg: 25,
+        var: 10
       },
-      'sun': {
-        'hours': 13
+      sun: {
+        hours: 13
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 17.5,
-        "night": 2.5,
-        "var": 5
+    winter: {
+      temperature: {
+        day: 17.5,
+        night: 2.5,
+        var: 5
       },
-      'humidity': {
-        'day': 60,
-        'night': 50,
-        'var': 5
+      humidity: {
+        day: 60,
+        night: 50,
+        var: 5
       },
-      'wind': {
-        'avg': 30,
-        'var': 10
+      wind: {
+        avg: 30,
+        var: 10
       },
-      'sun': {
-        'hours': 11
+      sun: {
+        hours: 11
       }
     }
   })

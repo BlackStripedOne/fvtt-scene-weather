@@ -23,7 +23,6 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { Permissions } from '../permissions.js'
 
 export class WeatherNodeConfig extends FormApplication {
-
   /**
    * @param {WeatherNode} weatherNode - The underlaying inherited object of AbstractWeatherNode holding the data to be editable
    * @param {DocumentSheetOptions} [options={}]  Optional configuration parameters for how the form behaves.
@@ -51,7 +50,7 @@ export class WeatherNodeConfig extends FormApplication {
 
   /** @inheritdoc */
   get isEditable() {
-    return (this.options.editable && !this.weatherNode.data.locked)
+    return this.options.editable && !this.weatherNode.data.locked
   }
 
   /* --------------------- static ----------------------- */
@@ -62,13 +61,13 @@ export class WeatherNodeConfig extends FormApplication {
    */
   static get defaultOptions() {
     return Utils.mergeObject(super.defaultOptions, {
-      classes: ["sheet"],
+      classes: ['sheet'],
       template: 'modules/' + MODULE.ID + '/templates/weatherNodeConfig.hbs',
       viewPermission: Permissions.hasPermission(Fal.userID(), 'sceneSettings'),
-      id: "weather-node-config",
+      id: 'weather-node-config',
       width: 480,
-      height: "auto",
-      tabs: [{ navSelector: ".tabs", contentSelector: "form", initial: "form" }]
+      height: 'auto',
+      tabs: [{ navSelector: '.tabs', contentSelector: 'form', initial: 'form' }]
     })
   }
 
@@ -82,24 +81,28 @@ export class WeatherNodeConfig extends FormApplication {
 
   /** @override */
   getData(options = {}) {
-    const [typeName] = Object.entries(NODE_TYPE).find(([, val]) => val === this.weatherNode.data.type)
+    const [typeName] = Object.entries(NODE_TYPE).find(
+      ([, val]) => val === this.weatherNode.data.type
+    )
     let data = {
-      'x': this.weatherNode.data.x,
-      'y': this.weatherNode.data.y,
-      'z': this.weatherNode.data.z,
-      'enabled': this.weatherNode.data.enabled,
-      'type': typeName.toLowerCase() || 'unknown'
+      x: this.weatherNode.data.x,
+      y: this.weatherNode.data.y,
+      z: this.weatherNode.data.z,
+      enabled: this.weatherNode.data.enabled,
+      type: typeName.toLowerCase() || 'unknown'
     }
 
     // add type specific elements to data
     switch (this.weatherNode.data.type) {
       case NODE_TYPE.MASK:
-        const [maskName] = Object.entries(AMBIENCE_TYPE).find(([, val]) => val === this.weatherNode.data.mask)
+        const [maskName] = Object.entries(AMBIENCE_TYPE).find(
+        ([, val]) => val === this.weatherNode.data.mask
+      )
         data.mask = maskName || 'outside'
-        const masks = Object.keys(AMBIENCE_TYPE).map(maskType => {
+        const masks = Object.keys(AMBIENCE_TYPE).map((maskType) => {
           return {
-            'id': maskType,
-            'name': 'dialogs.weatherNodeConfig.maskType.' + maskType
+            id: maskType,
+            name: 'dialogs.weatherNodeConfig.maskType.' + maskType
           }
         })
         data.masks = masks
@@ -109,9 +112,9 @@ export class WeatherNodeConfig extends FormApplication {
 
     // Rendering context
     return {
-      'id': this.id,
-      'appId': this.appId,
-      'data': data
+      id: this.id,
+      appId: this.appId,
+      data: data
     }
   }
 
@@ -123,7 +126,7 @@ export class WeatherNodeConfig extends FormApplication {
   /** @inheritdoc */
   render(force = false, options = {}) {
     // Register the active Application with the sceneweather layer
-    canvas.sceneweather.apps[this.id] = this   // key was this.appId
+    canvas.sceneweather.apps[this.id] = this // key was this.appId
     return super.render(force, options)
   }
 
@@ -138,14 +141,18 @@ export class WeatherNodeConfig extends FormApplication {
   }
 
   /**
-   * 
+   *
    * @param {jQuery} html
    * @protected
    */
   _injectWeatherNodeHeader(html) {
     const title = html.find('.window-title')
-    const enabled = this.weatherNode.data.enabled ? '<i class="fa-solid fa-eye"></i> ' : '<i class="fa-solid fa-eye-slash"></i> '
-    const locked = this.weatherNode.data.locked ? '<i class="fa-solid fa-lock"></i> ' : '<i class="fa-solid fa-lock-open"></i> '
+    const enabled = this.weatherNode.data.enabled
+      ? '<i class="fa-solid fa-eye"></i> '
+      : '<i class="fa-solid fa-eye-slash"></i> '
+    const locked = this.weatherNode.data.locked
+      ? '<i class="fa-solid fa-lock"></i> '
+      : '<i class="fa-solid fa-lock-open"></i> '
     title.prepend(enabled)
     title.prepend(locked)
     const label = 'WeatherNode'
@@ -155,15 +162,29 @@ export class WeatherNodeConfig extends FormApplication {
     idLink.dataset.tooltip = label + ': ' + this.weatherNode.data.id
     idLink.dataset.tooltipDirection = 'UP'
     idLink.innerHTML = '<i class="fa-solid fa-passport"></i>'
-    idLink.addEventListener('click', event => {
+    idLink.addEventListener('click', (event) => {
       event.preventDefault()
       Utils.copyToClipboard(this.weatherNode.data.id)
-      Logger.info(game.i18n.format('DOCUMENT.IdCopiedClipboard', { label, type: 'id', id: this.weatherNode.data.id }), true)  // TODO use Fal
+      Logger.info(
+        game.i18n.format('DOCUMENT.IdCopiedClipboard', {
+          label,
+          type: 'id',
+          id: this.weatherNode.data.id
+        }),
+        true
+      ) // TODO use Fal
     })
-    idLink.addEventListener("contextmenu", event => {
+    idLink.addEventListener('contextmenu', (event) => {
       event.preventDefault()
       Utils.copyToClipboard(this.weatherNode.data.id)
-      Logger.info(game.i18n.format('DOCUMENT.IdCopiedClipboard', { label, type: 'uuid', id: this.weatherNode.data.id }), true)  // TODO use Fal
+      Logger.info(
+        game.i18n.format('DOCUMENT.IdCopiedClipboard', {
+          label,
+          type: 'uuid',
+          id: this.weatherNode.data.id
+        }),
+        true
+      ) // TODO use Fal
     })
     title.append(idLink)
   }
@@ -176,24 +197,28 @@ export class WeatherNodeConfig extends FormApplication {
 
     let changes = {}
 
-    const newX = Utils.clamp(formData.x, sceneRect.x, (sceneRect.x + sceneRect.width) - minSize)
-    const newY = Utils.clamp(formData.y, sceneRect.y, (sceneRect.y + sceneRect.height) - minSize)
+    const newX = Utils.clamp(formData.x, sceneRect.x, sceneRect.x + sceneRect.width - minSize)
+    const newY = Utils.clamp(formData.y, sceneRect.y, sceneRect.y + sceneRect.height - minSize)
     if (formData.x != this.weatherNode.data.x) changes.x = newX
     if (formData.y != this.weatherNode.data.y) changes.y = newY
 
     if (formData.z != this.weatherNode.data.z) changes.z = formData.z
     if (formData.enabled != this.weatherNode.data.enabled) changes.enabled = formData.enabled
-    if (maskNumber || (maskNumber != this.weatherNode.data.mask)) changes.mask = maskNumber
+    if (maskNumber || maskNumber != this.weatherNode.data.mask) changes.mask = maskNumber
 
-    if (formData.feather != this.weatherNode.data.feather) changes.feather = Utils.clamp(formData.feather, 0, 100)
+    if (formData.feather != this.weatherNode.data.feather)
+      changes.feather = Utils.clamp(formData.feather, 0, 100)
 
-    Logger.trace('WeatherNodeConfig._updateObject(...)', { 'event': event, 'formData': formData, 'changes': changes, 'maskNumber': maskNumber })
+    Logger.trace('WeatherNodeConfig._updateObject(...)', {
+      event: event,
+      formData: formData,
+      changes: changes,
+      maskNumber: maskNumber
+    })
 
     if (Object.keys(changes).length > 0) {
       changes.id = this.weatherNode.id
       canvas.sceneweather.updateNodes([changes])
     }
   }
-
-
 }

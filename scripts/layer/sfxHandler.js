@@ -35,7 +35,7 @@ Hooks.on(EVENTS.MODULE_READY, () => {
   }
 
   Hooks.on('globalAmbientVolumeChanged', async (volume) => {
-    Logger.debug('->Hook:globalAmbientVolumeChanged  -> (...)', { 'volume': volume })
+    Logger.debug('->Hook:globalAmbientVolumeChanged  -> (...)', { volume: volume })
     if (canvas.sceneweather.sfxHandler) {
       canvas.sceneweather.sfxHandler.setGlobalVolume(volume)
     }
@@ -43,7 +43,9 @@ Hooks.on(EVENTS.MODULE_READY, () => {
 
   Hooks.on(EVENTS.SETTINGS_UPDATED, (changes) => {
     if (changes.id === 'sfxVolume') {
-      Logger.debug('->Hook:sceneWeather,sfxVolumeChanged  -> (...)', { 'volume': changes.value / 100 })
+      Logger.debug('->Hook:sceneWeather,sfxVolumeChanged  -> (...)', {
+        volume: changes.value / 100
+      })
       canvas.sceneweather.sfxHandler.setSfxVolume(changes.value / 100)
     }
   })
@@ -54,7 +56,6 @@ Hooks.on(EVENTS.MODULE_READY, () => {
  * Register an effect via the SfxHandler.registerSfx method that automatically controls the sfx based on the ambience model of a selected token.
  */
 export class SfxHandler {
-
   /**
    * Current systick frames for keeping track of consistent fades
    * @type {number}
@@ -86,7 +87,7 @@ export class SfxHandler {
   _volumesChanged = true
 
   /**
-   * Create a SfxHandler instance, registering the ticker as well as setting 
+   * Create a SfxHandler instance, registering the ticker as well as setting
    * the initial values for the set sound volumes.
    */
   constructor() {
@@ -113,16 +114,16 @@ export class SfxHandler {
       autoplayOptions: {}
     })
     this._soundEffects[id] = {
-      'options': options,
-      'sound': sound,
-      'gain': 0.0,
-      'active': false,
-      'offset': 0,
-      'targetGain': 1.0,
-      'targetFrame': -1
+      options: options,
+      sound: sound,
+      gain: 0.0,
+      active: false,
+      offset: 0,
+      targetGain: 1.0,
+      targetFrame: -1
     }
     sound.load().then((value) => {
-      Logger.trace('SfxHandler.preloadSound(...) loaded', { 'id': id, 'value': value })
+      Logger.trace('SfxHandler.preloadSound(...) loaded', { id: id, value: value })
     })
     Logger.info('registerSfx | ' + Fal.i18n('api.regSfx') + id + '.')
   }
@@ -132,7 +133,7 @@ export class SfxHandler {
    * @param {boolean} [soft=false] - Softly disable all sound effects, by fading them out over time.
    */
   disableAllSounds(soft = false) {
-    Object.values(this._soundEffects).forEach(sfx => {
+    Object.values(this._soundEffects).forEach((sfx) => {
       sfx.targetFrame = -1
       sfx.sourceFrame = -1
       sfx.gain = 0.0
@@ -147,7 +148,7 @@ export class SfxHandler {
    * @param {boolean} [soft=true] - Softly update the sound effects, by fading them out over time.
    */
   updateSounds(ambienceModel, soft = true) {
-    Object.keys(this._soundEffects).forEach(sfxId => {
+    Object.keys(this._soundEffects).forEach((sfxId) => {
       const sfx = this._soundEffects[sfxId]
       const sfxOptions = sfx.options
 
@@ -155,11 +156,13 @@ export class SfxHandler {
       let matches = true
       const matchAny = sfxOptions.matchAny
       if (matchAny) {
-        matches = matches && Object.keys(matchAny).find(matcherKey => {
-          const matcherOptions = sfxOptions.matchAny[matcherKey]
-          const matcherValue = Utils.getNestedLeaf(ambienceModel, matcherKey)
-          return matcherOptions.includes(matcherValue)
-        })
+        matches =
+          matches &&
+          Object.keys(matchAny).find((matcherKey) => {
+            const matcherOptions = sfxOptions.matchAny[matcherKey]
+            const matcherValue = Utils.getNestedLeaf(ambienceModel, matcherKey)
+            return matcherOptions.includes(matcherValue)
+          })
       }
 
       // if none matches, bail
@@ -181,7 +184,10 @@ export class SfxHandler {
       const blendGain = sfxOptions.gainMatrix[condition][0] || 0.0
       const baseGain = sfxOptions.gainMatrix[condition][1] || 0.0
       // Logger.trace('SfxHandler.updateSounds(' + sfxId + '):gainCalc', { 'ambienceModel': ambienceModel, 'condition': condition, 'blendGain': blendGain, 'baseGain': baseGain })
-      const gain = Math.max(this._getGain(basePrecipitation, sfxOptions.baseGain) * blendGain, this._getGain(actualPrecipitation, sfxOptions.actualGain) * baseGain)
+      const gain = Math.max(
+        this._getGain(basePrecipitation, sfxOptions.baseGain) * blendGain,
+        this._getGain(actualPrecipitation, sfxOptions.actualGain) * baseGain
+      )
       this._setTargetGain(sfx, gain)
     })
     this._volumesChanged = true
@@ -197,8 +203,8 @@ export class SfxHandler {
     this._sysTick += timeElapsed
     this._updateVolumes()
     this._setDebugWindow({
-      'tick': this._sysTick,
-      'sfx': this._soundEffects
+      tick: this._sysTick,
+      sfx: this._soundEffects
     })
   }
 
@@ -249,7 +255,7 @@ export class SfxHandler {
    */
   _updateSounds() {
     if (!this._volumesChanged) return
-    Object.values(this._soundEffects).forEach(sfx => {
+    Object.values(this._soundEffects).forEach((sfx) => {
       if (sfx.gain > 0.0) {
         // should play
         if (sfx.sound.loaded) {
@@ -264,7 +270,9 @@ export class SfxHandler {
             })
           }
         } else {
-          sfx.sound.load().then(() => { this._volumesChanged = true })
+          sfx.sound.load().then(() => {
+            this._volumesChanged = true
+          })
         }
       } else {
         // should not play
@@ -283,7 +291,7 @@ export class SfxHandler {
    * @param {boolean} [soft=false] - Softly update the sound effects.
    */
   _updateVolumes(soft = true) {
-    Object.values(this._soundEffects).forEach(sfx => {
+    Object.values(this._soundEffects).forEach((sfx) => {
       if (sfx.targetFrame > 0) {
         if (soft) {
           // fade to
@@ -293,9 +301,21 @@ export class SfxHandler {
             sfx.targetFrame = -1
           } else {
             if (sfx.targetGain > sfx.sourceGain) {
-              sfx.gain = Utils.map(this._sysTick, sfx.sourceFrame, sfx.targetFrame, sfx.sourceGain, sfx.targetGain)
+              sfx.gain = Utils.map(
+                this._sysTick,
+                sfx.sourceFrame,
+                sfx.targetFrame,
+                sfx.sourceGain,
+                sfx.targetGain
+              )
             } else {
-              sfx.gain = - Utils.map(this._sysTick, sfx.sourceFrame, sfx.targetFrame, -sfx.sourceGain, -sfx.targetGain)
+              sfx.gain = -Utils.map(
+                this._sysTick,
+                sfx.sourceFrame,
+                sfx.targetFrame,
+                -sfx.sourceGain,
+                -sfx.targetGain
+              )
             }
           }
         } else {
@@ -313,11 +333,11 @@ export class SfxHandler {
   }
 
   /**
-    * Returns the gain value for a given intensity value using a lookup table of positions and gain values.
-    * @param {number} intensity - The intensity value between 0.0 and 1.0 for which to find the gain value.
-    * @param {Array<Object>} arr - An array of objects with position and gain properties, representing the lookup table.
-    * @returns {number} The gain value for the given intensity value, based on the lookup table.
-    */
+   * Returns the gain value for a given intensity value using a lookup table of positions and gain values.
+   * @param {number} intensity - The intensity value between 0.0 and 1.0 for which to find the gain value.
+   * @param {Array<Object>} arr - An array of objects with position and gain properties, representing the lookup table.
+   * @returns {number} The gain value for the given intensity value, based on the lookup table.
+   */
   _getGain(intensity, arr) {
     let startIndex = 0
     let endIndex = arr.length - 1
@@ -342,7 +362,13 @@ export class SfxHandler {
         return arr[midIndex].gain
       }
     }
-    return Utils.map(intensity, arr[startIndex].position, arr[endIndex].position, arr[startIndex].gain, arr[endIndex].gain)
+    return Utils.map(
+      intensity,
+      arr[startIndex].position,
+      arr[endIndex].position,
+      arr[startIndex].gain,
+      arr[endIndex].gain
+    )
   }
 
   /*--------------------- Functions, private, debug/trace only --------------------- */
@@ -362,7 +388,7 @@ export class SfxHandler {
     if (!this._debugToast) return
     const { width } = element.getBoundingClientRect()
     if (width) {
-      this._debugToast.css('right', (width + 40) + 'px')
+      this._debugToast.css('right', width + 40 + 'px')
     }
   }
 
@@ -372,7 +398,7 @@ export class SfxHandler {
     html += '</br>v:' + this._globalVolume.toFixed(3)
     html += '</br>s:' + this._sfxVolume.toFixed(3)
     html += '<ul>'
-    Object.keys(data.sfx).forEach(sfxId => {
+    Object.keys(data.sfx).forEach((sfxId) => {
       const sfx = data.sfx[sfxId]
       const offset = sfx.sound.currentTime || 0
       html += '<li>' + sfxId + ' / ' + sfx.gain.toFixed(3) + ' / ' + offset.toFixed(1) + '</li>'
@@ -387,15 +413,15 @@ export class SfxHandler {
       sidebar.after("<div id='sceneweatherdebug'></div>")
       this._debugToast = $('#sceneweatherdebug')
       this._debugToast.css({
-        'position': 'fixed',
-        'top': '10px',
-        'border': '1px solid white',
-        'background': 'rgba(0,0,0,0.2)',
+        position: 'fixed',
+        top: '10px',
+        border: '1px solid white',
+        background: 'rgba(0,0,0,0.2)',
         'border-radius': '4px',
-        'padding': '10px',
+        padding: '10px',
         'font-size': '10px',
-        'color': 'white',
-        'visibility': 'visible',
+        color: 'white',
+        visibility: 'visible',
         'z-index': '31',
         'pointer-events': 'all'
       })
@@ -405,5 +431,4 @@ export class SfxHandler {
       })
     }
   }
-
 }

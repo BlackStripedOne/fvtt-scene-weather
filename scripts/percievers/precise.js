@@ -28,7 +28,6 @@ Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
 })
 
 class PrecisePerciever extends WeatherPerception {
-
   /**
    * @override WeatherPerception.isAllowed(userId)
    */
@@ -48,7 +47,10 @@ class PrecisePerciever extends WeatherPerception {
    * @override WeatherPerception.getUiHtmlFromModel(weatherModel)
    */
   async getUiHtmlFromModel(weatherModel) {
-    const uiHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/precisePerceptionUi.hbs', await this.getWeatherInfoFromModel(weatherModel))
+    const uiHtml = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/precisePerceptionUi.hbs',
+      await this.getWeatherInfoFromModel(weatherModel)
+    )
     return uiHtml
   }
 
@@ -63,36 +65,42 @@ class PrecisePerciever extends WeatherPerception {
    * @override WeatherPerception.getWeatherInfoFromModel(modelData)
    */
   async getWeatherInfoFromModel(modelData) {
-    const weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
-      'temperature': {
-        'air': modelData.temp.air.toFixed(1),
-        'ground': modelData.temp.ground.toFixed(1),
-        'percieved': modelData.temp.percieved.toFixed(1)
-      },
-      'humidity': {
-        'percent': modelData.humidity.toFixed(1)
-      },
-      'wind': {
-        'speed': Math.round(modelData.wind.speed),
-        'gusts': Math.round(modelData.wind.gusts),
-        'direction': Math.round(modelData.wind.direction)
-      },
-      'clouds': {
-        'height': Math.round(modelData.clouds.bottom),
-        'amount': Math.round(modelData.clouds.coverage * 100),
-        'type': modelData.clouds.type,
-        'typeId': PrecisePerciever._getCloudTypeId(modelData.clouds.type)
-      },
-      'sun': {
-        'amount': Math.round(modelData.sun.amount * 100)
-      },
-      'precipitation': {
-        'amount': Math.round(modelData.precipitation.amount * 100),
-        'type': modelData.precipitation.type,
-        'typeId': PrecisePerciever._getPrecipitationTypeId(modelData.precipitation.type)
+    const weatherInfo = Utils.mergeObject(
+      Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT),
+      {
+        temperature: {
+          air: modelData.temp.air.toFixed(1),
+          ground: modelData.temp.ground.toFixed(1),
+          percieved: modelData.temp.percieved.toFixed(1)
+        },
+        humidity: {
+          percent: modelData.humidity.toFixed(1)
+        },
+        wind: {
+          speed: Math.round(modelData.wind.speed),
+          gusts: Math.round(modelData.wind.gusts),
+          direction: Math.round(modelData.wind.direction)
+        },
+        clouds: {
+          height: Math.round(modelData.clouds.bottom),
+          amount: Math.round(modelData.clouds.coverage * 100),
+          type: modelData.clouds.type,
+          typeId: PrecisePerciever._getCloudTypeId(modelData.clouds.type)
+        },
+        sun: {
+          amount: Math.round(modelData.sun.amount * 100)
+        },
+        precipitation: {
+          amount: Math.round(modelData.precipitation.amount * 100),
+          type: modelData.precipitation.type,
+          typeId: PrecisePerciever._getPrecipitationTypeId(modelData.precipitation.type)
+        }
       }
+    )
+    Logger.debug('PerceptivePerciever.getWeatherInfoFromModel()', {
+      modelData: modelData,
+      weatherInfo: weatherInfo
     })
-    Logger.debug('PerceptivePerciever.getWeatherInfoFromModel()', { 'modelData': modelData, 'weatherInfo': weatherInfo })
     return weatherInfo
   }
 
@@ -101,33 +109,34 @@ class PrecisePerciever extends WeatherPerception {
    */
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
-      'id': 'precise',
-      'name': Fal.i18n('meteo.precise.name')
+      id: 'precise',
+      name: Fal.i18n('meteo.precise.name')
     })
-    Logger.debug('PrecisePerciever.getPercieverInfo()', { 'info': info })
+    Logger.debug('PrecisePerciever.getPercieverInfo()', { info: info })
     return info
   }
 
   /**
-    * Given a cloud type, returns a string identifier for the type in the format
-    * "meteo.precise.cloudTypes.<type>".
-    * @param {string} type - A string representing the cloud type to identify.
-    * @returns {string} - A string identifier in the format "meteo.precise.cloudTypes.<type>".
-    */
+   * Given a cloud type, returns a string identifier for the type in the format
+   * "meteo.precise.cloudTypes.<type>".
+   * @param {string} type - A string representing the cloud type to identify.
+   * @returns {string} - A string identifier in the format "meteo.precise.cloudTypes.<type>".
+   */
   static _getCloudTypeId(type) {
     const [suffix] = Object.entries(CLOUD_TYPE).find(([, val]) => val === type)
     return suffix ? `meteo.precise.cloudTypes.${suffix}` : 'meteo.precise.cloudTypes.cumulunimbus'
   }
 
   /**
-  * Given a precipitation type, returns a string identifier for the type in the format
-  * "meteo.precise.precipitationTypes.<type>".
-  * @param {string} type - A string representing the precipitation type to identify.
-  * @returns {string} - A string identifier in the format "meteo.precise.precipitationTypes.<type>".
-  */
+   * Given a precipitation type, returns a string identifier for the type in the format
+   * "meteo.precise.precipitationTypes.<type>".
+   * @param {string} type - A string representing the precipitation type to identify.
+   * @returns {string} - A string identifier in the format "meteo.precise.precipitationTypes.<type>".
+   */
   static _getPrecipitationTypeId(type) {
     const [suffix] = Object.entries(PRECI_TYPE).find(([, val]) => val === type)
-    return suffix ? `meteo.precise.precipitationTypes.${suffix}` : 'meteo.precise.precipitationTypes.none'
+    return suffix
+      ? `meteo.precise.precipitationTypes.${suffix}`
+      : 'meteo.precise.precipitationTypes.none'
   }
-
 }

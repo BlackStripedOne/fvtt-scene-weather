@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,30 +21,30 @@ import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
   SceneWeather.registerWeatherTemplate(MODULE.ID, 'heavyrain', {
-    'name': 'templates.weather.heavyrain.name',
-    'temp': {
-      'ground': 15,
-      'air': 15,
-      'percieved': 12
+    name: 'templates.weather.heavyrain.name',
+    temp: {
+      ground: 15,
+      air: 15,
+      percieved: 12
     },
-    'wind': {
-      'speed': 25,
-      'gusts': 29,
-      'direction': 85
+    wind: {
+      speed: 25,
+      gusts: 29,
+      direction: 85
     },
-    'clouds': {
-      'coverage': 0.8,
-      'bottom': 500,
-      'top': 1000,
-      'type': CLOUD_TYPE.cumulus
+    clouds: {
+      coverage: 0.8,
+      bottom: 500,
+      top: 1000,
+      type: CLOUD_TYPE.cumulus
     },
-    'precipitation': {
-      'amount': 0.9,
-      'type': PRECI_TYPE.rain
+    precipitation: {
+      amount: 0.9,
+      type: PRECI_TYPE.rain
     },
-    'sun': {
-      'amount': 0.3,
+    sun: {
+      amount: 0.3
     },
-    'humidity': 70
+    humidity: 70
   })
 })

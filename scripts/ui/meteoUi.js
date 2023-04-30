@@ -32,7 +32,6 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
  * TODO
  */
 export class MeteoUi extends FormApplication {
-
   static _isOpen = false
 
   static _context = undefined
@@ -66,9 +65,8 @@ export class MeteoUi extends FormApplication {
     return super.close(options)
   }
 
-
   static get defaultOptions() {
-    this.initialPosition = Fal.getSetting('meteoPosition', { 'top': 40, 'left': 40 })
+    this.initialPosition = Fal.getSetting('meteoPosition', { top: 40, left: 40 })
     return Utils.mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
@@ -87,7 +85,7 @@ export class MeteoUi extends FormApplication {
 
   async _updateObject(event, formData) {
     // TODO
-    Logger.debug('MeteoUi._updateObjec', { 'event': event, 'formData': formData })
+    Logger.debug('MeteoUi._updateObjec', { event: event, formData: formData })
   }
 
   getData() {
@@ -126,8 +124,7 @@ export class MeteoUi extends FormApplication {
       let windowPos = $('#scene-weather-meteo-app').position()
       let newPos = { top: windowPos.top, left: windowPos.left }
       await Fal.setSetting('meteoPosition', newPos)
-    };
-
+    }
   }
 
   // Toggle visibility of the main window.
@@ -179,23 +176,98 @@ export class MeteoUi extends FormApplication {
       datasets: []
     }
 
-    let tempGround = { label: 'tempGround', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#ff0000', borderDash: [5, 5], yAxisID: 'y' }
-    let tempAir = { label: 'tempAir', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#ff4400', borderDash: [5, 5], yAxisID: 'y' }
-    let tempPercieved = { label: 'tempPercieved', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#ff0044', yAxisID: 'y' }
-    let windSpeed = { label: 'windSpeed', data: [], borderWidth: 1, pointRadius: 0, borderColor: 'rgba(20, 200, 0, 0.9)', yAxisID: 'y' }
-    let windGusts = { label: 'windGusts', data: [], borderWidth: 1, pointRadius: 0, borderColor: 'rgba(0, 200, 0, 0.8)', borderDash: [5, 5], yAxisID: 'y' }
-    let windDirection = { label: 'windDirection', data: [], borderWidth: 1, showLine: false, borderColor: '#b74' }
-    let cloudsCoverage = { label: 'cloudsCoverage', data: [], borderWidth: 1, pointRadius: 0, backgroundColor: 'rgba(128, 128, 128, 0.3)', fill: true, stepped: true, yAxisID: 'y2' }
+    let tempGround = {
+      label: 'tempGround',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: '#ff0000',
+      borderDash: [5, 5],
+      yAxisID: 'y'
+    }
+    let tempAir = {
+      label: 'tempAir',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: '#ff4400',
+      borderDash: [5, 5],
+      yAxisID: 'y'
+    }
+    let tempPercieved = {
+      label: 'tempPercieved',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: '#ff0044',
+      yAxisID: 'y'
+    }
+    let windSpeed = {
+      label: 'windSpeed',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: 'rgba(20, 200, 0, 0.9)',
+      yAxisID: 'y'
+    }
+    let windGusts = {
+      label: 'windGusts',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: 'rgba(0, 200, 0, 0.8)',
+      borderDash: [5, 5],
+      yAxisID: 'y'
+    }
+    let windDirection = {
+      label: 'windDirection',
+      data: [],
+      borderWidth: 1,
+      showLine: false,
+      borderColor: '#b74'
+    }
+    let cloudsCoverage = {
+      label: 'cloudsCoverage',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      backgroundColor: 'rgba(128, 128, 128, 0.3)',
+      fill: true,
+      stepped: true,
+      yAxisID: 'y2'
+    }
     //    let cloudsBottom = { label: 'cloudsBottom', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#222' }
     //    let cloudsTop = { label: 'cloudsTop', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#222' }
     //    let cloudsType = { label: 'cloudsType', data: [], borderWidth: 1, showLine: false, borderColor: '#555' }
-    let precipitationAmount = { label: 'precipitationAmount', data: [], borderWidth: 1, pointRadius: 0, backgroundColor: 'rgba(60,60,255,0.2)', fill: true, yAxisID: 'y2' }
-    let sunAmount = { label: 'sunAmount', data: [], borderWidth: 1, pointRadius: 0, backgroundColor: 'rgba(255, 255, 0, 0.6)', fill: true, yAxisID: 'y2' }
-    let humidity = { label: 'humidity', data: [], borderWidth: 1, pointRadius: 0, borderColor: '#9999ff', yAxisID: 'y2' }
+    let precipitationAmount = {
+      label: 'precipitationAmount',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      backgroundColor: 'rgba(60,60,255,0.2)',
+      fill: true,
+      yAxisID: 'y2'
+    }
+    let sunAmount = {
+      label: 'sunAmount',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      backgroundColor: 'rgba(255, 255, 0, 0.6)',
+      fill: true,
+      yAxisID: 'y2'
+    }
+    let humidity = {
+      label: 'humidity',
+      data: [],
+      borderWidth: 1,
+      pointRadius: 0,
+      borderColor: '#9999ff',
+      yAxisID: 'y2'
+    }
 
     // TODO !!!
     const sceneWeather = SceneWeatherApi.getSceneWeatherProvider()
-
 
     for (let hour = fromHr; hour < toHr; hour++) {
       const meteoData = sceneWeather.weatherModel.getWeatherData(0, hour)
@@ -299,7 +371,7 @@ export class MeteoUi extends FormApplication {
 
     if (MeteoUi._chart === undefined) {
       MeteoUi._chart = new Chart(ctx, config)
-      Logger.debug('MeteoUI::new', { 'ctx': ctx, 'chart': MeteoUi._chart })
+      Logger.debug('MeteoUI::new', { ctx: ctx, chart: MeteoUi._chart })
     } else {
       Logger.debug('MeteoUi::update')
       for (let i = 0; i < MeteoUi._chart.data.datasets.length; i++) {
@@ -309,6 +381,4 @@ export class MeteoUi extends FormApplication {
       MeteoUi._chart.update()
     }
   }
-
 }
-

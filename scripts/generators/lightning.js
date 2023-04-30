@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -25,10 +26,13 @@ Hooks.on(EVENTS.REG_FX_FILTERS, async () => {
   SceneWeather.registerWeatherFxFilter('lightning', function (modelData) {
     let filterConfigs = {}
 
-    if (modelData.clouds.type > CLOUD_TYPE.cumulus                             // TCU
-      && [PRECI_TYPE.rain, PRECI_TYPE.downpour, PRECI_TYPE.hail].includes(modelData.precipitation.type)   // RAIN, DOWNPOUR, HAIL
-      && modelData.precipitation.amount > 0.3) {
-
+    if (
+      modelData.clouds.type > CLOUD_TYPE.cumulus && // TCU
+      [PRECI_TYPE.rain, PRECI_TYPE.downpour, PRECI_TYPE.hail].includes(
+        modelData.precipitation.type
+      ) && // RAIN, DOWNPOUR, HAIL
+      modelData.precipitation.amount > 0.3
+    ) {
       filterConfigs['lightning'] = {
         type: FlashFilter,
         frequency: 2000 - Utils.map(modelData.precipitation.amount, 0.3, 1.0, 0, 1600), // 2000 low intensity .. 800 high intensity

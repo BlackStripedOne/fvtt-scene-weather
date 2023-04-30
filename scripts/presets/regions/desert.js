@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,47 +21,47 @@ import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   SceneWeather.registerRegionTemplate(MODULE.ID, 'desert', {
-    'name': 'templates.region.desert.name',
-    'description': 'templates.region.desert.description',
-    'elevation': 500,
-    'vegetation': 0,
-    'waterAmount': 0,
-    'summer': {
-      'temperature': {
-        'day': 45,
-        "night": 25,
-        "var": 10
+    name: 'templates.region.desert.name',
+    description: 'templates.region.desert.description',
+    elevation: 500,
+    vegetation: 0,
+    waterAmount: 0,
+    summer: {
+      temperature: {
+        day: 45,
+        night: 25,
+        var: 10
       },
-      'humidity': {
-        'day': 10,
-        'night': 20,
-        'var': 5
+      humidity: {
+        day: 10,
+        night: 20,
+        var: 5
       },
-      'wind': {
-        'avg': 30,
-        'var': 10
+      wind: {
+        avg: 30,
+        var: 10
       },
-      'sun': {
-        'hours': 13
+      sun: {
+        hours: 13
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 25,
-        'night': 5,
-        "var": 10
+    winter: {
+      temperature: {
+        day: 25,
+        night: 5,
+        var: 10
       },
-      'humidity': {
-        'day': 30,
-        'night': 50,
-        'var': 20
+      humidity: {
+        day: 30,
+        night: 50,
+        var: 20
       },
-      'wind': {
-        'avg': 25,
-        'var': 10
+      wind: {
+        avg: 25,
+        var: 10
       },
-      'sun': {
-        'hours': 11
+      sun: {
+        hours: 11
       }
     }
   })

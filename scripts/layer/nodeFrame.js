@@ -24,7 +24,6 @@ import { WeatherNodeData } from './weatherNodeData.js'
  * TODO
  */
 export class NodeFrame extends PIXI.Container {
-
   /**
    * The reference to the border rectangle.
    * @type {PIXI.Graphics}
@@ -64,7 +63,7 @@ export class NodeFrame extends PIXI.Container {
 
   // Returns true if all controlled nodes are locked
   get allControlledLocked() {
-    return canvas.sceneweather.controlled.some(weatherNode => weatherNode.data.locked)
+    return canvas.sceneweather.controlled.some((weatherNode) => weatherNode.data.locked)
   }
 
   /* --------------------- Public functions ----------------------- */
@@ -128,7 +127,7 @@ export class NodeFrame extends PIXI.Container {
 
   /**
    * Calculates the bounding rectangle of the controlled objects within the scene weather layer.
-   * 
+   *
    * @param {boolean} precise - Optional parameter to calculate bounds with precise values
    *                            based on the borderNodes of each controlled object. Defaults to false.
    * @returns {PIXI.Rectangle}  Returns a PIXI.Rectangle object representing the bounding rectangle of
@@ -176,25 +175,59 @@ export class NodeFrame extends PIXI.Container {
   async _rescaleDimensions(origin, current, centered = false) {
     // don't allow inversion beyond origin root
     if (current.x < origin.x || current.y < origin.y) return
-    if (centered && (current.x < (origin.x + (origin.width / 2)) || current.y < (origin.y + (origin.height / 2)))) return
+    if (
+      centered &&
+      (current.x < origin.x + origin.width / 2 || current.y < origin.y + origin.height / 2)
+    )
+      return
     // precalculations
     const minSize = canvas.dimensions.size * 0.5
-    const centeredTL = centered ? {
-      x: origin.x + (origin.x + origin.width - current.x),
-      y: origin.y + (origin.y + origin.height - current.y)
-    } : {}
+    const centeredTL = centered
+      ? {
+        x: origin.x + (origin.x + origin.width - current.x),
+        y: origin.y + (origin.y + origin.height - current.y)
+      }
+      : {}
     // scale all controlled weatherNodes
-    canvas.sceneweather.controlled.forEach(weatherNode => {
+    canvas.sceneweather.controlled.forEach((weatherNode) => {
       if (weatherNode._original) {
         const testData = new WeatherNodeData(weatherNode.data.toObject())
         for (let i = 0; i < weatherNode.data.borderNodes.length; i++) {
           const originalBorderNode = weatherNode._original.borderNodes[i]
           if (centered) {
-            testData.borderNodes[i].x = Utils.map(originalBorderNode.x + weatherNode.data.x, origin.x, origin.x + origin.width, centeredTL.x, current.x) - weatherNode.data.x
-            testData.borderNodes[i].y = Utils.map(originalBorderNode.y + weatherNode.data.y, origin.y, origin.y + origin.height, centeredTL.y, current.y) - weatherNode.data.y
+            testData.borderNodes[i].x =
+              Utils.map(
+                originalBorderNode.x + weatherNode.data.x,
+                origin.x,
+                origin.x + origin.width,
+                centeredTL.x,
+                current.x
+              ) - weatherNode.data.x
+            testData.borderNodes[i].y =
+              Utils.map(
+                originalBorderNode.y + weatherNode.data.y,
+                origin.y,
+                origin.y + origin.height,
+                centeredTL.y,
+                current.y
+              ) - weatherNode.data.y
           } else {
-            testData.borderNodes[i].x = Utils.map(originalBorderNode.x + weatherNode.data.x, origin.x, origin.x + origin.width, origin.x, current.x) - weatherNode.data.x
-            testData.borderNodes[i].y = Utils.map(originalBorderNode.y + weatherNode.data.y, origin.y, origin.y + origin.height, origin.y, current.y) - weatherNode.data.y
+            testData.borderNodes[i].x =
+              Utils.map(
+                originalBorderNode.x + weatherNode.data.x,
+                origin.x,
+                origin.x + origin.width,
+                origin.x,
+                current.x
+              ) - weatherNode.data.x
+            testData.borderNodes[i].y =
+              Utils.map(
+                originalBorderNode.y + weatherNode.data.y,
+                origin.y,
+                origin.y + origin.height,
+                origin.y,
+                current.y
+              ) - weatherNode.data.y
           }
         }
         if (testData._isPolygonValid(minSize)) {
@@ -279,7 +312,7 @@ export class NodeFrame extends PIXI.Container {
 
     if (!this.allControlledLocked) {
       this._dragHandle = true
-      canvas.sceneweather.controlled.forEach(weatherNode => {
+      canvas.sceneweather.controlled.forEach((weatherNode) => {
         weatherNode._original = weatherNode.data.toObject()
       })
     }
@@ -287,10 +320,10 @@ export class NodeFrame extends PIXI.Container {
   }
 
   /**
-    * Handle mousemove while dragging a tile scale handler
-    * @param {PIXI.InteractionEvent} event   The mouse interaction event
-    * @private
-    */
+   * Handle mousemove while dragging a tile scale handler
+   * @param {PIXI.InteractionEvent} event   The mouse interaction event
+   * @private
+   */
   async _onDragMove(event) {
     // limit rate of interaction
     if (Utils.throttleInteractivity(this)) return
@@ -301,14 +334,23 @@ export class NodeFrame extends PIXI.Container {
     if (originalEvent.shiftKey) destination = this._fixedAspectRatio(destination, origin)
 
     // modifier for ctrlKey locking the snapping to grid
-    if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
+    if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey)
+      destination = canvas.grid.getSnappedPosition(
+        destination.x,
+        destination.y,
+        canvas.sceneweather.gridPrecision
+      )
 
     // pan the canvas if the drag event approaches the edge
     canvas._onDragCanvasPan(originalEvent)
 
     // update all controlled WeatherNode's dimensions
     const borderPadding = canvas.dimensions.size * 0.5
-    this._rescaleDimensions(origin, { x: destination.x - borderPadding, y: destination.y - borderPadding }, originalEvent.altKey)
+    this._rescaleDimensions(
+      origin,
+      { x: destination.x - borderPadding, y: destination.y - borderPadding },
+      originalEvent.altKey
+    )
   }
 
   /**
@@ -324,13 +366,22 @@ export class NodeFrame extends PIXI.Container {
     if (originalEvent.shiftKey) destination = this._fixedAspectRatio(destination, origin)
 
     // modifier for ctrlKey locking the snapping to grid
-    if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
+    if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey)
+      destination = canvas.grid.getSnappedPosition(
+        destination.x,
+        destination.y,
+        canvas.sceneweather.gridPrecision
+      )
 
     const borderPadding = canvas.dimensions.size * 0.5
-    this._rescaleDimensions(origin, { x: destination.x - borderPadding, y: destination.y - borderPadding }, originalEvent.altKey)
+    this._rescaleDimensions(
+      origin,
+      { x: destination.x - borderPadding, y: destination.y - borderPadding },
+      originalEvent.altKey
+    )
 
     // finalize modification to all relevant weatherNodes
-    const updatedWeatherNodes = canvas.sceneweather.controlled.map(weatherNode => {
+    const updatedWeatherNodes = canvas.sceneweather.controlled.map((weatherNode) => {
       if (weatherNode._original) {
         weatherNode.data.normalize()
         // weatherNode.refresh()
@@ -354,15 +405,14 @@ export class NodeFrame extends PIXI.Container {
     // RESET TO ORIGINAL this.document.updateSource(this._original);
     this._dragHandle = false
     // delete this._original
-    canvas.sceneweather.controlled.forEach(weatherNode => {
+    canvas.sceneweather.controlled.forEach((weatherNode) => {
       delete weatherNode._original
     })
     this.refresh()
   }
 
   _onClickRight(event) {
-    Logger.trace('NodeFrame._onClickRight(...)', { 'event': event })
+    Logger.trace('NodeFrame._onClickRight(...)', { event: event })
     // TODO toggle to rotation mode... FEATURE, not implemented yet
   }
-
 }

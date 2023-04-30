@@ -22,7 +22,7 @@ import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { TimeProvider } from './timeProvider.js'
 
-Hooks.once("init", () => {
+Hooks.once('init', () => {
   Logger.trace('->Hook:InternalTimeProvider.init()')
   TimeProvider._instances[TIME_PROVIDERS.INTERNAL] = new InternalTimeProvider(true)
   TimeProvider._instances[TIME_PROVIDERS.EXTERNAL] = new InternalTimeProvider(false)
@@ -34,11 +34,10 @@ Hooks.once("init", () => {
  * and getting the hour and day of the year as percentiles. It also has authority over time control.
  *
  * TODO not heeding leap year in day-of-year calculation
- * 
+ *
  * @extends TimeProvider
  */
 export class InternalTimeProvider extends TimeProvider {
-
   /**
    * Creates a new instance of the `InternalTimeProvider` class with the specified authority status.
    *
@@ -46,15 +45,14 @@ export class InternalTimeProvider extends TimeProvider {
    */
   constructor(hasAuthority = false) {
     super()
-    Logger.trace('InternalTimeProvider:ctor(...)', { 'hasAuthority': hasAuthority })
+    Logger.trace('InternalTimeProvider:ctor(...)', { hasAuthority: hasAuthority })
     // Whether this module has authority over time control.
     this._hasAuthoriy = hasAuthority
     // An array that holds the days summed up for each previous month, for faster calculation.
-    this._monthOffset = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]	// Days summed up for each previous months for faster calculation
+    this._monthOffset = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334] // Days summed up for each previous months for faster calculation
     this._monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     this._monthDaysLeapYear = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
   }
-
 
   /**
    * @override
@@ -67,14 +65,15 @@ export class InternalTimeProvider extends TimeProvider {
    * @override
    */
   async advanceGameTime(deltaSeconds = 0) {
-    Logger.debug('InternalTimeProvider.advanceGameTime(...)', { 'deltaSeconds': deltaSeconds })
+    Logger.debug('InternalTimeProvider.advanceGameTime(...)', { deltaSeconds: deltaSeconds })
     if (this._hasAuthoriy) {
       // TODO dependant on provider
       if (deltaSeconds == 0) return
 
       //Set the world time, this will trigger the updateWorldTime hook on all connected players
       if (Fal.isGm()) {
-        await Fal.advanceWorldTime(deltaSeconds)
+        const currentWorldTime = Fal.getWorldTime()
+        const newTime = await Fal.advanceWorldTime(deltaSeconds)
       }
     }
   }
@@ -134,12 +133,12 @@ export class InternalTimeProvider extends TimeProvider {
   getSeasonCyclePct() {
     const doY = this.getDayOfYear()
     let beforeSummerSolstice = doY < 172
-    let distancePct = (beforeSummerSolstice) ? 1.0 - ((172 - doY) / 183) : (doY - 172) / 183 // 183 <- (355-1 - 172)
+    let distancePct = beforeSummerSolstice ? 1.0 - (172 - doY) / 183 : (doY - 172) / 183 // 183 <- (355-1 - 172)
     if (distancePct > 1.0) {
       distancePct -= 1.0
       beforeSummerSolstice = !beforeSummerSolstice
     }
-    return (beforeSummerSolstice) ? distancePct : 1.0 + distancePct
+    return beforeSummerSolstice ? distancePct : 1.0 + distancePct
   }
 
   /**
@@ -148,9 +147,17 @@ export class InternalTimeProvider extends TimeProvider {
   async setDaylightCyclePct(daylightCyclePct = 0.5) {
     if (this._hasAuthoriy) {
       const date = this._gameTimeToDate(Fal.getWorldTime())
-      const secondsAfterMidnightCurrent = Math.trunc((date.hour * 3600) + (date.minute * 60) + date.second)
-      const secondsAfterMidnightDesired = Math.trunc(Utils.map(daylightCyclePct, 0.00, 1.00, 0, 86399))  // Total seconds in a day, just one shy
-      Logger.trace('InternalTimeProvider.setDaylightCyclePct()', { 'daylightCyclePct': daylightCyclePct, 'secondsAfterMidnightCurrent': secondsAfterMidnightCurrent, 'secondsAfterMidnightDesired': secondsAfterMidnightDesired })
+      const secondsAfterMidnightCurrent = Math.trunc(
+        date.hour * 3600 + date.minute * 60 + date.second
+      )
+      const secondsAfterMidnightDesired = Math.trunc(
+        Utils.map(daylightCyclePct, 0.0, 1.0, 0, 86399)
+      ) // Total seconds in a day, just one shy
+      Logger.trace('InternalTimeProvider.setDaylightCyclePct()', {
+        daylightCyclePct: daylightCyclePct,
+        secondsAfterMidnightCurrent: secondsAfterMidnightCurrent,
+        secondsAfterMidnightDesired: secondsAfterMidnightDesired
+      })
       return this.advanceGameTime(secondsAfterMidnightDesired - secondsAfterMidnightCurrent)
     }
   }
@@ -162,10 +169,16 @@ export class InternalTimeProvider extends TimeProvider {
     if (this._hasAuthoriy) {
       const date = this._gameTimeToDate(Fal.getWorldTime())
       const doY = this._monthOffset[date.month] + date.day
-      const daysAfterWinterSolsticeCurrent = (doY > 355) ? doY - 355 : doY + 10// (365 - 355)
-      const daysAfterWinterSolsticeDesired = Math.trunc(Utils.map(seasonCyclePct, 0.00, 1.00, 0, 364))  // Total days in the year, just one shy      
-      Logger.trace('InternalTimeProvider.setSeasonCyclePct()', { 'seasonCyclePct': seasonCyclePct, 'daysAfterWinterSolsticeCurrent': daysAfterWinterSolsticeCurrent, 'daysAfterWinterSolsticeDesired': daysAfterWinterSolsticeDesired })
-      return this.advanceGameTime((daysAfterWinterSolsticeDesired - daysAfterWinterSolsticeCurrent) * 86400)
+      const daysAfterWinterSolsticeCurrent = doY > 355 ? doY - 355 : doY + 10 // (365 - 355)
+      const daysAfterWinterSolsticeDesired = Math.trunc(Utils.map(seasonCyclePct, 0.0, 1.0, 0, 364)) // Total days in the year, just one shy
+      Logger.trace('InternalTimeProvider.setSeasonCyclePct()', {
+        seasonCyclePct: seasonCyclePct,
+        daysAfterWinterSolsticeCurrent: daysAfterWinterSolsticeCurrent,
+        daysAfterWinterSolsticeDesired: daysAfterWinterSolsticeDesired
+      })
+      return this.advanceGameTime(
+        (daysAfterWinterSolsticeDesired - daysAfterWinterSolsticeCurrent) * 86400
+      )
     }
   }
 
@@ -173,9 +186,13 @@ export class InternalTimeProvider extends TimeProvider {
    * @override
    */
   getDayOfYear(dayDelta = 0, hourDelta = 0) {
-    const date = this._gameTimeToDate(Fal.getWorldTime() + (hourDelta * 3600) + (dayDelta * 86400))
+    const date = this._gameTimeToDate(Fal.getWorldTime() + hourDelta * 3600 + dayDelta * 86400)
     const doY = this._monthOffset[date.month] + date.day
-    Logger.trace('InternalTimeProvider.getDayOfYear()', { 'month#': date.month, 'day#': date.day, 'doY': doY })
+    Logger.trace('InternalTimeProvider.getDayOfYear()', {
+      'month#': date.month,
+      'day#': date.day,
+      doY: doY
+    })
     return doY
   }
 
@@ -183,9 +200,12 @@ export class InternalTimeProvider extends TimeProvider {
    * @override
    */
   getHourOfDay(dayDelta = 0, hourDelta = 0) {
-    const currentWorldTime = Fal.getWorldTime() + (hourDelta * 3600) + (dayDelta * 86400)
+    const currentWorldTime = Fal.getWorldTime() + hourDelta * 3600 + dayDelta * 86400
     const dayTime = Math.abs(Math.trunc((currentWorldTime % 86400) / 3600))
-    Logger.trace('InternalTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
+    Logger.trace('InternalTimeProvider.getHourOfDay()', {
+      currentWorldTime: currentWorldTime,
+      dayTime: dayTime
+    })
     if (currentWorldTime < 0) {
       return 24 - dayTime
     } else return dayTime
@@ -197,7 +217,7 @@ export class InternalTimeProvider extends TimeProvider {
   hourOfDayNoonPct(dayDelta = 0, hourDelta = 0) {
     // Normalize hour value to the range [0, 24)
     const hourOfDay = TimeProvider.getHourOfDay(dayDelta, hourDelta) % 24
-    return (Math.sin(((hourOfDay / 12) - 0.5) * (Math.PI)) + 1) / 2	// TODO may use sinetable for speed
+    return (Math.sin((hourOfDay / 12 - 0.5) * Math.PI) + 1) / 2 // TODO may use sinetable for speed
   }
 
   /**
@@ -212,7 +232,7 @@ export class InternalTimeProvider extends TimeProvider {
     } else if (dayOfYear < 172) {
       pct = (dayOfYear + 10) / 182
     } else {
-      pct = 1 - ((dayOfYear - 172) / 183)
+      pct = 1 - (dayOfYear - 172) / 183
     }
     return pct // TODO use sine
   }
@@ -245,11 +265,11 @@ export class InternalTimeProvider extends TimeProvider {
   static _decodeFractalString(number = 0, codedString = '') {
     if (codedString == '') return ''
     let result = ''
-    codedString.split(',').find(element => {
+    codedString.split(',').find((element) => {
       const [range, value] = element.split(':')
       if (range.includes('-')) {
         const [start, end] = range.split('-')
-        if ((number <= Number(end)) && (number >= Number(start))) {
+        if (number <= Number(end) && number >= Number(start)) {
           result = value
           return true
         }
@@ -266,13 +286,13 @@ export class InternalTimeProvider extends TimeProvider {
 
   /**
    * Test wether the given year number is a leap year by definition of the gregorian calendar
-   * 
+   *
    * @param {number} year - the year number to check
    * @returns - true, in case the given year is a leap year
    * @private
    */
   static _isLeapYear(year) {
-    return (year % 4 === 0 && (year % 100 !== 0 || (year % 100 === 0 && year % 400 === 0)))   // leap year rule for gregorian calendars
+    return year % 4 === 0 && (year % 100 !== 0 || (year % 100 === 0 && year % 400 === 0)) // leap year rule for gregorian calendars
   }
 
   /**
@@ -282,7 +302,7 @@ export class InternalTimeProvider extends TimeProvider {
    * @returns {object} - An object containing the year, month, day, hour, minute, and second components of the date.
    * @throws {Error} - If the input seconds value is not a number.
    * @private
-   * 
+   *
    * @example
    * // Convert 172800 seconds (2 days) into a date object
    * const date = _gameTimeToDate(172800);
@@ -298,21 +318,23 @@ export class InternalTimeProvider extends TimeProvider {
 
     // calculations for the time in the day
     let timeOfDaySeconds = beforeYearZero ? 86400 - seconds : seconds
-    const hour = Math.floor(timeOfDaySeconds / (3600)) % 24
+    const hour = Math.floor(timeOfDaySeconds / 3600) % 24
     timeOfDaySeconds -= hour * 3600
     const min = Math.floor(timeOfDaySeconds / 60) % 60
     timeOfDaySeconds -= min * 60
     const sec = timeOfDaySeconds % 60
 
     let day, month, year, countDirection
-    let isLeapYear = false  // neither starting years for the count are leap years
+    let isLeapYear = false // neither starting years for the count are leap years
     if (beforeYearZero) {
       year = 1969 // start with yearzero-1
       month = 11
       day = 30
       countDirection = -1
       // special case for midnight only
-      if (sec === 0 && min === 0 && hour === 0) { dayCount-- }
+      if (sec === 0 && min === 0 && hour === 0) {
+        dayCount--
+      }
     } else {
       // not before year zero
       year = 1970
@@ -352,21 +374,23 @@ export class InternalTimeProvider extends TimeProvider {
     }
 
     // add one after counting forwards
-    if (countDirection > 0 && year < 0) { day++ }
+    if (countDirection > 0 && year < 0) {
+      day++
+    }
 
     return {
-      'year': year,
-      'month': month,
-      'day': day,
-      'hour': hour,
-      'minute': min,
-      'second': sec
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: min,
+      second: sec
     }
   }
 
   /**
    * Returns an object with information about the current time in the form of a string.
-   * 
+   *
    * @returns {object} An object containing information about the current time.
    * month: An object containing information about the current month.
    * month.number: A number representing the month (1-12).
@@ -389,27 +413,38 @@ export class InternalTimeProvider extends TimeProvider {
     const epoch = Fal.getWorldTime()
     const date = this._gameTimeToDate(epoch)
     return {
-      'month': {
-        'number': Number(date.month),
-        'name': Fal.i18n('time.months.' + date.month),
-        'prefix': InternalTimeProvider._decodeFractalString(date.month + 1, Fal.i18n('time.monthPrefixTypes')),
-        'suffix': InternalTimeProvider._decodeFractalString(date.month + 1, Fal.i18n('time.monthSuffixTypes'))
+      month: {
+        number: Number(date.month),
+        name: Fal.i18n('time.months.' + date.month),
+        prefix: InternalTimeProvider._decodeFractalString(
+          date.month + 1,
+          Fal.i18n('time.monthPrefixTypes')
+        ),
+        suffix: InternalTimeProvider._decodeFractalString(
+          date.month + 1,
+          Fal.i18n('time.monthSuffixTypes')
+        )
       },
-      'day': {
-        'number': Number(date.day),
-        'name': String(date.day + 1),
-        'prefix': InternalTimeProvider._decodeFractalString(date.day + 1, Fal.i18n('time.dayPrefixTypes')),
-        'suffix': InternalTimeProvider._decodeFractalString(date.day + 1, Fal.i18n('time.daySuffixTypes'))
+      day: {
+        number: Number(date.day),
+        name: String(date.day + 1),
+        prefix: InternalTimeProvider._decodeFractalString(
+          date.day + 1,
+          Fal.i18n('time.dayPrefixTypes')
+        ),
+        suffix: InternalTimeProvider._decodeFractalString(
+          date.day + 1,
+          Fal.i18n('time.daySuffixTypes')
+        )
       },
-      'hour': {
-        'number': Number(date.hour),
-        'name': (date.hour < 10) ? '0' + date.hour : String(date.hour)
+      hour: {
+        number: Number(date.hour),
+        name: date.hour < 10 ? '0' + date.hour : String(date.hour)
       },
-      'minute': {
-        'number': Number(date.minute),
-        'name': (date.minute < 10) ? '0' + date.minute : String(date.minute)
+      minute: {
+        number: Number(date.minute),
+        name: date.minute < 10 ? '0' + date.minute : String(date.minute)
       }
     }
   }
-
 }

@@ -26,7 +26,6 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
  * See https://foundryvtt.wiki/en/development/guides/understanding-form-applications for documentation
  */
 export class RegionConfigDialog extends FormApplication {
-
   /**
    * Reference to the scene these settings shall be applied to. If not set, the settings shall be applied globally
    * @type {Scene|undefined}
@@ -69,7 +68,12 @@ export class RegionConfigDialog extends FormApplication {
 
     // inject tabbing
     // Guide for Tabs: https://foundryvtt.wiki/en/development/guides/Tabs-and-Templates/Extending-Dialog-with-Tabs
-    const tabs = new Tabs({ navSelector: '.tabs', contentSelector: '.content', initial: 'summer', callback: (instance, tabs, tabName) => { } })
+    const tabs = new Tabs({
+      navSelector: '.tabs',
+      contentSelector: '.content',
+      initial: 'summer',
+      callback: (instance, tabs, tabName) => {}
+    })
     tabs.bind(jQ[0])
 
     // inject noUISliders
@@ -83,10 +87,7 @@ export class RegionConfigDialog extends FormApplication {
       const max = Number(range.split(',')[1] || min)
 
       noUiSlider.create(sliderJQ[0], {
-        start: [
-          minInput.val() || 0,
-          maxInput.val() || 0
-        ],
+        start: [minInput.val() || 0, maxInput.val() || 0],
         tooltips: [
           {
             to: function (value) {
@@ -103,7 +104,8 @@ export class RegionConfigDialog extends FormApplication {
             from: function (value) {
               return Number(value.replace(unitString, ''))
             }
-          }],
+          }
+        ],
         behaviour: 'drag-all',
         step: 1,
         margin: 0,
@@ -115,25 +117,27 @@ export class RegionConfigDialog extends FormApplication {
         }
       })
 
-      sliderJQ[0].noUiSlider.on('change', function (values, handle, unencoded, tap, positions, noUiSlider) {
-        Logger.debug('Slider Update', { 'values': values, 'noUiSlider': noUiSlider })
-        minInput.val(values[0])
-        maxInput.val(values[1])
-      })
+      sliderJQ[0].noUiSlider.on(
+        'change',
+        function (values, handle, unencoded, tap, positions, noUiSlider) {
+          Logger.debug('Slider Update', { values: values, noUiSlider: noUiSlider })
+          minInput.val(values[0])
+          maxInput.val(values[1])
+        }
+      )
     })
-
   }
 
   /**
    * Retrieves region configuration data for a given scene or the default region.
    * @returns {Object} An object containing weather configuration data.
    */
-  getData() {    
+  getData() {
     let additionalData = {
       waterAmounts: Array.from({ length: 7 }, (_, i) => ({
         id: i * 25,
-        name: `dialogs.regionConfig.waterAmounts_${i * 25}`,
-      })),
+        name: `dialogs.regionConfig.waterAmounts_${i * 25}`
+      }))
     }
 
     if (this.applyToScene === undefined) {
@@ -154,8 +158,8 @@ export class RegionConfigDialog extends FormApplication {
 
   /**
    * TODO
-   * @param {*} event 
-   * @param {*} formData 
+   * @param {*} event
+   * @param {*} formData
    */
   _updateObject(event, formData) {
     const data = expandObject(formData)

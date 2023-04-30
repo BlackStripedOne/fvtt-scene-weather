@@ -26,7 +26,6 @@ import { NODE_TYPE } from '../constants.js'
  * A special subclass of PIXI.Graphics used to represent a WeatherNode in the WeatherNodeLayer as well as the SceneWeatherEffects layer mask.
  */
 export class WeatherNodeGraphics extends PIXI.Container {
-
   /**
    * Reference to the WeatherNode to be visually drwn by this graphic.
    * @type {weatherNode}
@@ -50,13 +49,12 @@ export class WeatherNodeGraphics extends PIXI.Container {
   }
 
   /**
-   * Actually draw the appearance of the underlaying WeatherNodeData based on its settings.     
+   * Actually draw the appearance of the underlaying WeatherNodeData based on its settings.
    * Call only once
    */
-  draw() {
-  }
+  draw() {}
 
-  /** 
+  /**
    * This function checks the type of the WeatherNode and calls the corresponding refresh method.
    * If the WeatherNode is an instance of MaskWeatherNode, it calls the _refreshMask() method.
    * If the WeatherNode is an instance of EmitterWeatherNode, it calls the _refreshEmitter() method.
@@ -76,9 +74,13 @@ export class WeatherNodeGraphics extends PIXI.Container {
     this._area.clear()
     this._area.lineStyle(1, this._weatherNode.data.maskColor)
     this._area.beginFill(this._weatherNode.data.maskColor, 0.5)
-    this._area.moveTo(this._weatherNode.data.borderNodes[0].x, this._weatherNode.data.borderNodes[0].y)
+    this._area.moveTo(
+      this._weatherNode.data.borderNodes[0].x,
+      this._weatherNode.data.borderNodes[0].y
+    )
     for (let i = 0; i < this._weatherNode.data.borderNodes.length; i++) {
-      const p2 = this._weatherNode.data.borderNodes[(i + 1) % this._weatherNode.data.borderNodes.length]
+      const p2 =
+        this._weatherNode.data.borderNodes[(i + 1) % this._weatherNode.data.borderNodes.length]
       this._area.lineTo(p2.x, p2.y)
     }
     this._area.endFill()
@@ -90,5 +92,4 @@ export class WeatherNodeGraphics extends PIXI.Container {
   _refreshEmitter() {
     // TODO
   }
-
 }

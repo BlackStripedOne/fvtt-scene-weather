@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -39,24 +40,26 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
         snowDirection = (Math.round(modelData.wind.direction) + 90) % 360
         break
       case 'topdown':
-        snowDirection = 90  // Top
+        snowDirection = 90 // Top
         break
       case 'slanted':
-        snowDirection = 75  // Slightly from Left
+        snowDirection = 75 // Slightly from Left
         break
       case 'windinfluence':
-        const vecH = Math.sin(modelData.wind.direction * Math.PI / 180) * Utils.map(modelData.wind.speed, 10, 70, 10, 90) // Deflection between -90 .. 90 deg
+        const vecH =
+          Math.sin((modelData.wind.direction * Math.PI) / 180) *
+          Utils.map(modelData.wind.speed, 10, 70, 10, 90) // Deflection between -90 .. 90 deg
         snowDirection = 90 + vecH
         break
     }
 
     const generatorOptions = {
-      alpha: Fal.getSetting('precipitationAlpha', 100) / 100,  // Client based percentage for precipitation transparency
+      alpha: Fal.getSetting('precipitationAlpha', 100) / 100, // Client based percentage for precipitation transparency
       direction: snowDirection,
-      speed: Utils.map(modelData.wind.speed, 10, 70, 0.3, 5.0),      // 0.3 drizzle, 5 blizzard
+      speed: Utils.map(modelData.wind.speed, 10, 70, 0.3, 5.0), // 0.3 drizzle, 5 blizzard
       scale: 1,
-      lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.7),   // 1 drizzle, 0.7 blizzard
-      density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 3.0),    // 0.1 drizzle, 3: blizzard
+      lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.7), // 1 drizzle, 0.7 blizzard
+      density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 3.0), // 0.1 drizzle, 3: blizzard
       tint: null
     }
 

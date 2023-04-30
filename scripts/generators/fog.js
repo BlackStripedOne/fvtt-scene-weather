@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -30,7 +31,7 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
     if (modelData.clouds.type != CLOUD_TYPE.fog) return null
 
     const generatorOptions = {
-      alpha: Fal.getSetting('cloudsAlpha', 100) / 100,  // Client based percentage for cloud transparency
+      alpha: Fal.getSetting('cloudsAlpha', 100) / 100, // Client based percentage for cloud transparency
       direction: 0,
       speed: 1,
       scale: 1,

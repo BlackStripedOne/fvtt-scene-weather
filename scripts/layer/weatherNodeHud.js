@@ -22,9 +22,14 @@ import { MODULE } from '../constants.js'
 
 // inject a new template to the static built hud container of foundry.
 Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
-  Logger.trace('->Hook:renderHeadsUpDisplay', { 'app': app, 'jQ': jQ, 'options': options, 'hud': canvas.hud.weatherNode })
+  Logger.trace('->Hook:renderHeadsUpDisplay', {
+    app: app,
+    jQ: jQ,
+    options: options,
+    hud: canvas.hud.weatherNode
+  })
   const hud = canvas.hud.weatherNode?.options || {
-    'id': 'weathernode-hud'
+    id: 'weathernode-hud'
   }
   if (jQ.find('#' + hud.id).length == 0) {
     jQ.append('<template id="' + hud.id + '"></template>')
@@ -35,7 +40,6 @@ Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
  * The WeatherNodeHud is a UI element for controlling the state of a WeatherNode.
  */
 export class WeatherNodeHud extends Application {
-
   /**
    * Reference a WeatherNode this HUD is currently bound to
    * @type {WeatherNode|undefined}
@@ -61,7 +65,7 @@ export class WeatherNodeHud extends Application {
    * @param {PlaceableObject} object    A PlaceableObject instance to which the HUD should be bound
    */
   bind(weatherNode) {
-    Logger.trace('WeatherNodeHud.bind(...)', { 'weatherNode': weatherNode })
+    Logger.trace('WeatherNodeHud.bind(...)', { weatherNode: weatherNode })
     const states = this.constructor.RENDER_STATES
     if ([states.CLOSING, states.RENDERING].includes(this._state)) return
     if (this.weatherNode) this.clear()
@@ -102,25 +106,24 @@ export class WeatherNodeHud extends Application {
 
   /** @override */
   setPosition(options) {
-    Logger.trace('WeatherNodeHud.setPosition(...)', { 'options': options })
+    Logger.trace('WeatherNodeHud.setPosition(...)', { options: options })
     const { x, y, width, height } = this.weatherNode.data
-    const c = 80  // center
-    const p = 5  // padding
+    const c = 80 // center
+    const p = 5 // padding
     const position = {
-      'width': width + (c * 2) + (p * 2),
-      'height': height + (p * 2),
-      'left': x - c - p,
-      'top': y - p
+      width: width + c * 2 + p * 2,
+      height: height + p * 2,
+      left: x - c - p,
+      top: y - p
     }
     this.element.css(position)
   }
 
   /** @override */
   activateListeners(html) {
-    Logger.trace('WeatherNodeHud.activateListeners(...)', { 'html': html })
+    Logger.trace('WeatherNodeHud.activateListeners(...)', { html: html })
     html.find('.control-icon').click(this._onClickControl.bind(this))
   }
-
 
   /* ---------------------- Functions, private ---------------------- */
 
@@ -155,8 +158,8 @@ export class WeatherNodeHud extends Application {
    * @param {PointerEvent} event - The originating click event
    */
   _onClickControl(event) {
-    Logger.trace('WeatherNodeHud._onClickControl(...)', { 'event': event })
-    const button = event.currentTarget;
+    Logger.trace('WeatherNodeHud._onClickControl(...)', { event: event })
+    const button = event.currentTarget
     switch (button.dataset.action) {
       case 'enabled':
         return this._onToggleEnabled(event)
@@ -178,12 +181,15 @@ export class WeatherNodeHud extends Application {
     event.preventDefault()
     // Toggle the visible state
     const isEnabled = this.weatherNode.data.enabled
-    const updates = canvas.sceneweather.controlled.map(weatherNode => {
+    const updates = canvas.sceneweather.controlled.map((weatherNode) => {
       return { id: weatherNode.id, enabled: !isEnabled }
     })
     // update all objects
     event.currentTarget.classList.toggle('active', !isEnabled)
-    $(event.currentTarget).children('i').first().attr('class', 'fas fa-solid ' + this._getEnabledIcon(this.weatherNode.data, true))
+    $(event.currentTarget)
+      .children('i')
+      .first()
+      .attr('class', 'fas fa-solid ' + this._getEnabledIcon(this.weatherNode.data, true))
     return canvas.sceneweather.updateNodes(updates)
   }
 
@@ -196,12 +202,15 @@ export class WeatherNodeHud extends Application {
     event.preventDefault()
     // Toggle the visible state
     const isLocked = this.weatherNode.data.locked
-    const updates = canvas.sceneweather.controlled.map(weatherNode => {
+    const updates = canvas.sceneweather.controlled.map((weatherNode) => {
       return { id: weatherNode.id, locked: !isLocked }
     })
     // update all objects
     event.currentTarget.classList.toggle('active', !isLocked)
-    $(event.currentTarget).children('i').first().attr('class', 'fas fa-solid ' + this._getLockedIcon(this.weatherNode.data, true))
+    $(event.currentTarget)
+      .children('i')
+      .first()
+      .attr('class', 'fas fa-solid ' + this._getLockedIcon(this.weatherNode.data, true))
     return canvas.sceneweather.updateNodes(updates)
   }
 
@@ -214,16 +223,18 @@ export class WeatherNodeHud extends Application {
   async _onSort(event, up) {
     event.preventDefault()
     const siblings = canvas.sceneweather.nodes
-    const controlled = canvas.sceneweather.controlled.filter(weatherNode => !weatherNode.data.locked)
+    const controlled = canvas.sceneweather.controlled.filter(
+      (weatherNode) => !weatherNode.data.locked
+    )
 
     // Determine target sort index
     let z = 0
     if (up) {
       controlled.sort((a, b) => a.data.z - b.data.z)
-      z = siblings.length ? Math.max(...siblings.map(weatherNode => weatherNode.data.z)) + 1 : 1
+      z = siblings.length ? Math.max(...siblings.map((weatherNode) => weatherNode.data.z)) + 1 : 1
     } else {
       controlled.sort((a, b) => b.data.z - a.data.z)
-      z = siblings.length ? Math.min(...siblings.map(weatherNode => weatherNode.data.z)) - 1 : -1
+      z = siblings.length ? Math.min(...siblings.map((weatherNode) => weatherNode.data.z)) - 1 : -1
     }
 
     // Update all controlled objects
@@ -233,5 +244,4 @@ export class WeatherNodeHud extends Application {
     })
     return canvas.sceneweather.updateNodes(updates)
   }
-
 }

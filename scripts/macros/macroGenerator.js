@@ -23,37 +23,36 @@ import { MODULE } from '../constants.js'
  * TODO
  */
 export class MacroGenerator {
-
   /**
    * TODO
-   * 
-   * @param {*} name 
-   * @returns 
+   *
+   * @param {*} name
+   * @returns
    */
   static async buildHeader(name) {
     const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroHeader.hbs', {
-      'headline': name,
-      'currentDate': new Date().toLocaleString(),
-      'moduleName': MODULE.NAME,
-      'moduleId': MODULE.ID,
-      'moduleVersion': MODULE.VERSION
+      headline: name,
+      currentDate: new Date().toLocaleString(),
+      moduleName: MODULE.NAME,
+      moduleId: MODULE.ID,
+      moduleVersion: MODULE.VERSION
     })
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} force 
-   * @param {*} sceneId 
-   * @returns 
+   *
+   * @param {*} force
+   * @param {*} sceneId
+   * @returns
    */
   static async buildUpdateConfig(force = false, sceneId = null) {
     let params = {
-      'data': {},
-      'hasSceneId': false,
-      'hasForceParam': false,
-      'hasParams': false
+      data: {},
+      hasSceneId: false,
+      hasForceParam: false,
+      hasParams: false
     }
     if (sceneId != null) {
       params.data.forSceneId = sceneId
@@ -65,28 +64,31 @@ export class MacroGenerator {
       params.hasForceParam = true
       params.hasParams = true
     }
-    const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroUpdateConfig.hbs', params)
+    const content = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/macroUpdateConfig.hbs',
+      params
+    )
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} seed 
-   * @returns 
+   *
+   * @param {*} seed
+   * @returns
    */
   static async buildSetSceneSeed(seed = '') {
     const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroSeed.hbs', {
-      'seed': seed
+      seed: seed
     })
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} param0 
-   * @returns 
+   *
+   * @param {*} param0
+   * @returns
    */
   static async buildSetSceneTime({ dayCycle = -1, yearCycle = -1 } = {}) {
     if (dayCycle == -1 && yearCycle == -1) return ''
@@ -98,75 +100,80 @@ export class MacroGenerator {
       data.seasonCycle = Number((yearCycle * 100).toFixed(3))
     }
     const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroTime.hbs', {
-      'data': JSON.stringify(data, null, 2)
+      data: JSON.stringify(data, null, 2)
     })
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} templateId 
-   * @param {*} templateName 
-   * @returns 
+   *
+   * @param {*} templateId
+   * @param {*} templateName
+   * @returns
    */
   static async buildSetSceneWeatherTemplate(templateId = '', templateName = '') {
-    const moduleId = (templateId.includes('.')) ? templateId.split('.')[0] : null
-    const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroWeatherTemplate.hbs', {
-      'moduleCheck': !!(moduleId != null),
-      'moduleId': moduleId || '',
-      'templateId': templateId,
-      'templateName': templateName
-    })
+    const moduleId = templateId.includes('.') ? templateId.split('.')[0] : null
+    const content = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/macroWeatherTemplate.hbs',
+      {
+        moduleCheck: !!(moduleId != null),
+        moduleId: moduleId || '',
+        templateId: templateId,
+        templateName: templateName
+      }
+    )
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} weatherSettings 
-   * @returns 
+   *
+   * @param {*} weatherSettings
+   * @returns
    */
   static async buildSetSceneWeatherSettings(weatherSettings) {
     delete weatherSettings.templateId
     delete weatherSettings.templateName
     const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroWeather.hbs', {
-      'data': JSON.stringify(weatherSettings, null, 2)
+      data: JSON.stringify(weatherSettings, null, 2)
     })
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} templateId 
-   * @param {*} templateName 
-   * @returns 
+   *
+   * @param {*} templateId
+   * @param {*} templateName
+   * @returns
    */
   static async buildSetSceneRegionTemplate(templateId = '', templateName = '') {
-    const moduleId = (templateId.includes('.')) ? templateId.split('.')[0] : null
-    const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroRegionTemplate.hbs', {
-      'moduleCheck': !!(moduleId != null),
-      'moduleId': moduleId || '',
-      'templateId': templateId,
-      'templateName': templateName
-    })
+    const moduleId = templateId.includes('.') ? templateId.split('.')[0] : null
+    const content = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/macroRegionTemplate.hbs',
+      {
+        moduleCheck: !!(moduleId != null),
+        moduleId: moduleId || '',
+        templateId: templateId,
+        templateName: templateName
+      }
+    )
     return content
   }
 
   /**
    * TODO
-   * 
-   * @param {*} regionSettings 
-   * @returns 
+   *
+   * @param {*} regionSettings
+   * @returns
    */
   static async buildSetSceneRegionSettings(regionSettings) {
     delete regionSettings.templateId
     delete regionSettings.templateName
     const content = await renderTemplate('modules/' + MODULE.ID + '/templates/macroRegion.hbs', {
-      'data': JSON.stringify(regionSettings, null, 2)
+      data: JSON.stringify(regionSettings, null, 2)
     })
     return content
   }
-
 }

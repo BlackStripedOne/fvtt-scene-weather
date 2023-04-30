@@ -24,17 +24,16 @@ import { WeatherNodeData } from './weatherNodeData.js'
 
 /**
  * A class representing a handle for a border in a WeatherNode element.
- * 
+ *
  * Functionality is to show a border that is mouse-hoverable. On hover there are
  * two possible control functions for interaction.
  * - Left click -> will toggle the border's permeability
  * - Shift-Left click -> will insert a new borderNode on that nodes nearest position
  * to the cursor.
- * 
+ *
  * @extends PIXI.Graphics
  */
 export class BorderHandle extends PIXI.Graphics {
-
   /**
    * The weather node this handle is associated with.
    * @type {WeatherNode}
@@ -99,7 +98,10 @@ export class BorderHandle extends PIXI.Graphics {
    */
   refresh() {
     const startPoint = this._weatherNode.data.borderNodes[this._borderNr]
-    const endPoint = this._weatherNode.data.borderNodes[(this._borderNr + 1) % this._weatherNode.data.borderNodes.length]
+    const endPoint =
+      this._weatherNode.data.borderNodes[
+        (this._borderNr + 1) % this._weatherNode.data.borderNodes.length
+      ]
     const borderColor = this._weatherNode.data.maskColor
 
     // initialize the position for potential new border as a shadow brder
@@ -121,10 +123,10 @@ export class BorderHandle extends PIXI.Graphics {
       default:
       case MASK_BORDER_TYPE.SOLID:
         // draw line
-        this.lineStyle(this._lw * 3 * hoverFactor, 0x000000, 1.0)  // background black
+        this.lineStyle(this._lw * 3 * hoverFactor, 0x000000, 1.0) // background black
           .moveTo(startPoint.x, startPoint.y)
           .lineTo(endPoint.x, endPoint.y)
-        this.lineStyle(this._lw * hoverFactor, borderColor, 1.0)  // Foreground color
+        this.lineStyle(this._lw * hoverFactor, borderColor, 1.0) // Foreground color
           .lineTo(startPoint.x, startPoint.y, 10, 3)
         break
       case MASK_BORDER_TYPE.PERMEABLE:
@@ -136,8 +138,7 @@ export class BorderHandle extends PIXI.Graphics {
           color: 0x000000,
           alignment: 0.5
         })
-        dashBg.moveTo(startPoint.x, startPoint.y)
-          .lineTo(endPoint.x, endPoint.y)
+        dashBg.moveTo(startPoint.x, startPoint.y).lineTo(endPoint.x, endPoint.y)
 
         const dash = new DashLine(this, {
           dash: [lw5, lw5, this._lw, lw5, lw5],
@@ -147,8 +148,7 @@ export class BorderHandle extends PIXI.Graphics {
           color: borderColor,
           alignment: 0.5
         })
-        dash.moveTo(startPoint.x, startPoint.y)
-          .lineTo(endPoint.x, endPoint.y)
+        dash.moveTo(startPoint.x, startPoint.y).lineTo(endPoint.x, endPoint.y)
         break
     }
     // update line hit area
@@ -175,7 +175,10 @@ export class BorderHandle extends PIXI.Graphics {
 
     // get positions of the border
     const startPoint = this._weatherNode.data.borderNodes[this._borderNr]
-    const endPoint = this._weatherNode.data.borderNodes[(this._borderNr + 1) % this._weatherNode.data.borderNodes.length]
+    const endPoint =
+      this._weatherNode.data.borderNodes[
+        (this._borderNr + 1) % this._weatherNode.data.borderNodes.length
+      ]
 
     // Calculate the direction of the line
     const lineDirection = {
@@ -242,7 +245,7 @@ export class BorderHandle extends PIXI.Graphics {
     }
     const angle = Math.atan2(dy, dx)
     const halfSize = size / 2
-    const perpendicularAngle = angle + (Math.PI / 2)
+    const perpendicularAngle = angle + Math.PI / 2
 
     const x1 = startPoint.x + halfSize * Math.cos(perpendicularAngle)
     const y1 = startPoint.y + halfSize * Math.sin(perpendicularAngle)
@@ -289,7 +292,7 @@ export class BorderHandle extends PIXI.Graphics {
   }
 
   /**
-   * 
+   *
    * Calculates the angle between two lines defined by three points.
    * @param {Object} startPoint - The starting point of the first line.
    * @param {number} startPoint.x - The x-coordinate of the starting point.
@@ -314,11 +317,16 @@ export class BorderHandle extends PIXI.Graphics {
     }
 
     // Calculate the dot product between the direction vectors
-    const dotProduct = directionVector1.x * directionVector2.x + directionVector1.y * directionVector2.y
+    const dotProduct =
+      directionVector1.x * directionVector2.x + directionVector1.y * directionVector2.y
 
     // Calculate the magnitudes of the direction vectors
-    const magnitude1 = Math.sqrt(directionVector1.x * directionVector1.x + directionVector1.y * directionVector1.y)
-    const magnitude2 = Math.sqrt(directionVector2.x * directionVector2.x + directionVector2.y * directionVector2.y)
+    const magnitude1 = Math.sqrt(
+      directionVector1.x * directionVector1.x + directionVector1.y * directionVector1.y
+    )
+    const magnitude2 = Math.sqrt(
+      directionVector2.x * directionVector2.x + directionVector2.y * directionVector2.y
+    )
 
     // Calculate the cosine of the angle between the lines
     const cosine = dotProduct / (magnitude1 * magnitude2)
@@ -327,7 +335,7 @@ export class BorderHandle extends PIXI.Graphics {
     const angle = Math.acos(cosine)
 
     // Convert the angle to degrees
-    const degrees = angle * 180 / Math.PI
+    const degrees = (angle * 180) / Math.PI
 
     // If the angle is greater than 180 degrees, return the smaller supplementary angle
     // return degrees <= 180 ? degrees : 360 - degrees;
@@ -350,11 +358,15 @@ export class BorderHandle extends PIXI.Graphics {
     this.hover = false
 
     const clonedData = this._weatherNode.data.clone()
-    clonedData.borderNodes.splice(this._borderNr + 1, 0, WeatherNodeData.newDefaultBorderPointAt(this._newNodePosition))
+    clonedData.borderNodes.splice(
+      this._borderNr + 1,
+      0,
+      WeatherNodeData.newDefaultBorderPointAt(this._newNodePosition)
+    )
     clonedData.normalize()
     const nodeToUpdate = {
-      'id': this._weatherNode.id,
-      'borderNodes': clonedData.borderNodes
+      id: this._weatherNode.id,
+      borderNodes: clonedData.borderNodes
     }
 
     // Remove shadow on parent WeatherNode
@@ -387,8 +399,8 @@ export class BorderHandle extends PIXI.Graphics {
         break
     }
     const nodeToUpdate = {
-      'id': this._weatherNode.id,
-      'borderNodes': clonedData.borderNodes
+      id: this._weatherNode.id,
+      borderNodes: clonedData.borderNodes
     }
     // Update this WeatherNode with the new borderNode
     canvas.sceneweather.updateNodes([nodeToUpdate])
@@ -405,7 +417,7 @@ export class BorderHandle extends PIXI.Graphics {
    * @calledBy this.createInteractionManager(...)
    */
   _onHoverIn(event) {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (canvas.sceneweather.borderNodeControl) return
 
     // calculate the local coordinates for this layer
@@ -420,7 +432,7 @@ export class BorderHandle extends PIXI.Graphics {
       this._weatherNode._onShift(event)
     }
 
-    event.data["borderHandle"] = event.target
+    event.data['borderHandle'] = event.target
     this.hover = true
     this.refresh()
   }
@@ -454,7 +466,11 @@ export class BorderHandle extends PIXI.Graphics {
     // only, when no other borderNode is in active control at the moment
     if (canvas.sceneweather.borderNodeControl) return
 
-    if (originalEvent.shiftKey && (this._weatherNode._shadowBorderNode && this._weatherNode._shadowBorderNode.hover)) {
+    if (
+      originalEvent.shiftKey &&
+      this._weatherNode._shadowBorderNode &&
+      this._weatherNode._shadowBorderNode.hover
+    ) {
       // Add a borderNode
       this._onAddNode(event)
     } else {
@@ -483,5 +499,4 @@ export class BorderHandle extends PIXI.Graphics {
     const yDistance = local.y - this._newNodePosition.y
     this._newNodePosition.d = Math.sqrt(xDistance * xDistance + yDistance * yDistance)
   }
-
 }

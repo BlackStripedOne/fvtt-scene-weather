@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,32 +21,32 @@ import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
   SceneWeather.registerWeatherTemplate(MODULE.ID, 'slightsnow', {
-    'name': 'templates.weather.slightsnow.name',
-    'id': '',
-    'name': 'Snowing slightly',
-    'temp': {
-      'ground': 1,
-      'air': 2,
-      'percieved': 0
+    name: 'templates.weather.slightsnow.name',
+    id: '',
+    name: 'Snowing slightly',
+    temp: {
+      ground: 1,
+      air: 2,
+      percieved: 0
     },
-    'wind': {
-      'speed': 14,
-      'gusts': 18,
-      'direction': 133
+    wind: {
+      speed: 14,
+      gusts: 18,
+      direction: 133
     },
-    'clouds': {
-      'coverage': 0.3,
-      'bottom': 1000,
-      'top': 3000,
-      'type': CLOUD_TYPE.cumulus
+    clouds: {
+      coverage: 0.3,
+      bottom: 1000,
+      top: 3000,
+      type: CLOUD_TYPE.cumulus
     },
-    'precipitation': {
-      'amount': 0.4,
-      'type': PRECI_TYPE.snow
+    precipitation: {
+      amount: 0.4,
+      type: PRECI_TYPE.snow
     },
-    'sun': {
-      'amount': 0.5,
+    sun: {
+      amount: 0.5
     },
-    'humidity': 45
+    humidity: 45
   })
 })

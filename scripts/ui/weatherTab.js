@@ -31,7 +31,6 @@ import { TimeProvider } from '../time/timeProvider.js'
  * Helper clsss for the weather configuration tab on the scene settings dialog.
  */
 export class WeatherTab {
-
   /**
    * Injects the control tab to the scene configuration dialog
    * @param {*} app - the dialog application instance
@@ -40,45 +39,56 @@ export class WeatherTab {
   static async addControlsTab(app, jQ) {
     const weatherSettings = app.document.flags[MODULE.ID]
     const defaultOptions = {
-      'weatherMode': 'disabled',
-      'weatherTemplate': Object.values(SceneWeatherState._weatherTemplates)[0].id,
-      'regionTemplate': Object.values(SceneWeatherState._regionTemplates)[0].id,
-      'timeProvider': TimeProvider.getProviderIds()[0],
-      'seed': ''
+      weatherMode: 'disabled',
+      weatherTemplate: Object.values(SceneWeatherState._weatherTemplates)[0].id,
+      regionTemplate: Object.values(SceneWeatherState._regionTemplates)[0].id,
+      timeProvider: TimeProvider.getProviderIds()[0],
+      seed: ''
     }
 
     const tabData = {
-      'data': Utils.mergeObject(defaultOptions, weatherSettings, { overwrite: true }),
-      'timeProviders': TimeProvider.getProviderIds().map(element => {
+      data: Utils.mergeObject(defaultOptions, weatherSettings, { overwrite: true }),
+      timeProviders: TimeProvider.getProviderIds().map((element) => {
         return {
-          'id': element,
-          'name': 'configTab.general.timeSources.' + element + '.name',
-          'hint': 'configTab.general.timeSources.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+          id: element,
+          name: 'configTab.general.timeSources.' + element + '.name',
+          hint: 'configTab.general.timeSources.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
         }
       }),
-      'rainModes': Object.values(RAIN_MODES).map(element => {
+      rainModes: Object.values(RAIN_MODES).map((element) => {
         return {
-          'id': element,
-          'name': 'configTab.rainModes.' + element + '.name',
-          'hint': 'configTab.rainModes.' + element + '.hint'  // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+          id: element,
+          name: 'configTab.rainModes.' + element + '.name',
+          hint: 'configTab.rainModes.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
         }
       }),
-      'weatherModes': Object.values(GENERATOR_MODES).map(element => {
+      weatherModes: Object.values(GENERATOR_MODES).map((element) => {
         return {
-          'id': element,
-          'name': 'configTab.weatherModes.' + element + '.name',
-          'hint': 'configTab.weatherModes.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
+          id: element,
+          name: 'configTab.weatherModes.' + element + '.name',
+          hint: 'configTab.weatherModes.' + element + '.hint' // TODO write hints to html, then use attachedListener on select change to display hint, depending on which is selected
         }
       }),
-      'weatherTemplates': WeatherModel.getTemplates(),
-      'regionTemplates': RegionMeteo.getTemplates()
+      weatherTemplates: WeatherModel.getTemplates(),
+      regionTemplates: RegionMeteo.getTemplates()
     }
 
-    const tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData)
+    const tabHtml = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/weatherTab.hbs',
+      tabData
+    )
 
     // inject the weather tab
-    $('.sheet-tabs', jQ).append($('<a>').addClass('item').attr('data-tab', "weather").html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> ' + Fal.i18n('configTab.title')))
-    let tab = $('<div>').addClass('tab').attr('data-tab', "weather").insertAfter($('div[data-tab="ambience"]', jQ))
+    $('.sheet-tabs', jQ).append(
+      $('<a>')
+        .addClass('item')
+        .attr('data-tab', 'weather')
+        .html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> ' + Fal.i18n('configTab.title'))
+    )
+    let tab = $('<div>')
+      .addClass('tab')
+      .attr('data-tab', 'weather')
+      .insertAfter($('div[data-tab="ambience"]', jQ))
     tab.append(tabHtml)
 
     // activate listeners
@@ -89,7 +99,7 @@ export class WeatherTab {
    * Activate all listeners for the injected tab on the dialog
    * @param {*} app - the dialog application instance
    * @param {*} jQ - the jQuery instance of the html where the tab shall be injected
-   * @param {*} selectedMode - the id of the current selected mode for preselection and showing/hiding the others 
+   * @param {*} selectedMode - the id of the current selected mode for preselection and showing/hiding the others
    */
   static activateListeners(app, jQ, selectedMode) {
     // initial selection
@@ -98,14 +108,14 @@ export class WeatherTab {
 
     // action on click for region config button
     jQ.find('button[data-key="flags.scene-weather.regionConfig"]').on('click', function () {
-      Logger.debug('Clicked Config Region for Scene', { 'sceneId': app.document._id })
+      Logger.debug('Clicked Config Region for Scene', { sceneId: app.document._id })
       const dia = new RegionConfigDialog(app.document._id)
       dia.render(true)
     })
 
     // action on click for weather config button
     jQ.find('button[data-key="flags.scene-weather.weatherConfig"]').on('click', function () {
-      Logger.debug('Clicked Config Weather for Scene', { 'sceneId': app.document._id })
+      Logger.debug('Clicked Config Weather for Scene', { sceneId: app.document._id })
       const dia = new WeatherConfigDialog(app.document._id)
       dia.render(true)
     })
@@ -114,8 +124,8 @@ export class WeatherTab {
     jQ.find('#randomSeed').on('click', async function () {
       const field = jQ.find('input[name="flags.scene-weather.seed"]')
       let words = []
-      Object.values(Utils.flattenObject(game.i18n.translations)).forEach(line => {
-        line.split(/(\s+)/).forEach(word => {
+      Object.values(Utils.flattenObject(game.i18n.translations)).forEach((line) => {
+        line.split(/(\s+)/).forEach((word) => {
           if (word && word.length > 5 && word.length < 13 && /^\w+$/.test(word)) words.push(word)
         })
       })
@@ -128,7 +138,7 @@ export class WeatherTab {
 
     // TODO check when find yields null
     jQ.find('select[name="flags.scene-weather.weatherMode"]').on('change', function () {
-      let modeId = $(this).find(":selected").val()
+      let modeId = $(this).find(':selected').val()
       jQ.find('div.sceneWeather-collapsibleModeOption').each(function () {
         if ($(this).attr('id').startsWith('not_sceneWeather.mode.')) {
           if ($(this).attr('id') == 'not_sceneWeather.mode.' + modeId) {
@@ -143,7 +153,7 @@ export class WeatherTab {
             $(this).removeClass('active')
           }
         }
-      })// each
+      }) // each
       app.setPosition({ height: 'auto' })
     }) // on change
   }

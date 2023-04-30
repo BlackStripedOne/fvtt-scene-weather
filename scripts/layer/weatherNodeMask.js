@@ -23,7 +23,6 @@ import { NODE_TYPE } from '../constants.js'
  * A special subclass of PIXI.Graphics used to represent a WeatherNode in the WeatherNodeLayer as well as the SceneWeatherEffects layer mask.
  */
 export class WeatherNodeMask extends PIXI.Graphics {
-
   /**
    * @type {WeatherNodeData}
    */
@@ -40,11 +39,11 @@ export class WeatherNodeMask extends PIXI.Graphics {
     1: 0x800000, // lightroof
     2: 0x000000, // roof
     3: 0x000000, // inside
-    4: 0x000000  // underground
+    4: 0x000000 // underground
   }
 
   /**
-   * Actually draw the appearance of the underlaying WeatherNodeData based on its settings.     
+   * Actually draw the appearance of the underlaying WeatherNodeData based on its settings.
    * Call only once
    */
   draw() {
@@ -67,5 +66,4 @@ export class WeatherNodeMask extends PIXI.Graphics {
       this.filters = [new PIXI.filters.BlurFilter(blurSize, blurSize / 10)]
     }
   }
-
 }

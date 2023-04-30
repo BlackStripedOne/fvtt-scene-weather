@@ -24,34 +24,39 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
  * Foundry and console logging
  */
 export class Logger {
-
   static info(message, notify = false) {
     console.log('%c' + MODULE.NAME + ' | ' + message, 'color: cornflowerblue;')
     if (notify) ui.notifications.info(message)
   }
 
   static warn(message, notify = false, permanent = false) {
-    console.error('%c' + MODULE.NAME + ' | ' + message, 'color: gold; background-color: darkgoldenrod;')
-    if (notify) ui.notifications.warn(MODULE.NAME + ` | ${message}`, { 'permanent': permanent })
+    console.error(
+      '%c' + MODULE.NAME + ' | ' + message,
+      'color: gold; background-color: darkgoldenrod;'
+    )
+    if (notify) ui.notifications.warn(MODULE.NAME + ` | ${message}`, { permanent: permanent })
   }
 
   static error(message, notify = false, permanent = false) {
-    console.error('%c' + MODULE.NAME + ' | ' + message, 'color: orangered; background-color: darkred;')
-    if (notify) ui.notifications.error(MODULE.NAME + ` | ${message}`, { 'permanent': permanent })
+    console.error(
+      '%c' + MODULE.NAME + ' | ' + message,
+      'color: orangered; background-color: darkred;'
+    )
+    if (notify) ui.notifications.error(MODULE.NAME + ` | ${message}`, { permanent: permanent })
   }
 
   static _dereferencer = {
-    'info': {
-      'debug': () => { },
-      'trace': () => { }
+    info: {
+      debug: Logger._ignore,
+      trace: Logger._ignore
     },
-    'debug': {
-      'debug': Logger._debug,
-      'trace': () => {}
+    debug: {
+      debug: Logger._debug,
+      trace: Logger._ignore
     },
-    'trace': {
-      'debug': Logger._debug,
-      'trace': Logger._trace
+    trace: {
+      debug: Logger._debug,
+      trace: Logger._trace
     }
   }
 
@@ -61,6 +66,10 @@ export class Logger {
 
   static trace(message, data) {
     Logger._dereferencer[Fal.getSetting('loglevel', 'info')].trace(message, data)
+  }
+
+  static _ignore(message, data) {
+    // we ignore this
   }
 
   static _debug(message, data) {
@@ -75,18 +84,20 @@ export class Logger {
   static _trace(message, data) {
     if (data) {
       const dataClone = Utils.deepClone(data)
-      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;', dataClone)
+      console.log(
+        '%c' + MODULE.NAME + ' | ' + message,
+        'color: lime; background-color: darkgreen;',
+        dataClone
+      )
     } else {
       console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;')
     }
   }
-
 }
 /**
  * Utilit class for generic fvtt ease-of-uses
  */
 export class Utils {
-
   /**
    * Returns the nested leaf of an object's tree denoted by a period-separated string.
    * @param {Object} obj - The object with nested objects.
@@ -138,13 +149,16 @@ export class Utils {
    * });
    */
   static createInteractionManager(instance, handlers = {}, permissions = {}, target = null) {
-    const options = { 'target': target }
+    const options = { target: target }
     // merge manually set permissions with default perimssions for all given handlers
-    permissions = Utils.mergeObject(Object.fromEntries(
-      Object.keys(handlers)
-        .filter(key => typeof handlers[key] === 'function')
-        .map(key => [key, true])
-    ), permissions)
+    permissions = Utils.mergeObject(
+      Object.fromEntries(
+        Object.keys(handlers)
+          .filter((key) => typeof handlers[key] === 'function')
+          .map((key) => [key, true])
+      ),
+      permissions
+    )
     // Create the interaction manager
     return new MouseInteractionManager(instance, canvas.stage, permissions, handlers, options)
   }
@@ -159,7 +173,7 @@ export class Utils {
     const sampleRate = Math.ceil(1000 / (canvas.app.ticker.maxFPS || 60))
     const last = instance._drawTime || 0
     const now = Date.now()
-    if ((now - last) < sampleRate) {
+    if (now - last < sampleRate) {
       return true
     }
     instance['_drawTime'] = Date.now()
@@ -176,22 +190,22 @@ export class Utils {
     if (string.length === 0) return hash
     for (let i = 0; i < string.length; i++) {
       const char = string.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash |= 0 // Convert to 32bit integer
     }
     return Math.abs(hash)
   }
 
   /**
-  * Test if two objects contain the same enumerable keys and values.
-  * @param {object} a  The first object.
-  * @param {object} b  The second object.
-  * @returns {boolean}
-  */
+   * Test if two objects contain the same enumerable keys and values.
+   * @param {object} a  The first object.
+   * @param {object} b  The second object.
+   * @returns {boolean}
+   */
   static objectsEqual(a, b) {
     if (a === undefined || b === undefined) return false
-    if ((a == null) || (b == null)) return a === b
-    if ((getType(a) !== "Object") || (getType(b) !== "Object")) return a === b
+    if (a == null || b == null) return a === b
+    if (getType(a) !== 'Object' || getType(b) !== 'Object') return a === b
     if (Object.keys(a).length !== Object.keys(b).length) return false
     return Object.entries(a).every(([k, v0]) => {
       const v1 = b[k]
@@ -199,7 +213,7 @@ export class Utils {
       const t1 = getType(v1)
       if (t0 !== t1) return false
       if (v0?.equals instanceof Function) return v0.equals(v1)
-      if (t0 === "Object") return Utils.objectsEqual(v0, v1)
+      if (t0 === 'Object') return Utils.objectsEqual(v0, v1)
       return v0 === v1
     })
   }
@@ -234,29 +248,47 @@ export class Utils {
    * @param {number} [_d=0]                             A privately used parameter to track recursion depth.
    * @returns {object}                                  The original source object including updated, inserted, or
    *                                                    overwritten records.
-   *  
+   *
    */
-  static mergeObject(original, other = {}, {
-    insertKeys = true, insertValues = true, overwrite = true, recursive = true, inplace = true, enforceTypes = false,
-    performDeletions = false, expand = true
-  } = {}, _d = 0) {
+  static mergeObject(
+    original,
+    other = {},
+    {
+      insertKeys = true,
+      insertValues = true,
+      overwrite = true,
+      recursive = true,
+      inplace = true,
+      enforceTypes = false,
+      performDeletions = false,
+      expand = true
+    } = {},
+    _d = 0
+  ) {
     other = other || {}
     if (!(original instanceof Object) || !(other instanceof Object)) {
-      throw new Error("One of original or other are not Objects!")
+      throw new Error('One of original or other are not Objects!')
     }
-    const options = { insertKeys, insertValues, overwrite, recursive, inplace, enforceTypes, performDeletions, expand }
+    const options = {
+      insertKeys,
+      insertValues,
+      overwrite,
+      recursive,
+      inplace,
+      enforceTypes,
+      performDeletions,
+      expand
+    }
     // Special handling at depth 0
     if (_d === 0) {
-      if (expand && Object.keys(other).some(k => /\./.test(k))) other = expandObject(other) // TODO Utils.expandObject
-      if (Object.keys(original).some(k => /\./.test(k))) {
-        const expanded = (expand) ? expandObject(original) : original  // TODO Utils.expandObject
+      if (expand && Object.keys(other).some((k) => /\./.test(k))) other = expandObject(other) // TODO Utils.expandObject
+      if (Object.keys(original).some((k) => /\./.test(k))) {
+        const expanded = expand ? expandObject(original) : original // TODO Utils.expandObject
         if (inplace && expand) {
-          Object.keys(original).forEach(k => delete original[k])
+          Object.keys(original).forEach((k) => delete original[k])
           Object.assign(original, expanded)
-        }
-        else original = expanded
-      }
-      else if (!inplace) original = Utils.deepClone(original)
+        } else original = expanded
+      } else if (!inplace) original = Utils.deepClone(original)
     }
     // Iterate over the other object
     for (let k of Object.keys(other)) {
@@ -274,17 +306,28 @@ export class Utils {
    * A helper function for merging objects when the target key does not exist in the original
    * @private
    */
-  static _mergeInsert(original, k, v, { insertKeys, insertValues, performDeletions, expand } = {}, _d) {
+  static _mergeInsert(
+    original,
+    k,
+    v,
+    { insertKeys, insertValues, performDeletions, expand } = {},
+    _d
+  ) {
     // Delete a key
-    if (k.startsWith("-=") && performDeletions) {
+    if (k.startsWith('-=') && performDeletions) {
       delete original[k.slice(2)]
       return
     }
-    const canInsert = ((_d <= 1) && insertKeys) || ((_d > 1) && insertValues)
+    const canInsert = (_d <= 1 && insertKeys) || (_d > 1 && insertValues)
     if (!canInsert) return
     // Recursively create simple objects
     if (v?.constructor === Object) {
-      original[k] = Utils.mergeObject({}, v, { insertKeys: true, inplace: true, performDeletions, expand })
+      original[k] = Utils.mergeObject({}, v, {
+        insertKeys: true,
+        inplace: true,
+        performDeletions,
+        expand
+      })
       return
     }
     // Insert a key
@@ -295,23 +338,37 @@ export class Utils {
    * A helper function for merging objects when the target key exists in the original
    * @private
    */
-  static _mergeUpdate(original, k, v, {
-    insertKeys, insertValues, enforceTypes, overwrite, recursive, performDeletions, expand
-  } = {}, _d) {
+  static _mergeUpdate(
+    original,
+    k,
+    v,
+    { insertKeys, insertValues, enforceTypes, overwrite, recursive, performDeletions, expand } = {},
+    _d
+  ) {
     const x = original[k]
     const tv = getType(v)
     const tx = getType(x)
     // Recursively merge an inner object
-    if ((tv === "Object") && (tx === "Object") && recursive) {
-      return Utils.mergeObject(x, v, {
-        insertKeys, insertValues, overwrite, enforceTypes, performDeletions, expand,
-        inplace: true
-      }, _d)
+    if (tv === 'Object' && tx === 'Object' && recursive) {
+      return Utils.mergeObject(
+        x,
+        v,
+        {
+          insertKeys,
+          insertValues,
+          overwrite,
+          enforceTypes,
+          performDeletions,
+          expand,
+          inplace: true
+        },
+        _d
+      )
     }
     // Overwrite an existing value
     if (overwrite) {
-      if ((tx !== "undefined") && (tv !== tx) && enforceTypes) {
-        throw new Error(`Mismatched data types encountered during object merge.`)
+      if (tx !== 'undefined' && tv !== tx && enforceTypes) {
+        throw new Error('Mismatched data types encountered during object merge.')
       }
       original[k] = v
     }
@@ -329,8 +386,8 @@ export class Utils {
 
   /**
    * TODO
-   * 
-   * @param {string} text 
+   *
+   * @param {string} text
    */
   static copyToClipboard(text = '') {
     let temp = $('<input>')
@@ -374,12 +431,12 @@ export class Utils {
 
   /**
    * Clamps a number between a minimum and maximum value.
-   * 
+   *
    * @param {number} number - The number to clamp.
    * @param {number} min - The minimum value the number can be.
    * @param {number} max - The maximum value the number can be.
    * @returns {number} The clamped number.
-   * 
+   *
    */
   static clamp(number, min, max) {
     // TODO Math.clamped ?
@@ -388,14 +445,14 @@ export class Utils {
 
   /**
    * Maps a value from one range to another range.
-   * 
+   *
    * @param {number} inputValue - The value to map.
    * @param {number} inputMin - The minimum value of the current range.
    * @param {number} inputMax - The maximum value of the current range.
    * @param {number} outputMin - The minimum value of the target range.
    * @param {number} outputMax - The maximum value of the target range.
    * @returns {number} The mapped value.
-   * 
+   *
    * @example
    * const inputValue = 50
    * const inputMin = 0
@@ -424,7 +481,7 @@ export class Utils {
    * @param {string} hexMin - The hexadecimal color value for the minimum output.
    * @param {string} hexMax - The hexadecimal color value for the maximum output.
    * @returns {string} - The hexadecimal color value that corresponds to the mapped value.
-*/
+   */
   static mapColorHex(current, inMin, inMax, hexMin, hexMax) {
     const { r: redMin, g: greenMin, b: blueMin } = foundry.utils.Color.from(hexMin)
     const { r: redMax, g: greenMax, b: blueMax } = foundry.utils.Color.from(hexMax)
@@ -442,7 +499,7 @@ export class Utils {
    * @returns {number} The rounded result
    */
   static roundToDecimals(number, decimals) {
-    return Number(Math.round(number + "e" + decimals) + "e-" + decimals)
+    return Number(Math.round(number + 'e' + decimals) + 'e-' + decimals)
   }
 
   /**
@@ -458,7 +515,7 @@ export class Utils {
 
   /**
    * Checks if a given bit in a given number is set.
-   * 
+   *
    * @param {number} num The number to check.
    * @param {number} bit The bit number to check (0-based index).
    * @returns {object} `true` if the specified bit is set, `false` otherwise.
@@ -467,10 +524,9 @@ export class Utils {
     return (num & (1 << bit)) !== 0
   }
 
-
   /**
    * Foundry VTT's deepClone function wrapped here to avoid code error highlighting due to missing definition.
-   * 
+   *
    * @param {*} original
    * @param {*} options
    */
@@ -478,5 +534,4 @@ export class Utils {
     // eslint-disable-next-line no-undef
     return deepClone(original, options)
   }
-
 }

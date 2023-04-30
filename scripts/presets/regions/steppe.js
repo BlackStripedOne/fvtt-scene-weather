@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,47 +21,47 @@ import { EVENTS, MODULE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_REGION, async () => {
   SceneWeather.registerRegionTemplate(MODULE.ID, 'steppe', {
-    'name': 'templates.region.steppe.name',
-    'description': 'templates.region.steppe.description',
-    'elevation': 500,
-    'vegetation': 5,
-    'waterAmount': 0,
-    'summer': {
-      'temperature': {
-        'day': 27.5,
-        "night": 15,
-        "var": 5
+    name: 'templates.region.steppe.name',
+    description: 'templates.region.steppe.description',
+    elevation: 500,
+    vegetation: 5,
+    waterAmount: 0,
+    summer: {
+      temperature: {
+        day: 27.5,
+        night: 15,
+        var: 5
       },
-      'humidity': {
-        'day': 30,
-        'night': 25,
-        'var': 5
+      humidity: {
+        day: 30,
+        night: 25,
+        var: 5
       },
-      'wind': {
-        'avg': 25,
-        'var': 10
+      wind: {
+        avg: 25,
+        var: 10
       },
-      'sun': {
-        'hours': 14
+      sun: {
+        hours: 14
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 5,
-        "night": -5,
-        "var": 10
+    winter: {
+      temperature: {
+        day: 5,
+        night: -5,
+        var: 10
       },
-      'humidity': {
-        'day': 40,
-        'night': 30,
-        'var': 10
+      humidity: {
+        day: 40,
+        night: 30,
+        var: 10
       },
-      'wind': {
-        'avg': 20,
-        'var': 10
+      wind: {
+        avg: 20,
+        var: 10
       },
-      'sun': {
-        'hours': 10
+      sun: {
+        hours: 10
       }
     }
   })

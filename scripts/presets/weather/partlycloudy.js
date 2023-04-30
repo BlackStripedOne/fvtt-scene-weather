@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,32 +21,30 @@ import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
   SceneWeather.registerWeatherTemplate(MODULE.ID, 'partlycloudy', {
-    'name': 'templates.weather.partlycloudy.name',
-    'temp': {
-      'ground': 22,
-      'air': 25,
-      'percieved': 25
+    name: 'templates.weather.partlycloudy.name',
+    temp: {
+      ground: 22,
+      air: 25,
+      percieved: 25
     },
-    'wind': {
-      'speed': 20,
-      'gusts': 25,
-      'direction': 15
+    wind: {
+      speed: 20,
+      gusts: 25,
+      direction: 15
     },
-    'clouds': {
-      'coverage': 0.3,
-      'bottom': 3000,
-      'top': 4000,
-      'type': CLOUD_TYPE.stratus
+    clouds: {
+      coverage: 0.3,
+      bottom: 3000,
+      top: 4000,
+      type: CLOUD_TYPE.stratus
     },
-    'precipitation': {
-      'amount': 0,
-      'type': PRECI_TYPE.none
+    precipitation: {
+      amount: 0,
+      type: PRECI_TYPE.none
     },
-    'sun': {
-      'amount': 0.6,
+    sun: {
+      amount: 0.6
     },
-    'humidity': 60
+    humidity: 60
   })
 })
-
-

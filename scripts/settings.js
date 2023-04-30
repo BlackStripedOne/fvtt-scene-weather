@@ -41,11 +41,11 @@ export const registerSettingsPreInit = function () {
     default: false
   })
 
-  game.settings.registerMenu(MODULE.ID, "permissionSettingsMenu", {
+  game.settings.registerMenu(MODULE.ID, 'permissionSettingsMenu', {
     name: 'settings.permissionSettingsMenu.name',
     label: 'settings.permissionSettingsMenu.label',
     hint: 'settings.permissionSettingsMenu.hint',
-    icon: "fa-regular fa-user-lock",
+    icon: 'fa-regular fa-user-lock',
     type: PermissionConfigDialog,
     restricted: true
   })
@@ -58,11 +58,11 @@ export const registerSettingsPreInit = function () {
   })
 
   // https://foundryvtt.wiki/en/development/api/settings
-  game.settings.registerMenu(MODULE.ID, "defaultRegionSettingsMenu", {
+  game.settings.registerMenu(MODULE.ID, 'defaultRegionSettingsMenu', {
     name: 'settings.defaultRegionSettingsMenu.name',
     label: 'settings.defaultRegionSettingsMenu.label',
     hint: 'settings.defaultRegionSettingsMenu.hint',
-    icon: "fas fa-solid fa-sliders",
+    icon: 'fas fa-solid fa-sliders',
     type: RegionConfigDialog,
     restricted: true
   })
@@ -72,55 +72,55 @@ export const registerSettingsPreInit = function () {
     config: false, // we will use the menu above to edit this setting
     type: Object,
     default: {
-      'elevation': 0,
-      'vegetation': 0,
-      'waterAmount': 0,
-      'summer': {
-        'temperature': {
-          'day': 0,
-          'night': 0,
-          'var': 0
+      elevation: 0,
+      vegetation: 0,
+      waterAmount: 0,
+      summer: {
+        temperature: {
+          day: 0,
+          night: 0,
+          var: 0
         },
-        'humidity': {
-          'day': 0,
-          'night': 0,
-          'var': 0
+        humidity: {
+          day: 0,
+          night: 0,
+          var: 0
         },
-        'wind': {
-          'avg': 0,
-          'var': 0
+        wind: {
+          avg: 0,
+          var: 0
         },
-        'sun': {
-          'hours': 0
+        sun: {
+          hours: 0
         }
       },
-      'winter': {
-        'temperature': {
-          'day': 0,
-          'night': 0,
-          'var': 0
+      winter: {
+        temperature: {
+          day: 0,
+          night: 0,
+          var: 0
         },
-        'humidity': {
-          'day': 0,
-          'night': 0,
-          'var': 0
+        humidity: {
+          day: 0,
+          night: 0,
+          var: 0
         },
-        'wind': {
-          'avg': 0,
-          'var': 0
+        wind: {
+          avg: 0,
+          var: 0
         },
-        'sun': {
-          'hours': 0
+        sun: {
+          hours: 0
         }
       }
     }
   })
 
-  game.settings.registerMenu(MODULE.ID, "defaultWeatherSettingsMenu", {
+  game.settings.registerMenu(MODULE.ID, 'defaultWeatherSettingsMenu', {
     name: 'settings.defaultWeatherSettingsMenu.name',
     label: 'settings.defaultWeatherSettingsMenu.label',
     hint: 'settings.defaultWeatherSettingsMenu.hint',
-    icon: "fas fa-solid fa-sliders",
+    icon: 'fas fa-solid fa-sliders',
     type: WeatherConfigDialog,
     restricted: true
   })
@@ -130,30 +130,30 @@ export const registerSettingsPreInit = function () {
     config: false, // we will use the menu above to edit this setting
     type: Object,
     default: {
-      'temp': {
-        'ground': 0,
-        'air': 0
+      temp: {
+        ground: 0,
+        air: 0
       },
-      'wind': {
-        'speed': 0,
-        'gusts': 0,
-        'direction': 0,
-        'directionType': 0
+      wind: {
+        speed: 0,
+        gusts: 0,
+        direction: 0,
+        directionType: 0
       },
-      'clouds': {
-        'coverage': 0,
-        'bottom': 0,
-        'thickness': 0,
-        'type': 0
+      clouds: {
+        coverage: 0,
+        bottom: 0,
+        thickness: 0,
+        type: 0
       },
-      'precipitation': {
-        'amount': 0,
-        'type': 0
+      precipitation: {
+        amount: 0,
+        type: 0
       },
-      'sun': {
-        'amount': 0,
+      sun: {
+        amount: 0
       },
-      'humidity': 0
+      humidity: 0
     }
   })
 
@@ -169,8 +169,8 @@ export const registerSettingsPreInit = function () {
     default: true,
     onChange: (value) => {
       onChangeFunction({
-        'id': 'enableFx',
-        'value': value
+        id: 'enableFx',
+        value: value
       })
     }
   })
@@ -178,7 +178,7 @@ export const registerSettingsPreInit = function () {
   game.settings.register(MODULE.ID, 'cloudsAlpha', {
     name: 'settings.cloudsAlpha.name',
     hint: 'settings.cloudsAlpha.hint',
-    scope: "client",
+    scope: 'client',
     config: true,
     type: Number,
     range: {
@@ -189,8 +189,8 @@ export const registerSettingsPreInit = function () {
     default: 100,
     onChange: (value) => {
       onChangeFunction({
-        'id': 'cloudsAlpha',
-        'value': value
+        id: 'cloudsAlpha',
+        value: value
       })
     }
   })
@@ -198,7 +198,7 @@ export const registerSettingsPreInit = function () {
   game.settings.register(MODULE.ID, 'precipitationAlpha', {
     name: 'settings.precipitationAlpha.name',
     hint: 'settings.precipitationAlpha.hint',
-    scope: "client",
+    scope: 'client',
     config: true,
     type: Number,
     range: {
@@ -209,8 +209,8 @@ export const registerSettingsPreInit = function () {
     default: 100,
     onChange: (value) => {
       onChangeFunction({
-        'id': 'precipitationAlpha',
-        'value': value
+        id: 'precipitationAlpha',
+        value: value
       })
     }
   })
@@ -218,7 +218,7 @@ export const registerSettingsPreInit = function () {
   game.settings.register(MODULE.ID, 'sfxVolume', {
     name: 'settings.sfxVolume.name',
     hint: 'settings.sfxVolume.hint',
-    scope: "client",
+    scope: 'client',
     config: true,
     type: Number,
     range: {
@@ -229,8 +229,8 @@ export const registerSettingsPreInit = function () {
     default: 100,
     onChange: (value) => {
       onChangeFunction({
-        'id': 'sfxVolume',
-        'value': value
+        id: 'sfxVolume',
+        value: value
       })
     }
   })
@@ -249,8 +249,8 @@ export const registerSettingsPreInit = function () {
     default: 3200,
     onChange: (value) => {
       onChangeFunction({
-        'id': 'maxParticles',
-        'value': value
+        id: 'maxParticles',
+        value: value
       })
     }
   })
@@ -304,12 +304,12 @@ export const registerSettingsPreInit = function () {
     config: true,
     type: String,
     choices: {
-      'info': 'settings.loglevel.info',
-      'debug': 'settings.loglevel.debug',
-      'trace': 'settings.loglevel.trace'
+      info: 'settings.loglevel.info',
+      debug: 'settings.loglevel.debug',
+      trace: 'settings.loglevel.trace'
     },
     default: 'info'
   })
 
-  Logger.debug("Settings Registered");
+  Logger.debug('Settings Registered')
 }

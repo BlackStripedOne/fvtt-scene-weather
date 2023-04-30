@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -28,7 +29,12 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
       return undefined
     }
 
-    if (![PRECI_TYPE.drizzle, PRECI_TYPE.rain, PRECI_TYPE.downpour, PRECI_TYPE.hail].includes(modelData.precipitation.type)) return null
+    if (
+      ![PRECI_TYPE.drizzle, PRECI_TYPE.rain, PRECI_TYPE.downpour, PRECI_TYPE.hail].includes(
+        modelData.precipitation.type
+      )
+    )
+      return null
 
     let rainDirection = 90
     const rainMode = modelData.precipitation.mode ?? 'winddir'
@@ -39,24 +45,26 @@ Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
         rainDirection = (Math.round(modelData.wind.direction) + 90) % 360
         break
       case 'topdown':
-        rainDirection = 90  // Top
+        rainDirection = 90 // Top
         break
       case 'slanted':
-        rainDirection = 75  // Slightly from Left
+        rainDirection = 75 // Slightly from Left
         break
       case 'windinfluence':
-        const vecH = Math.sin(modelData.wind.direction * Math.PI / 180) * Utils.map(modelData.wind.speed, 10, 70, 3, 45) // Deflection between -45 .. 45 deg
+        const vecH =
+          Math.sin((modelData.wind.direction * Math.PI) / 180) *
+          Utils.map(modelData.wind.speed, 10, 70, 3, 45) // Deflection between -45 .. 45 deg
         rainDirection = 90 + vecH
         break
     }
 
     const generatorOptions = {
-      alpha: Fal.getSetting('precipitationAlpha', 100) / 100,  // Client based percentage for precipitation transparency
+      alpha: Fal.getSetting('precipitationAlpha', 100) / 100, // Client based percentage for precipitation transparency
       direction: rainDirection,
-      speed: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.6, 2.0),      // 0.6 drizzle, 2.0 heavy rain 
+      speed: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.6, 2.0), // 0.6 drizzle, 2.0 heavy rain
       scale: 1,
-      lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.5),   // 1 drizzle, 0.5 heavy rain
-      density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 4.0),    // 0.1 drizzle, 4: heavy rain
+      lifetime: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 1.0, 0.5), // 1 drizzle, 0.5 heavy rain
+      density: Utils.map(modelData.precipitation.amount, 0.4, 0.95, 0.01, 4.0), // 0.1 drizzle, 4: heavy rain
       tint: null
     }
 

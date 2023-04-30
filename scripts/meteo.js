@@ -25,7 +25,6 @@ import { Logger, Utils } from './utils.js'
  * Meteo utility function collection
  */
 export class Meteo {
-
   /**
    * Calculates the relative humidity for a new temperature with the same mass of air.
    *
@@ -38,20 +37,25 @@ export class Meteo {
    * // Returns approximately 58.7
    * calculateRelativeHumidity(25, 50, 30)
    */
-  static calculateRelativeHumidityTransfer(temperatureInCelsius, relativeHumidity, newTemperatureInCelsius) {
+  static calculateRelativeHumidityTransfer(
+    temperatureInCelsius,
+    relativeHumidity,
+    newTemperatureInCelsius
+  ) {
     // Calculate the saturation vapor pressure at the current temperature
-    const saturationVaporPressure = 6.11 * Math.pow(10, ((7.5 * temperatureInCelsius) / (237.3 + temperatureInCelsius)))
+    const saturationVaporPressure =
+      6.11 * Math.pow(10, (7.5 * temperatureInCelsius) / (237.3 + temperatureInCelsius))
 
     // Calculate the actual vapor pressure at the current relative humidity
     const actualVaporPressure = (relativeHumidity / 100) * saturationVaporPressure
 
     // Calculate the saturation vapor pressure at the new temperature
-    const newSaturationVaporPressure = 6.11 * Math.pow(10, ((7.5 * newTemperatureInCelsius) / (237.3 + newTemperatureInCelsius)))
+    const newSaturationVaporPressure =
+      6.11 * Math.pow(10, (7.5 * newTemperatureInCelsius) / (237.3 + newTemperatureInCelsius))
 
     // Calculate the new relative humidity
     const newRelativeHumidity = (actualVaporPressure / newSaturationVaporPressure) * 100
 
     return Utils.clamp(Math.round(newRelativeHumidity), 0, 100)
   }
-
 }

@@ -24,10 +24,9 @@ import { Logger, Utils } from './utils.js'
  * Scene Weather's public API functions, attached to the foundry game object.
  */
 export class SceneWeatherState {
+  static _lastUpdate = 0 // last update in timeHash
 
-  static _lastUpdate = 0  // last update in timeHash
-
-  static _sceneWeather = {}  // cached instances of sceneWeather by scene ID
+  static _sceneWeather = {} // cached instances of sceneWeather by scene ID
 
   // all region templates
   // templates can be registered via the api call SceneWeather.registerRegionTemplate(moduleId, templateId, weatherData)
@@ -66,7 +65,9 @@ export class SceneWeatherState {
     }
 
     // invalidate cache, if flag set
-    if (ignoreCache) { SceneWeatherState._sceneWeather[sceneId] = undefined }
+    if (ignoreCache) {
+      SceneWeatherState._sceneWeather[sceneId] = undefined
+    }
 
     // on cache hit
     if (SceneWeatherState._sceneWeather[sceneId] !== undefined) {
@@ -75,11 +76,15 @@ export class SceneWeatherState {
 
     // else, cache miss generate new instance
     SceneWeatherState._sceneWeather[sceneId] = SceneWeather.fromConfig({
-      'sceneId': sceneId
-    })  // may also be undefined
+      sceneId: sceneId
+    }) // may also be undefined
 
-    Logger.trace('SceneWeatherState.getSceneWeatherProvider(...) cacheMiss', { 'forSceneId': forSceneId, 'sceneId': sceneId, 'ignoreCache': ignoreCache, 'provider': SceneWeatherState._sceneWeather[sceneId] })
+    Logger.trace('SceneWeatherState.getSceneWeatherProvider(...) cacheMiss', {
+      forSceneId: forSceneId,
+      sceneId: sceneId,
+      ignoreCache: ignoreCache,
+      provider: SceneWeatherState._sceneWeather[sceneId]
+    })
     return SceneWeatherState._sceneWeather[sceneId]
   }
-
-}   // SceneWeatherApi
+} // SceneWeatherApi

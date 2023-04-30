@@ -29,7 +29,6 @@ Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
 })
 
 class VaguePerciever extends WeatherPerception {
-
   /**
    * @override WeatherPerception.isAllowed(userId)
    */
@@ -68,35 +67,35 @@ class VaguePerciever extends WeatherPerception {
   async getWeatherInfoFromModel(modelData) {
     const temp = Math.round(modelData.temp.percieved / 5) * 5
     let weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
-      'temperature': {
-        'air': temp,
-        'ground': NaN,
-        'percieved': temp
+      temperature: {
+        air: temp,
+        ground: NaN,
+        percieved: temp
       },
-      'humidity': {
-        'percent': NaN
+      humidity: {
+        percent: NaN
       },
-      'wind': {
-        'speed': NaN,
-        'gusts': NaN,
-        'direction': NaN
+      wind: {
+        speed: NaN,
+        gusts: NaN,
+        direction: NaN
       },
-      'clouds': {
-        'height': NaN,
-        'amount': Math.round(modelData.clouds.coverage * 10) * 10,
-        'type': (modelData.clouds.type > CLOUD_TYPE.stratus) ? CLOUD_TYPE.cumulus : CLOUD_TYPE.none
+      clouds: {
+        height: NaN,
+        amount: Math.round(modelData.clouds.coverage * 10) * 10,
+        type: modelData.clouds.type > CLOUD_TYPE.stratus ? CLOUD_TYPE.cumulus : CLOUD_TYPE.none
       },
-      'sun': {
-        'amount': (modelData.sun.amount > 0.3) ? 1 : 0
+      sun: {
+        amount: modelData.sun.amount > 0.3 ? 1 : 0
       },
-      'precipitation': {
-        'amount': (modelData.precipitation.amount > 0.4) ? 1 : 0,
-        'type': (modelData.precipitation.type > PRECI_TYPE.rain) ? PRECI_TYPE.rain : PRECI_TYPE.none
+      precipitation: {
+        amount: modelData.precipitation.amount > 0.4 ? 1 : 0,
+        type: modelData.precipitation.type > PRECI_TYPE.rain ? PRECI_TYPE.rain : PRECI_TYPE.none
       },
-      'modifiers': {
-        'skyType': 'none',
-        'tempType': 'none',
-        'windType': 'none'
+      modifiers: {
+        skyType: 'none',
+        tempType: 'none',
+        windType: 'none'
       }
     })
 
@@ -113,11 +112,13 @@ class VaguePerciever extends WeatherPerception {
         case PRECI_TYPE.hail:
         case PRECI_TYPE.downpour:
           weatherInfo.modifiers.skyType = 'meteo.vague.downpour'
-          if (modelData.clouds.type >= CLOUD_TYPE.cumulunimbus) weatherInfo.modifiers.skyType = 'meteo.vague.thunderstorm'
+          if (modelData.clouds.type >= CLOUD_TYPE.cumulunimbus)
+          weatherInfo.modifiers.skyType = 'meteo.vague.thunderstorm'
           break
         case PRECI_TYPE.rain:
           weatherInfo.modifiers.skyType = 'meteo.vague.rain'
-          if (modelData.clouds.type >= CLOUD_TYPE.cumulunimbus) weatherInfo.modifiers.skyType = 'meteo.vague.thunderstorm'
+          if (modelData.clouds.type >= CLOUD_TYPE.cumulunimbus)
+          weatherInfo.modifiers.skyType = 'meteo.vague.thunderstorm'
           break
         case PRECI_TYPE.drizzle:
           weatherInfo.modifiers.skyType = 'meteo.vague.drizzle'
@@ -135,7 +136,10 @@ class VaguePerciever extends WeatherPerception {
       weatherInfo.modifiers.tempType = 'meteo.vague.cold'
       if (modelData.wind.speed > 40) weatherInfo.modifiers.windType = 'meteo.vague.windy'
     }
-    Logger.debug('VaguePerciever.getWeatherInfoFromModel()', { 'modelData': modelData, 'weatherInfo': weatherInfo })
+    Logger.debug('VaguePerciever.getWeatherInfoFromModel()', {
+      modelData: modelData,
+      weatherInfo: weatherInfo
+    })
     return weatherInfo
   }
 
@@ -144,11 +148,10 @@ class VaguePerciever extends WeatherPerception {
    */
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
-      'id': 'vague',
-      'name': Fal.i18n('meteo.vague.name')
+      id: 'vague',
+      name: Fal.i18n('meteo.vague.name')
     })
-    Logger.debug('VaguePerciever.getPercieverInfo()', { 'info': info })
+    Logger.debug('VaguePerciever.getPercieverInfo()', { info: info })
     return info
   }
-
 }

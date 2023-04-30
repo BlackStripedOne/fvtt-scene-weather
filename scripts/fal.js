@@ -21,13 +21,9 @@ import { MODULE } from './constants.js'
 import { Logger } from './utils.js'
 
 export class FoundryAbstractionLayer {
-
-
-
-
   /**
    * Get the ID of the current world
-   * 
+   *
    * @returns {String}
    */
   static get worldId() {
@@ -36,7 +32,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get the ID of the current system
-   * 
+   *
    * @returns {String}
    */
   static get systemID() {
@@ -45,7 +41,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get the version of the current system
-   * 
+   *
    * @returns {String}
    */
   static get systemVersion() {
@@ -58,57 +54,56 @@ export class FoundryAbstractionLayer {
    * @return {Boolean}
    */
   static isGm(userId = null) {
-    const user = (userId ? FoundryAbstractionLayer.getUser(userId) : game.user)
+    const user = userId ? FoundryAbstractionLayer.getUser(userId) : game.user
     return user ? user.isGM : false
   }
 
   /**
    * Returns the current users name
-   * 
+   *
    * @return {String}
    */
   static userName() {
     const u = game.user
-    return u ? u.name ? u.name : '' : ''
+    return u ? (u.name ? u.name : '') : ''
   }
 
   /**
    * TODO
-   * 
+   *
    * @return {String} Returns the current users ID
    */
   static userID() {
     const u = game.user
-    return u ? u.id ? u.id : '' : ''
+    return u ? (u.id ? u.id : '') : ''
   }
 
   /**
    * TODO
-   * 
-   * @param {String} userId 
+   *
+   * @param {String} userId
    * @returns {User | undefined}
    */
   static getUser(userId) {
     const users = game.users
     if (users) {
-      return users.find(u => u.id === userId)
+      return users.find((u) => u.id === userId)
     }
     return undefined
   }
 
   /**
-     * Get controlled tokens
-     * 
-     * @returns {Array} The controlled tokens
-     */
+   * Get controlled tokens
+   *
+   * @returns {Array} The controlled tokens
+   */
   static getControlledTokens() {
     return game.canvas.tokens.controlled
   }
 
-
   /**
    * Get one controlled tokens
-   * 
+   *
    * @returns {Object} The first controlled token
    */
   static getControlledToken() {
@@ -117,7 +112,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get the user object owning and controling the given token
-   * 
+   *
    * @param {Token} token - the token to search the owner for
    * @returns {User} - the user owning and controling the token, undefined in case none was found
    */
@@ -132,10 +127,9 @@ export class FoundryAbstractionLayer {
     return foundUser
   }
 
-
   /**
    * Gets the current version of this module
-   * 
+   *
    * @returns {String}
    */
   static getModuleVersion() {
@@ -148,7 +142,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
+   *
    * @returns {Number}
    */
   static getLastTickTime() {
@@ -157,7 +151,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
+   *
    * @returns {Number}
    */
   static getWorldTime() {
@@ -166,9 +160,9 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
-   * @param {Number} deltaSeconds 
-   * @returns 
+   *
+   * @param {Number} deltaSeconds
+   * @returns
    */
   static async advanceWorldTime(deltaSeconds = 0) {
     return game.time.advance(deltaSeconds)
@@ -176,18 +170,18 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
-   * @param {String} moduleId 
+   *
+   * @param {String} moduleId
    * @returns {Boolean}
    */
   static isModuleEnabled(moduleId) {
     const module = game.modules.get(moduleId)
-    return (module && module.active)
+    return module && module.active
   }
 
   /**
    * Get setting value
-   * 
+   *
    * @param {string} key               The setting key
    * @param {string=null} defaultValue The setting default value
    * @returns {*}                      The setting value
@@ -203,11 +197,11 @@ export class FoundryAbstractionLayer {
   }
 
   /**
- * Set setting value
- * 
- * @param {string} key   The setting key
- * @param {string} value The setting value
- */
+   * Set setting value
+   *
+   * @param {string} key   The setting key
+   * @param {string} value The setting value
+   */
   static async setSetting(key, value) {
     if (game.settings.settings.get(`${MODULE.ID}.${key}`)) {
       await game.settings.set(MODULE.ID, key, value)
@@ -217,10 +211,9 @@ export class FoundryAbstractionLayer {
     }
   }
 
-
   /**
    * Get item from the actor object
-   * 
+   *
    * @param {object} actor  The actor
    * @param {string} itemId The item id
    * @returns {object}      The item
@@ -231,7 +224,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get token
-   * 
+   *
    * @param {string} tokenId The token id
    * @returns {object}       The token
    */
@@ -241,7 +234,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get controlled tokens
-   * 
+   *
    * @returns {array} The controlled tokens
    */
   static getControlledTokens() {
@@ -250,7 +243,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get one controlled tokens
-   * 
+   *
    * @returns {object} The first controlled token
    */
   static getControlledToken() {
@@ -258,12 +251,12 @@ export class FoundryAbstractionLayer {
   }
 
   /**
-    * Get actor from the token or actor object
-    * 
-    * @param {string} actorId The actor id
-    * @param {string} tokenId The token id
-    * @returns {object}       The actor
-    */
+   * Get actor from the token or actor object
+   *
+   * @param {string} actorId The actor id
+   * @param {string} tokenId The token id
+   * @returns {object}       The actor
+   */
   static getActor(actorId, tokenId) {
     let token = null
     if (tokenId) token = canvas.tokens.placeables.find((token) => token.id === tokenId)
@@ -273,7 +266,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get the user object owning and controling the given token
-   * 
+   *
    * @param {Token} token - the token to search the owner for
    * @returns {User} - the user owning and controling the token, undefined in case none was found
    */
@@ -290,17 +283,16 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * @param {String} sceneId 
+   * @param {String} sceneId
    * @returns {Scene}
    */
   static getScene(sceneId = undefined) {
-    return (sceneId) ? game.scenes.get(sceneId) : canvas.scene
+    return sceneId ? game.scenes.get(sceneId) : canvas.scene
   }
-
 
   /**
    * Get scene flag value
-   * 
+   *
    * @param {string} key               The scene flag key
    * @param {string=null} defaultValue The scene flag default value
    * @returns {any}                      The scene flag value or defaultValue, null as fallback
@@ -317,10 +309,10 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
-   * @param {String} key 
-   * @param {any} value 
-   * @param {String} sceneId 
+   *
+   * @param {String} key
+   * @param {any} value
+   * @param {String} sceneId
    */
   static async setSceneFlag(key, value, sceneId = undefined) {
     const scene = FoundryAbstractionLayer.getScene(sceneId)
@@ -329,9 +321,9 @@ export class FoundryAbstractionLayer {
 
   /**
    * TODO
-   * 
-   * @param {String} key   
-   * @param {String} sceneId 
+   *
+   * @param {String} key
+   * @param {String} sceneId
    */
   static async unsetSceneFlag(key, sceneId = undefined) {
     return FoundryAbstractionLayer.getScene(sceneId).unsetFlag(MODULE.ID, key)
@@ -339,9 +331,9 @@ export class FoundryAbstractionLayer {
 
   /**
    * Get module user flag
-   * 
+   *
    * TODO
-   * 
+   *
    * @param {string} key The flag key
    * @returns {any}        The flag value
    */
@@ -357,7 +349,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Set module user flag
-   * 
+   *
    * @param {string} key The flag key
    * @param {any} value    The flag value
    */
@@ -367,7 +359,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Unset module user flag
-   * 
+   *
    * @param {String} key The flag key
    */
   static async unsetUserFlag(key) {
@@ -376,24 +368,24 @@ export class FoundryAbstractionLayer {
 
   /**
    * Language translation
-   * 
+   *
    * @param {String} toTranslate The value to translate
    * @returns {String} The translated value
    */
   static i18n(toTranslate, defaultValue = null) {
     let translation = game.i18n.localize(toTranslate)
     if (translation == toTranslate) {
-      if (defaultValue === null || defaultValue === undefined) translation = toTranslate;
-      return translation;
+      if (defaultValue === null || defaultValue === undefined) translation = toTranslate
+      return translation
     } else {
-      return translation;
+      return translation
     }
   }
 
   /**
    * TODO
-   * 
-   * @param {String} id 
+   *
+   * @param {String} id
    * @returns {Module}
    */
   static getModule(id = MODULE.ID) {
@@ -402,7 +394,7 @@ export class FoundryAbstractionLayer {
 
   /**
    * Whether the given module is active
-   * 
+   *
    * @param {String} id The module id
    * @returns {Boolean}
    */
@@ -410,7 +402,6 @@ export class FoundryAbstractionLayer {
     const module = game.modules.get(id)
     return module && module.active
   }
-
 
   /**
    * Test whether a value is empty-like; either undefined or a content-less object.
@@ -420,6 +411,4 @@ export class FoundryAbstractionLayer {
   static isEmpty(value) {
     return foundry.utils.isEmpty(value)
   }
-
-
 }

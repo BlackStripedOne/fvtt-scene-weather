@@ -31,8 +31,7 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   }
 })
 
-Hooks.on(EVENTS.WEATHER_DISABLED, async (data) => {
-  Logger.trace(EVENTS.WEATHER_DISABLED + '->', { 'data': data })
+Hooks.on(MODULE.LCCNAME + 'WeatherDisabled', async (data) => {
   // TODO maybe handle hiding of the window instead of in the render method?
 })
 
@@ -48,7 +47,6 @@ Hooks.on('updateWorldTime', () => {
  * Helper clsss for the weather configuration tab on the scene settings dialog.
  */
 export class WeatherUi extends FormApplication {
-
   static _isOpen = false
 
   static _weatherModel = {}
@@ -69,10 +67,13 @@ export class WeatherUi extends FormApplication {
     WeatherUi._weatherModel.hasControls = Permissions.hasPermission(userId, 'weatherUiControls')
     WeatherUi._weatherModel.hasPerceiver = WeatherPerception.getAllowedIds(Fal.userID()).length >= 1
     WeatherUi._weatherModel.hasPerceivers = WeatherPerception.getAllowedIds(Fal.userID()).length > 1
-    WeatherUi._weatherModel.hasTimeAuthority = Permissions.hasPermission(userId, 'timeControls')
-      && WeatherUi._weatherModel.hasControls
-      && TimeProvider.hasTimeAuthority()
-      && [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
+    WeatherUi._weatherModel.hasTimeAuthority =
+      Permissions.hasPermission(userId, 'timeControls') &&
+      WeatherUi._weatherModel.hasControls &&
+      TimeProvider.hasTimeAuthority() &&
+      [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
+        Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
+      )
 
     if (WeatherUi._weatherModel.hasTimeAuthority) {
       WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
@@ -88,8 +89,8 @@ export class WeatherUi extends FormApplication {
    * @returns {ApplicationOptions} - The default options for this FormApplication class
    */
   static get defaultOptions() {
-    this.initialPosition = Fal.getSetting('uiPosition', { 'top': 40, 'left': 40 })
-    return Utils.mergeObject(super.defaultOptions, {
+    this.initialPosition = Fal.getSetting('uiPosition', { top: 40, left: 40 })
+    return mergeObject(super.defaultOptions, {
       classes: ['form'],
       popOut: true,
       width: 200,
@@ -104,7 +105,6 @@ export class WeatherUi extends FormApplication {
       left: this.initialPosition.left
     })
   }
-
 
   /**
    * Pin the UI above the player's list inside the ui-left container.
@@ -135,8 +135,8 @@ export class WeatherUi extends FormApplication {
    * Toggle visibility of the main window, the mode is set to 'tiggle' otherwise
    * the main window of the UI will be set visible if it is set visible in the
    * settings.
-   * 
-   * @param {String} mode - the optional mode for setting the app visible 
+   *
+   * @param {String} mode - the optional mode for setting the app visible
    */
   static async toggleAppVis(mode) {
     //TODO check wether player is allowed to view weather
@@ -169,7 +169,7 @@ export class WeatherUi extends FormApplication {
    * TODO
    */
   static async _updateTimeHeadline() {
-    Logger.debug('WeatherUi._updateTimeHeadline()', { 'model': WeatherUi._weatherModel })
+    Logger.debug('WeatherUi._updateTimeHeadline()', { model: WeatherUi._weatherModel })
     if (WeatherUi._weatherModel.hasTimeAuthority) {
       WeatherUi._weatherModel.timeHeadline = TimeProvider.getI18nDateString()
       $('#weatherHeadline').html(WeatherUi._weatherModel.timeHeadline)
@@ -180,12 +180,12 @@ export class WeatherUi extends FormApplication {
    * This helper is invoked by the Hook on events to update the stored weatherModel
    * if provided. If no weatherModel is provided, the stored static on the class
    * is used instead.
-   * 
+   *
    * @param {Object} weatherModel - the optional weatherModel to update the UI to.
    */
   static async update(weatherModel = null) {
     if (weatherModel == null) weatherModel = WeatherUi._weatherModel
-    Logger.debug('WeatherUi.update(...)', { 'weatherModel': weatherModel })
+    Logger.debug('WeatherUi.update(...)', { weatherModel: weatherModel })
     WeatherUi._weatherModel = weatherModel
 
     // get last used perception if from user or apply an allowed one to the user
@@ -200,7 +200,10 @@ export class WeatherUi extends FormApplication {
 
     WeatherUi._addModelFlags()
     if (Fal.getSetting('uiVisible', false) === true) {
-      const weatherInfoHtml = await WeatherPerception.getAsUiHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+      const weatherInfoHtml = await WeatherPerception.getAsUiHtml(
+        WeatherUi._perceptionId,
+        WeatherUi._weatherModel
+      )
       $('#weatherDetail').html(weatherInfoHtml)
       if (WeatherUi._weatherModel.hasTimeAuthority) WeatherUi._updateTimeHeadline()
     }
@@ -212,7 +215,7 @@ export class WeatherUi extends FormApplication {
    * Close the application and un-register references to it within UI mappings This function
    * returns a Promise which resolves once the window closing animation concludes
    * Override original #close method inherited from parent class.
-   * @param {*} options 
+   * @param {*} options
    * @returns {Promise} - A Promise which resolves once the application is closed
    */
   async close(options = {}) {
@@ -260,18 +263,18 @@ export class WeatherUi extends FormApplication {
     // Remove the window from candidates for closing via Escape.
     delete ui.windows[this.appId]
     // hide the app when we have weather DISABLED
-    if ((Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED) ||
-      (!WeatherUi._weatherModel.hasPerceiver)) {
+    if (
+      Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) == GENERATOR_MODES.DISABLED ||
+      !WeatherUi._weatherModel.hasPerceiver
+    ) {
       Logger.debug('WeatherUi._render() -> hiding app, DISABLED')
-      $('#scene-weather-app').css("visibility", "hidden")
+      $('#scene-weather-app').css('visibility', 'hidden')
     } else {
-      $('#scene-weather-app').css("visibility", "visible")
+      $('#scene-weather-app').css('visibility', 'visible')
     }
   }
 
-
-  /*async _updateObject(event, formData) {
-  }*/
+  async _updateObject(event, formData) {}
 
   /**
    * Attaches a draggable handler to the specified jQuery object and initializes a new Draggable instance.
@@ -368,28 +371,33 @@ export class WeatherUi extends FormApplication {
    */
   _attachControls(jQ) {
     if (!WeatherUi._weatherModel.hasControls) return
-    jQ.find('#weatherControls li').each(() => {
+    jQ.find('#weatherControls li').each(function (id) {
       const controlJQ = $(this)
       const controlFunc = controlJQ.attr('data-func') || 'none'
       const controlBase = Number(controlJQ.attr('data-base') || '0')
       switch (controlFunc) {
         case 'time':
           if (WeatherUi._weatherModel.hasTimeAuthority) {
-            controlJQ.on('click', () => {
-              TimeProvider.advanceGameTime((window.event.ctrlKey ? controlBase * 5 : controlBase))
+            controlJQ.on('click', function () {
+              TimeProvider.advanceGameTime(window.event.ctrlKey ? controlBase * 5 : controlBase)
             })
           }
           break
         case 'chatSingle':
           if (WeatherUi._weatherModel.hasControls) {
-            controlJQ.on('click', async () => {
+            controlJQ.on('click', async function () {
               const tokens = Fal.getControlledTokens()
               if (tokens.length == 0) {
                 Logger.info(Fal.i18n('dialogs.weatherUi.chatNotice'), true)
               } else {
-                const userIds = tokens.map(token => { return Fal.getUserByToken(token) })
-                Logger.debug('chatSingle', { 'tokens': tokens, 'userIds': userIds })
-                const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+                const userIds = tokens.map((token) => {
+                return Fal.getUserByToken(token)
+              })
+                Logger.debug('chatSingle', { tokens: tokens, userIds: userIds })
+                const weatherChatHtml = await WeatherPerception.getAsChatHtml(
+                WeatherUi._perceptionId,
+                WeatherUi._weatherModel
+              )
                 ChatMessage.create({
                   user: Fal.userID(),
                   whisper: userIds,
@@ -401,8 +409,11 @@ export class WeatherUi extends FormApplication {
           break
         case 'chatAll':
           if (WeatherUi._weatherModel.hasControls) {
-            controlJQ.on('click', async () => {
-              const weatherChatHtml = await WeatherPerception.getAsChatHtml(WeatherUi._perceptionId, WeatherUi._weatherModel)
+            controlJQ.on('click', async function () {
+              const weatherChatHtml = await WeatherPerception.getAsChatHtml(
+              WeatherUi._perceptionId,
+              WeatherUi._weatherModel
+            )
               ChatMessage.create({
                 user: Fal.userID(),
                 content: weatherChatHtml
@@ -412,8 +423,11 @@ export class WeatherUi extends FormApplication {
           break
         case 'clipboard':
           if (WeatherUi._weatherModel.hasControls) {
-            controlJQ.on('click', async () => {
-              const weatherText = await WeatherPerception.getAsText(WeatherUi._perceptionId, WeatherUi._weatherModel)
+            controlJQ.on('click', async function () {
+              const weatherText = await WeatherPerception.getAsText(
+              WeatherUi._perceptionId,
+              WeatherUi._weatherModel
+            )
               Utils.copyToClipboard(weatherText)
               Logger.info(Fal.i18n('dialogs.weatherUi.clipboardNotice'), true)
             })
@@ -430,7 +444,7 @@ export class WeatherUi extends FormApplication {
    */
   _attachPerceiverControls(jQ) {
     if (!WeatherUi._weatherModel.hasPerceivers) return
-    jQ.find('#weatherContainer .percControl').each(() => {
+    jQ.find('#weatherContainer .percControl').each(function (id) {
       const controlJQ = $(this)
       const controlFunc = controlJQ.attr('data-func') || 'none'
       switch (controlFunc) {
@@ -453,5 +467,4 @@ export class WeatherUi extends FormApplication {
       }
     })
   }
-
 }

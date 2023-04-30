@@ -25,7 +25,6 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
  * A dialog form for configuring the weather settings.
  */
 export class WeatherConfigDialog extends FormApplication {
-
   /**
    * Reference to the scene these settings shall be applied to. If not set, the settings shall be applied globally
    * @type {Scene|undefined}
@@ -67,12 +66,12 @@ export class WeatherConfigDialog extends FormApplication {
     super.activateListeners(jQ)
 
     // set initial visibilities
-    const directionType = jQ.find('select[name="wind.directionType"]').find(":selected").val()
+    const directionType = jQ.find('select[name="wind.directionType"]').find(':selected').val()
     if (directionType != 0) {
       jQ.find('#windTypeGrp').addClass('disabled')
     }
     jQ.find('select[name="wind.directionType"]').on('change', function () {
-      const directionType = $(this).find(":selected").val()
+      const directionType = $(this).find(':selected').val()
       if (directionType != 0) {
         jQ.find('#windTypeGrp').addClass('disabled')
       } else {
@@ -80,13 +79,13 @@ export class WeatherConfigDialog extends FormApplication {
       }
     })
 
-    const cloudsType = jQ.find('select[name="clouds.type"]').find(":selected").val()
+    const cloudsType = jQ.find('select[name="clouds.type"]').find(':selected').val()
     if (cloudsType == 0) {
       jQ.find('#cloudSectionGrp').addClass('disabled')
       jQ.find('#preciGrp').addClass('disabled')
     }
     jQ.find('select[name="clouds.type"]').on('change', function () {
-      const cloudsType = $(this).find(":selected").val()
+      const cloudsType = $(this).find(':selected').val()
       if (cloudsType == 0) {
         jQ.find('#cloudSectionGrp').addClass('disabled')
         jQ.find('#preciGrp').addClass('disabled')
@@ -96,12 +95,12 @@ export class WeatherConfigDialog extends FormApplication {
       }
     })
 
-    const preciType = jQ.find('select[name="precipitation.type"]').find(":selected").val()
+    const preciType = jQ.find('select[name="precipitation.type"]').find(':selected').val()
     if (preciType == 0) {
       jQ.find('#previAmtGrp').addClass('disabled')
     }
     jQ.find('select[name="precipitation.type"]').on('change', function () {
-      const preciType = $(this).find(":selected").val()
+      const preciType = $(this).find(':selected').val()
       if (preciType == 0) {
         jQ.find('#previAmtGrp').addClass('disabled')
       } else {
@@ -116,37 +115,41 @@ export class WeatherConfigDialog extends FormApplication {
    */
   getData() {
     let additionalData = {
-      'windSpeeds': Object.entries(WIND_SPEED).map(([name, id]) => {
-        if (name === 'hurricane') { return { 'id': 120, 'name': 'dialogs.weatherConfig.wind.speeds.hurricane' } } else { return { 'id': id, 'name': 'dialogs.weatherConfig.wind.speeds.' + name } }
+      windSpeeds: Object.entries(WIND_SPEED).map(([name, id]) => {
+        if (name === 'hurricane') {
+          return { id: 120, name: 'dialogs.weatherConfig.wind.speeds.hurricane' }
+        } else {
+          return { id: id, name: 'dialogs.weatherConfig.wind.speeds.' + name }
+        }
       }),
-      'directionTypes': [
+      directionTypes: [
         {
-          'id': 0,
-          'name': 'dialogs.weatherConfig.directionTypes.fixed'
+          id: 0,
+          name: 'dialogs.weatherConfig.directionTypes.fixed'
         },
         {
-          'id': 1,
-          'name': 'dialogs.weatherConfig.directionTypes.noise'
+          id: 1,
+          name: 'dialogs.weatherConfig.directionTypes.noise'
         }
       ],
-      'cloudsTypes': Object.entries(CLOUD_TYPE).map(([name, id]) => {
-        return { 'id': id, 'name': 'dialogs.weatherConfig.clouds.types.' + name }
+      cloudsTypes: Object.entries(CLOUD_TYPE).map(([name, id]) => {
+        return { id: id, name: 'dialogs.weatherConfig.clouds.types.' + name }
       }),
-      'precipitationTypes': Object.entries(PRECI_TYPE).map(([name, id]) => {
-        return { 'id': id, 'name': 'dialogs.weatherConfig.precipitation.types.' + name }
+      precipitationTypes: Object.entries(PRECI_TYPE).map(([name, id]) => {
+        return { id: id, name: 'dialogs.weatherConfig.precipitation.types.' + name }
       }),
-      'windGustTypes': [
+      windGustTypes: [
         {
-          'id': 0,
-          'name': 'dialogs.weatherConfig.windGustTypes.none'
+          id: 0,
+          name: 'dialogs.weatherConfig.windGustTypes.none'
         },
         {
-          'id': 6,
-          'name': 'dialogs.weatherConfig.windGustTypes.some'
+          id: 6,
+          name: 'dialogs.weatherConfig.windGustTypes.some'
         },
         {
-          'id': 11,
-          'name': 'dialogs.weatherConfig.windGustTypes.more'
+          id: 11,
+          name: 'dialogs.weatherConfig.windGustTypes.more'
         }
       ]
     }
@@ -161,7 +164,10 @@ export class WeatherConfigDialog extends FormApplication {
       // if no scene data set, use game setting defaults
       if (!sceneData) sceneData = Fal.getSetting('defaultWeatherSettings')
       Utils.mergeObject(additionalData, sceneData)
-      Logger.debug('WeatherConfigDialog:getData(scene)', { 'applyToScene': this.applyToScene, 'data': additionalData })
+      Logger.debug('WeatherConfigDialog:getData(scene)', {
+        applyToScene: this.applyToScene,
+        data: additionalData
+      })
       return additionalData
     }
   }
@@ -183,5 +189,4 @@ export class WeatherConfigDialog extends FormApplication {
       Fal.setSceneFlag('weatherSettings', data, this.applyToScene)
     }
   }
-
 }

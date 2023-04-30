@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -21,7 +22,6 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { Utils } from '../utils.js'
 
 export class FlashFilter extends PIXI.filters.AdjustmentFilter {
-
   /**
    * The options for this filter instance
    */
@@ -30,17 +30,20 @@ export class FlashFilter extends PIXI.filters.AdjustmentFilter {
   /**
    * Create a color adjustment filter based on the PIXI AdjustmentFilter
    * @see https://api.pixijs.io/@pixi/core/PIXI/Filter.html
-   * 
+   *
    * @param {object} optional parameters to overwrite and configure the filter
    */
   constructor({ options = {}, soft = false } = {}) {
     super()
-    this.options = Utils.mergeObject({
-      frequency: 0,
-      duration: 0,
-      brightness: 1,
-      nextTime: Fal.getLastTickTime() / 10
-    }, options)
+    this.options = Utils.mergeObject(
+      {
+        frequency: 0,
+        duration: 0,
+        brightness: 1,
+        nextTime: Fal.getLastTickTime() / 10
+      },
+      options
+    )
     const keys = Object.keys(this.options)
     for (const key of keys) {
       this.optionContext[key] = this.options[key]
@@ -56,7 +59,7 @@ export class FlashFilter extends PIXI.filters.AdjustmentFilter {
   }
 
   /**
-   * Stop and destroy this filter.  
+   * Stop and destroy this filter.
    */
   async discard() {
     this.enabled = false
@@ -68,7 +71,8 @@ export class FlashFilter extends PIXI.filters.AdjustmentFilter {
    */
   async step() {
     if (Fal.getLastTickTime() / 10 > this.options.nextTime) {
-      this.options.nextTime = Fal.getLastTickTime() / 10 + 40 + this.options.frequency * Math.random()
+      this.options.nextTime =
+        Fal.getLastTickTime() / 10 + 40 + this.options.frequency * Math.random()
 
       const animate = (value) => {
         const attributes = [

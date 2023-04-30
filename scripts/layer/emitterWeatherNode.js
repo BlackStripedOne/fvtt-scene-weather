@@ -20,16 +20,14 @@ See the License for the specific language governing permissions and limitations 
 import { AbstractWeatherNode } from './abstractWeatherNode.js'
 
 export class EmitterWeatherNode extends AbstractWeatherNode {
-
   constructor(nodeData) {
     super(nodeData)
-
   }
 
   /*--------------------- Static --------------------- */
 
   /**
-   * 
+   *
    */
   static createEmitterNodeAt(origin) {
     throw Error('Creating an Emitter Weather Node is not implemented yet.')
@@ -71,7 +69,7 @@ export class EmitterWeatherNode extends AbstractWeatherNode {
 
   /**
    * Synchronize the appearance of this WeatherNode with the properties of
-   * its represented WeatherNodeData.       
+   * its represented WeatherNodeData.
    */
   refresh() {
     // TODO
@@ -104,7 +102,4 @@ export class EmitterWeatherNode extends AbstractWeatherNode {
   _filterWeatherModelEmitter(incomingFilterModel, outsideWeatherModel) {
     // TODO
   }
-
-
 }
-

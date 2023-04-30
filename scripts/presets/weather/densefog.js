@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,30 +21,30 @@ import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
   SceneWeather.registerWeatherTemplate(MODULE.ID, 'densefog', {
-    'name': 'templates.weather.densefog.name',
-    'temp': {
-      'ground': 18,
-      'air': 15,
-      'percieved': 16
+    name: 'templates.weather.densefog.name',
+    temp: {
+      ground: 18,
+      air: 15,
+      percieved: 16
     },
-    'wind': {
-      'speed': 15,
-      'gusts': 16,
-      'direction': 127
+    wind: {
+      speed: 15,
+      gusts: 16,
+      direction: 127
     },
-    'clouds': {
-      'coverage': 0.9,
-      'bottom': 0,
-      'top': 3000,
-      'type': CLOUD_TYPE.fog
+    clouds: {
+      coverage: 0.9,
+      bottom: 0,
+      top: 3000,
+      type: CLOUD_TYPE.fog
     },
-    'precipitation': {
-      'amount': 0,
-      'type': PRECI_TYPE.none
+    precipitation: {
+      amount: 0,
+      type: PRECI_TYPE.none
     },
-    'sun': {
-      'amount': 0.6,
+    sun: {
+      amount: 0.6
     },
-    'humidity': 80
+    humidity: 80
   })
 })

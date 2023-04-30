@@ -26,10 +26,13 @@ import { SceneWeatherState } from '../state.js'
 //  - movement
 Hooks.on('updateToken', async (doc, change, flags, id) => {
   //Logger.debug('->Hook:updateToken  -> (...)', { 'doc': doc, 'change': change, 'flags': flags, 'id': id })
-  Fal.getControlledTokens().forEach(token => {
+  Fal.getControlledTokens().forEach((token) => {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
     if (ambienceModel) {
-      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', { 'token': token, 'ambienceModel': ambienceModel })
+      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', {
+        token: token,
+        ambienceModel: ambienceModel
+      })
       if (canvas.sceneweather.sfxHandler) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
       }
@@ -39,10 +42,13 @@ Hooks.on('updateToken', async (doc, change, flags, id) => {
 
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   // Logger.debug('->Hook:WeatherUpdated -> update token ambiences', { 'data': data })
-  Fal.getControlledTokens().forEach(token => {
+  Fal.getControlledTokens().forEach((token) => {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
     if (ambienceModel) {
-      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', { 'token': token, 'ambienceModel': ambienceModel })
+      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', {
+        token: token,
+        ambienceModel: ambienceModel
+      })
       if (canvas.sceneweather.sfxHandler) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
       }
@@ -69,36 +75,38 @@ Hooks.on('controlToken', async (token, tokenControl) => {
 })
 
 const AMBIENCE_STRUCT = {
-  'temp': {
-    'actual': 0,    // degrees celsius
-    'percieved': 0  // degrees celsius
+  temp: {
+    actual: 0, // degrees celsius
+    percieved: 0 // degrees celsius
   },
-  'humidity': 0,      // percent
-  'precipitation': {
-    'type': PRECI_TYPE.none,
-    'cloudType': CLOUD_TYPE.none,
-    'amount': 0    // percent
+  humidity: 0, // percent
+  precipitation: {
+    type: PRECI_TYPE.none,
+    cloudType: CLOUD_TYPE.none,
+    amount: 0 // percent
   },
-  'windSpeed': 0,
-  'sun': {
-    'amount': 0    // percent sunshine
+  windSpeed: 0,
+  sun: {
+    amount: 0 // percent sunshine
   },
-  'condition': AMBIENCE_TYPE.outside
+  condition: AMBIENCE_TYPE.outside
 }
 
 /**
  * TODO
  */
 export class TokenAmbience {
-
   // Internal model
   static getAmbienceModelForToken(token) {
-    if (!token || (!token instanceof Token)) return undefined
+    if (!token || !token instanceof Token) return undefined
     if (!token || !canvas || !canvas.ready) return undefined
     // no SceneWeather enabled, no ambience
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
     if (!weatherProvider) return undefined
-    return TokenAmbience.getAmbienceModelForPosition(token.center || { x: -1, y: -1 }, weatherProvider)
+    return TokenAmbience.getAmbienceModelForPosition(
+      token.center || { x: -1, y: -1 },
+      weatherProvider
+    )
   }
 
   /**
@@ -109,12 +117,15 @@ export class TokenAmbience {
     const weatherModel = weatherProvider.getWeatherModel()
     if (weatherModel) {
       let weatherModelAtPosition = Utils.mergeObject(weatherModel, {
-        'condition': AMBIENCE_TYPE.outside,
-        'base': Utils.deepClone(weatherModel)
+        condition: AMBIENCE_TYPE.outside,
+        base: Utils.deepClone(weatherModel)
       })
       let filteredWeatherModel = weatherModelAtPosition
-      canvas.sceneweather.getNodesAt({ x: x, y: y, onlyEnabled: true }).forEach(weatherNode => {
-        filteredWeatherModel = weatherNode.filterWeatherModel(filteredWeatherModel, weatherModelAtPosition)
+      canvas.sceneweather.getNodesAt({ x: x, y: y, onlyEnabled: true }).forEach((weatherNode) => {
+        filteredWeatherModel = weatherNode.filterWeatherModel(
+          filteredWeatherModel,
+          weatherModelAtPosition
+        )
       })
       return filteredWeatherModel
     } else {
@@ -126,5 +137,4 @@ export class TokenAmbience {
   static getAmbienceForPosition(options, weatherProvider) {
     return TokenAmbience.getAmbienceModelForPosition(options, weatherProvider)
   }
-
 }

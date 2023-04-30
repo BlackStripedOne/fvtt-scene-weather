@@ -39,12 +39,12 @@ import { MacroConfigDialog } from './macros/macroConfig.js'
 /**
  * Invoked once when foundry is loaded upon the browser
  */
-Hooks.once("init", () => {
+Hooks.once('init', () => {
   // Set current module version from manifest
   MODULE.VERSION = game.modules.get('scene-weather')?.version ?? 'development'
 
   registerSettingsPreInit()
-  Logger.debug('->Hook:init')  // debug is available only after registering settings
+  Logger.debug('->Hook:init') // debug is available only after registering settings
   registerHbHelpers()
   loadHandlebars()
 
@@ -68,13 +68,12 @@ Hooks.once("init", () => {
   Hooks.callAll(EVENTS.REG_TEMPLATE_WEATHER)
   Hooks.callAll(EVENTS.REG_WEATHER_PERCIEVERS)
   registerSettingsPostInit()
-  Logger.debug("Initialized")
+  Logger.debug('Initialized')
   Hooks.callAll(EVENTS.MODULE_INITIALIZED)
 })
 
 Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
   Logger.trace('->Hook:' + MODULE.LCCNAME + 'Initialized')
-
 
   Hooks.on('updateScene', async (scene, deltaData, options, id) => {
     if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] !== undefined) {
@@ -84,32 +83,34 @@ Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
         return
       }
 
-      Logger.trace('updateScene-> ', { 'deltaData': deltaData, 'options': options })
+      Logger.trace('updateScene-> ', { deltaData: deltaData, options: options })
       SceneWeather.updateWeatherConfig({
         forSceneId: deltaData._id,
         force: true
       })
       if (deltaData.flags[MODULE.ID]['weatherMode'] == GENERATOR_MODES.DISABLED) {
         // TODO use EVENTS
-        Logger.trace('updateScene-> Disabled SceneWeather...', { 'scene': scene, 'sceneId': id })
-        Hooks.callAll(MODULE.LCCNAME + 'WeatherDisabled', { 'scene': scene, 'sceneId': id })
+        Logger.trace('updateScene-> Disabled SceneWeather...', { scene: scene, sceneId: id })
+        Hooks.callAll(MODULE.LCCNAME + 'WeatherDisabled', { scene: scene, sceneId: id })
       }
-      if ((deltaData.flags[MODULE.ID]['weatherMode'] !== undefined) ||
-        (deltaData.flags[MODULE.ID]['timeProvider'] !== undefined)) {
+      if (
+        deltaData.flags[MODULE.ID]['weatherMode'] !== undefined ||
+        deltaData.flags[MODULE.ID]['timeProvider'] !== undefined
+      ) {
         // redraw potentially changed button sidebar
         // Re-render Scene controls
         // TODO if ( ui.controls ) ui.controls.initialize({layer: this.constructor.layerOptions.name, tool});
         ui.controls.initialize()
         // redraw changes to macro config dialog
         MacroConfigDialog.refresh()
-        // redraw changes to weatherUI        
+        // redraw changes to weatherUI
         WeatherUi.toggleAppVis('initial')
       }
     }
   })
 
-  Hooks.on("renderSceneConfig", async (app, jQ, data) => {
-    Logger.trace('renderSceneConfig', { 'app': app, 'jQ': jQ, 'data': data })
+  Hooks.on('renderSceneConfig', async (app, jQ, data) => {
+    Logger.trace('renderSceneConfig', { app: app, jQ: jQ, data: data })
     WeatherTab.addControlsTab(app, jQ)
   })
 })
@@ -122,18 +123,18 @@ Hooks.once('setup', () => {
   //WeatherLayer.registerLayers()
   //WeatherLayer.registerLayerButtons()
 
-  // Register SceneWeather Effect  
+  // Register SceneWeather Effect
   // in case we want to add our effect to the basic effects. Currently, we don't.
   // foundry.utils.mergeObject(CONFIG.weatherEffects, {sceneweather: WeatherEffect})
 })
 
 // Called when new canvas/scene is loaded
 Hooks.on('canvasReady', async (canvasData) => {
-  Logger.trace('->Hook:canvasReady(...)', { 'canvas': canvasData })
+  Logger.trace('->Hook:canvasReady(...)', { canvas: canvasData })
 
   WeatherUi.toggleAppVis('initial')
   if (Fal.getSetting('uiPinned', false)) {
-    WeatherUi.pinApp();
+    WeatherUi.pinApp()
   }
 
   MeteoUi.toggleAppVis('initial')
@@ -149,7 +150,7 @@ Hooks.on('canvasReady', async (canvasData) => {
 Hooks.on('ready', async () => {
   // TODO check if all elements are properly loaded and registered
   Hooks.callAll(EVENTS.MODULE_READY)
-  Logger.info("Ready")
+  Logger.info('Ready')
 })
 
 /**
@@ -162,15 +163,24 @@ Hooks.on(EVENTS.MODULE_READY, async () => {
 /**
  * TODO
  * A hook event that fires when the World time has been updated.
- * 
+ *
  * @param {number} worldTime - The new canonical World time
  * @param {number} delta - The time delta
  * @param {any} options - Options passed from the requesting client which triggered the update
  * @param {string} userId - The ID of the User who changed the world time
  */
 Hooks.on('updateWorldTime', (worldTime, delta, options, userId) => {
-  Logger.trace('->Hook:updateWorldTime', { 'worldTime': worldTime, 'delta': delta, 'options': options, 'userId': userId })
-  if ([GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
+  Logger.trace('->Hook:updateWorldTime', {
+    worldTime: worldTime,
+    delta: delta,
+    options: options,
+    userId: userId
+  })
+  if (
+    [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
+      Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
+    )
+  ) {
     // Only update dynamic weathers
     SceneWeather.updateWeather()
   }

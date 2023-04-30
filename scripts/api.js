@@ -29,92 +29,91 @@ import { TokenAmbience } from './tokens/ambience.js'
 
 // will be available globally via SceneWeather.
 export function getSceneWeatherAPIv1() {
-
   const DEFAULT_REGION_STRUCT = {
-    'id': 'unknown',
-    'name': 'unknown',
-    'description': 'unknown',
-    'elevation': 0,
-    'vegetation': 0,
-    'waterAmount': 0,
-    'summer': {
-      'temperature': {
-        'day': 0,
-        "night": 0,
-        "var": 0
+    id: 'unknown',
+    name: 'unknown',
+    description: 'unknown',
+    elevation: 0,
+    vegetation: 0,
+    waterAmount: 0,
+    summer: {
+      temperature: {
+        day: 0,
+        night: 0,
+        var: 0
       },
-      'humidity': {
-        'day': 0,
-        'night': 0,
-        'var': 0
+      humidity: {
+        day: 0,
+        night: 0,
+        var: 0
       },
-      'wind': {
-        'avg': 0,
-        'var': 0
+      wind: {
+        avg: 0,
+        var: 0
       },
-      'sun': {
-        'hours': 0
+      sun: {
+        hours: 0
       }
     },
-    'winter': {
-      'temperature': {
-        'day': 0,
-        "night": 0,
-        "var": 0
+    winter: {
+      temperature: {
+        day: 0,
+        night: 0,
+        var: 0
       },
-      'humidity': {
-        'day': 0,
-        'night': 0,
-        'var': 0
+      humidity: {
+        day: 0,
+        night: 0,
+        var: 0
       },
-      'wind': {
-        'avg': 0,
-        'var': 0
+      wind: {
+        avg: 0,
+        var: 0
       },
-      'sun': {
-        'hours': 0
+      sun: {
+        hours: 0
       }
     }
   }
 
   const DEFAULT_WEATHER_STRUCT = {
-    'id': 'unknown',
-    'name': 'unknown',
-    'temp': {
-      'underground': 14.5,
-      'ground': 0,
-      'air': 0,
-      'percieved': 0
+    id: 'unknown',
+    name: 'unknown',
+    temp: {
+      underground: 14.5,
+      ground: 0,
+      air: 0,
+      percieved: 0
     },
-    'wind': {
-      'speed': 0,
-      'gusts': 0,
-      'direction': 0
+    wind: {
+      speed: 0,
+      gusts: 0,
+      direction: 0
     },
-    'clouds': {
-      'coverage': 0,
-      'bottom': 0,
-      'top': 0,
-      'type': 0
+    clouds: {
+      coverage: 0,
+      bottom: 0,
+      top: 0,
+      type: 0
     },
-    'precipitation': {
-      'amount': 0,
-      'type': 0
+    precipitation: {
+      amount: 0,
+      type: 0
     },
-    'sun': {
-      'amount': 0,
+    sun: {
+      amount: 0
     },
-    'humidity': 0
+    humidity: 0
   }
 
   const DEFAULT_CYCLE_TIME_STRUCT = {
-    'daylightCycle': -50.00,
-    'seasonCycle': -50.00
+    daylightCycle: -50.0,
+    seasonCycle: -50.0
   }
 
   /**
    * Clears the current scene by unsetting various scene flags, as long as the user has the required permissions.
-   * 
+   *
    * @async
    * @returns {Promise<Array>} - A promise that resolves with an array of promises that unset various scene flags.
    * @throws {Error} If the user does not have the required permissions to clear the scene.
@@ -143,20 +142,20 @@ export function getSceneWeatherAPIv1() {
   /**
    * Update the configuration of the weather provider and invalidate the internal caches of the
    * cascading weather models and region providers if applicable.
-   * 
+   *
    * @async
    * @param {Object} [options={}] - Optional parameters object.
    * @param {string} [options.forSceneId=undefined] - The scene ID for which to update the weather configuration.
    * @param {boolean} [options.force=false] - Indicates whether the update should be forced, bypassing any internal caching mechanisms.
    * @throws {Error} - If an error occurs while updating the configuration.
    * @returns {Promise<void>} - A promise that resolves once the configuration has been successfully updated.
-   * 
+   *
    * @example
    * // Update the weather configuration for a specific scene, forcing a refresh of the internal caches
    * await SceneWeather.updateWeatherConfig({ forSceneId: 'myScene', force: true });
    */
   async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
-    Logger.debug('updateWeatherConfig', { 'forSceneId': forSceneId, 'force': force })
+    Logger.debug('updateWeatherConfig', { forSceneId: forSceneId, force: force })
     // Update from configs
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider(forSceneId, force)
     if (weatherProvider !== undefined) {
@@ -171,14 +170,14 @@ export function getSceneWeatherAPIv1() {
 
   /**
    * Asynchronously calculates and updates the current weather conditions for the scene based on the configuration set by the scene's flags.
-   * 
+   *
    * @param {object} options - Optional object containing options for the function.
    * @param {boolean} [options.force=false] - If true, will calculate the weather anew regardless of whether it has already been calculated or not.
    * @param {string} [options.sceneId=undefined] - The ID of the scene for which to update the weather. If not specified, will default to the current scene.
    * @returns {Promise<void>} - A Promise that resolves when the weather has been updated.
    * @fires WeatherUpdated - Emitted when new weather information is available or when the weather configuration has changed. Additional data is attached to the event.
    * @throws {Error} - If the specified scene ID does not exist.
-   * 
+   *
    * @example
    * // Update weather for the current scene without forcing recalculation
    * await SceneWeather.updateWeather();
@@ -187,7 +186,11 @@ export function getSceneWeatherAPIv1() {
    * await SceneWeather.updateWeather({ force: true, sceneId: "abc123" });
    */
   async function updateWeather({ force = false, sceneId = undefined } = {}) {
-    Logger.debug('updateWeather(...)', { 'sceneId': sceneId, 'force': force, 'canvasSceneId': canvas.scene._id })
+    Logger.debug('updateWeather(...)', {
+      sceneId: sceneId,
+      force: force,
+      canvasSceneId: canvas.scene._id
+    })
     if (sceneId === undefined) sceneId = canvas.scene._id
     if (sceneId != canvas.scene._id) return
     if (force) {
@@ -199,7 +202,7 @@ export function getSceneWeatherAPIv1() {
     const provider = SceneWeatherState.getSceneWeatherProvider(sceneId)
     if (provider !== undefined) {
       provider.calculateWeather({
-        'force': force
+        force: force
       })
     }
   }
@@ -210,7 +213,7 @@ export function getSceneWeatherAPIv1() {
    * and regionData are all provided, and the module identified by the moduleId parameter is enabled, then the region
    * template is registered with the SceneWeatherState module. If any of the required parameters are missing or the module
    * identified by the moduleId parameter is not enabled, then an error is logged and the region template is not registered.
-   * 
+   *
    * @param {string} moduleId - The moduleId of the module that the region template belongs to.
    * @param {string} templateId - The templateId of the region template.
    * @param {object} regionData - The region data that defines the region template.
@@ -220,17 +223,33 @@ export function getSceneWeatherAPIv1() {
     if (moduleId && templateId && regionData && Fal.isModuleEnabled(moduleId)) {
       // TODO use option inplace:false instead of deepClone ?
       regionData.id = moduleId + '.' + templateId
-      const regionDataSafe = Utils.mergeObject(Utils.deepClone(DEFAULT_REGION_STRUCT), regionData, { insertKeys: false, enforceTypes: true })
+      const regionDataSafe = Utils.mergeObject(Utils.deepClone(DEFAULT_REGION_STRUCT), regionData, {
+        insertKeys: false,
+        enforceTypes: true
+      })
       SceneWeatherState._regionTemplates[regionDataSafe.id] = regionDataSafe
-      Logger.info('registerRegionTemplate | ' + Fal.i18n('api.regRegionTemplate') + moduleId + '.' + templateId)
+      Logger.info(
+        'registerRegionTemplate | ' +
+          Fal.i18n('api.regRegionTemplate') +
+          moduleId +
+          '.' +
+          templateId
+      )
     } else {
-      Logger.error('registerRegionTemplate | ' + Fal.i18n('api.regRegionTemplateFail') + moduleId + '.' + templateId, true)
+      Logger.error(
+        'registerRegionTemplate | ' +
+          Fal.i18n('api.regRegionTemplateFail') +
+          moduleId +
+          '.' +
+          templateId,
+        true
+      )
     }
   }
 
   /**
    * Registers a weather template for a given module and template id.
-   * 
+   *
    * @param {string} moduleId - The ID of the module to register the weather template for.
    * @param {string} templateId - The ID of the template to register.
    * @param {Object} weatherData - The data to use for the weather template.
@@ -239,11 +258,28 @@ export function getSceneWeatherAPIv1() {
   function registerWeatherTemplate(moduleId = null, templateId = null, weatherData = {}) {
     if (moduleId && templateId && weatherData && Fal.isModuleEnabled(moduleId)) {
       weatherData.id = moduleId + '.' + templateId
-      const weatherDataSafe = Utils.mergeObject(Utils.deepClone(DEFAULT_WEATHER_STRUCT), weatherData, { insertKeys: false, enforceTypes: true })
+      const weatherDataSafe = Utils.mergeObject(
+        Utils.deepClone(DEFAULT_WEATHER_STRUCT),
+        weatherData,
+        { insertKeys: false, enforceTypes: true }
+      )
       SceneWeatherState._weatherTemplates[moduleId + '.' + templateId] = weatherDataSafe
-      Logger.info('registerWeatherTemplate | ' + Fal.i18n('api.regWeatherTemplate') + moduleId + '.' + templateId)
+      Logger.info(
+        'registerWeatherTemplate | ' +
+          Fal.i18n('api.regWeatherTemplate') +
+          moduleId +
+          '.' +
+          templateId
+      )
     } else {
-      Logger.error('registerWeatherTemplate | ' + Fal.i18n('api.regWeatherTemplateFail') + moduleId + '.' + templateId, true)
+      Logger.error(
+        'registerWeatherTemplate | ' +
+          Fal.i18n('api.regWeatherTemplateFail') +
+          moduleId +
+          '.' +
+          templateId,
+        true
+      )
     }
   }
 
@@ -252,16 +288,16 @@ export function getSceneWeatherAPIv1() {
    * This function registers a weather effects generator function to be used by SceneWeatherState.
    * The generator function is identified by its ID (generatorId) and is passed as a parameter to getEmitterFunction.
    * The generator function must be a function that returns an emitter object that is used to create weather effects.
-   * 
-   * @param {string} generatorId - The ID of the weather effects generator function. 
+   *
+   * @param {string} generatorId - The ID of the weather effects generator function.
    * @param {function} getEmitterFunction - The function that generates the weather effects.
-   * @throws {TypeError} - If generatorId or getEmitterFunction parameters are not provided or are not of type string or function, respectively. 
+   * @throws {TypeError} - If generatorId or getEmitterFunction parameters are not provided or are not of type string or function, respectively.
    */
   function registerWeatherFxGenerator(generatorId = null, getEmitterFunction = null) {
     Logger.info('registerWeatherFxGenerator | ' + Fal.i18n('api.regFxGenerator') + generatorId)
     SceneWeatherState._generators.push({
-      'name': generatorId,
-      'getEmitter': getEmitterFunction
+      name: generatorId,
+      getEmitter: getEmitterFunction
     })
   }
 
@@ -278,20 +314,20 @@ export function getSceneWeatherAPIv1() {
   function registerWeatherFxFilter(filterId = null, getFilterConfigFunction = null) {
     Logger.info('registerWeatherFxFilter | ' + Fal.i18n('api.regFxFilter') + filterId)
     SceneWeatherState._filters.push({
-      'name': filterId,
-      'getFilterConfig': getFilterConfigFunction
+      name: filterId,
+      getFilterConfig: getFilterConfigFunction
     })
   }
 
   /**
    * Retrieves the weather model from the scene's weather provider with the given day and hour offsets.
-   * 
+   *
    * @param {number} [dayOffset=0] - The day offset from the current day for which to retrieve the weather model.
-   * @param number} [hourOffset=0] - The hour offset from the current hour for which to retrieve the weather model. 
+   * @param number} [hourOffset=0] - The hour offset from the current hour for which to retrieve the weather model.
    * @returns {object} The weather model object for the specified day and hour offsets, or undefined if the scene has no weather provider.
    */
   function getWeatherModel(dayOffset = 0, hourOffset = 0) {
-    Logger.debug('getWeatherModel(...)', { 'dayOffset': dayOffset, 'hourOffset': hourOffset })
+    Logger.debug('getWeatherModel(...)', { dayOffset: dayOffset, hourOffset: hourOffset })
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
     if (weatherProvider !== undefined) {
       return weatherProvider.getWeatherModel(dayOffset, hourOffset)
@@ -300,7 +336,7 @@ export function getSceneWeatherAPIv1() {
 
   /**
    * Returns the weather settings for the scene from the weather provider.
-   * 
+   *
    * @returns - The weather settings object, or undefined if the weather provider is not available. TODO Struct
    */
   function getWeatherSettings() {
@@ -315,7 +351,7 @@ export function getSceneWeatherAPIv1() {
    * TODO
    */
   function getTokenAmbience(token) {
-    if (!token || (!token instanceof Token)) return undefined
+    if (!token || !token instanceof Token) return undefined
     if (!token || !canvas || !canvas.ready) return undefined
     if (!Fal.getControlledTokens().includes(token)) {
       Logger.warn('getTokenAmbience | No permission to get for non controlled tokens.')
@@ -333,13 +369,13 @@ export function getSceneWeatherAPIv1() {
    * canvas is not yet ready or if there is no current scene, the function also returns without
    * doing anything. Otherwise, it sets the scene flag for the seed to the provided string, and
    * refreshes the macro configuration dialog to reflect the changes.
-   * 
-   * @param {string} [seedString=''] - The seed string to set. Defaults to an empty string. 
+   *
+   * @param {string} [seedString=''] - The seed string to set. Defaults to an empty string.
    * @returns {Promise<void>} - A promise that resolves once the seed has been set.
    * @throws {Error} - If the user does not have permission to modify scene settings.
    */
   async function setSeed(seedString = '') {
-    Logger.debug('setSeed(...)', { 'seedString': seedString })
+    Logger.debug('setSeed(...)', { seedString: seedString })
     if (!Permissions.hasPermission(Fal.userID(), 'sceneSettings')) {
       Logger.error('setSeed | ' + Fal.i18n('api.noPermission'))
       return
@@ -352,14 +388,14 @@ export function getSceneWeatherAPIv1() {
 
   /**
    * Sets the cycle times for the day of year and time of day, using the provided cycleTimes object.
-   * 
+   *
    * @param {number} 0.00 <= cycleTimes.daylightCycle <= 100.00 - This represents the percentage in the daylight cycle. 0.00 is midnight, start of the day, 50.00 is noon in the middle of the day.
    * @param {number} 0.00 <= cycleTimes.seasonCycle <= 100.00 - This represents the percentage in the year's season cycle. 0.00 is the winter solstice, 50.00 is the summer solstice day in the year.
    * @returns {Promise<void>} A Promise that resolves when the cycle times have been successfully set, or rejects with an error if the user doesn't have the required permissions or there's no time authority.
    * @throws {Error} An error is thrown if the user doesn't have the required permissions or there's no time authority.
    */
   async function setCycleTimes(cycleTimes) {
-    Logger.debug('setCycleTimes(...)', { 'cycleTimes': cycleTimes })
+    Logger.debug('setCycleTimes(...)', { cycleTimes: cycleTimes })
     if (!Permissions.hasPermission(Fal.userID(), 'timeControls')) {
       Logger.error('setCycleTimes | ' + Fal.i18n('api.noPermission'))
       return
@@ -368,23 +404,27 @@ export function getSceneWeatherAPIv1() {
       Logger.error('setCycleTimes | ' + Fal.i18n('api.noTimeAuthority'))
       return
     }
-    const safeCycleTimes = Utils.mergeObject(Utils.deepClone(DEFAULT_CYCLE_TIME_STRUCT), cycleTimes, { insertKeys: false })
+    const safeCycleTimes = Utils.mergeObject(
+      Utils.deepClone(DEFAULT_CYCLE_TIME_STRUCT),
+      cycleTimes,
+      { insertKeys: false }
+    )
     // day of year
-    if (safeCycleTimes.seasonCycle >= 0.00) {
-      const seasonCycle = Utils.clamp(safeCycleTimes.seasonCycle, 0.00, 100.00)
+    if (safeCycleTimes.seasonCycle >= 0.0) {
+      const seasonCycle = Utils.clamp(safeCycleTimes.seasonCycle, 0.0, 100.0)
       await TimeProvider.setSeasonCyclePct(seasonCycle / 100)
     }
 
-    // time of day    
-    if (safeCycleTimes.daylightCycle >= 0.00) {
-      const daylightCycle = Utils.clamp(safeCycleTimes.daylightCycle, 0.00, 100.00)
+    // time of day
+    if (safeCycleTimes.daylightCycle >= 0.0) {
+      const daylightCycle = Utils.clamp(safeCycleTimes.daylightCycle, 0.0, 100.0)
       await TimeProvider.setDaylightCyclePct(daylightCycle / 100)
     }
   }
 
   /**
    * Set the weather settings for the current scene.
-   * 
+   *
    * @param {Object} weatherSettings - An object containing the weather settings for the current scene.
    * @param {Object} weatherSettings.temp - An object containing the temperature settings.
    * @param {number} weatherSettings.temp.ground - The temperature at ground level.
@@ -409,7 +449,7 @@ export function getSceneWeatherAPIv1() {
    * @throws {Error} If the user does not have permission to change scene settings or if an error occurs while updating the weather settings.
    */
   async function setWeather(weatherSettings) {
-    Logger.debug('setWeather(...)', { 'weatherSettings': weatherSettings })
+    Logger.debug('setWeather(...)', { weatherSettings: weatherSettings })
     if (!Permissions.hasPermission(Fal.userID(), 'sceneSettings')) {
       Logger.error('setWeather | ' + Fal.i18n('api.noPermission'))
       return
@@ -417,32 +457,60 @@ export function getSceneWeatherAPIv1() {
 
     try {
       const safeWeatherData = {
-        "temp": {
-          "ground": _checkParam(weatherSettings, 'temp.ground', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
-          "air": _checkParam(weatherSettings, 'temp.air', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
+        temp: {
+          ground: _checkParam(weatherSettings, 'temp.ground', 'number', (v) => {
+            return Math.round(Utils.clamp(v, -30, 50))
+          }),
+          air: _checkParam(weatherSettings, 'temp.air', 'number', (v) => {
+            return Math.round(Utils.clamp(v, -30, 50))
+          })
         },
-        "humidity": _checkParam(weatherSettings, 'humidity', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-        "wind": {
-          "speed": _checkParam(weatherSettings, 'wind.speed', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 130)) }),
-          "gusts": _checkParam(weatherSettings, 'wind.gusts', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 130)) }),
-          "directionType": _checkParam(weatherSettings, 'wind.directionType', 'string', (v) => { return WIND_MODES[v] || WIND_MODES.fixed }),
-          "direction": _checkParam(weatherSettings, 'wind.direction', 'number', (v) => { return Math.round(v) % 360 })
+        humidity: _checkParam(weatherSettings, 'humidity', 'number', (v) => {
+          return Math.round(Utils.clamp(v, 0, 100))
+        }),
+        wind: {
+          speed: _checkParam(weatherSettings, 'wind.speed', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 130))
+          }),
+          gusts: _checkParam(weatherSettings, 'wind.gusts', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 130))
+          }),
+          directionType: _checkParam(weatherSettings, 'wind.directionType', 'string', (v) => {
+            return WIND_MODES[v] || WIND_MODES.fixed
+          }),
+          direction: _checkParam(weatherSettings, 'wind.direction', 'number', (v) => {
+            return Math.round(v) % 360
+          })
         },
-        "clouds": {
-          "type": _checkParam(weatherSettings, 'clouds.type', 'string', (v) => { return CLOUD_TYPE[v] || CLOUD_TYPE.none }),
-          "coverage": _checkParam(weatherSettings, 'clouds.coverage', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-          "bottom": _checkParam(weatherSettings, 'clouds.bottom', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 20000)) }),
-          "thickness": _checkParam(weatherSettings, 'clouds.thickness', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 20000)) })
+        clouds: {
+          type: _checkParam(weatherSettings, 'clouds.type', 'string', (v) => {
+            return CLOUD_TYPE[v] || CLOUD_TYPE.none
+          }),
+          coverage: _checkParam(weatherSettings, 'clouds.coverage', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 100))
+          }),
+          bottom: _checkParam(weatherSettings, 'clouds.bottom', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 20000))
+          }),
+          thickness: _checkParam(weatherSettings, 'clouds.thickness', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 20000))
+          })
         },
-        "precipitation": {
-          "type": _checkParam(weatherSettings, 'precipitation.type', 'string', (v) => { return PRECI_TYPE[v] || PRECI_TYPE.none }),
-          "amount": _checkParam(weatherSettings, 'precipitation.amount', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) })
+        precipitation: {
+          type: _checkParam(weatherSettings, 'precipitation.type', 'string', (v) => {
+            return PRECI_TYPE[v] || PRECI_TYPE.none
+          }),
+          amount: _checkParam(weatherSettings, 'precipitation.amount', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 100))
+          })
         },
-        "sun": {
-          "amount": _checkParam(weatherSettings, 'sun.amount', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) })
+        sun: {
+          amount: _checkParam(weatherSettings, 'sun.amount', 'number', (v) => {
+            return Math.round(Utils.clamp(v, 0, 100))
+          })
         }
       }
-      Logger.trace('setWeather(...)', { 'safeWeatherData': safeWeatherData })
+      Logger.trace('setWeather(...)', { safeWeatherData: safeWeatherData })
 
       await Fal.setSceneFlag('weatherSettings', safeWeatherData)
       Logger.info('setWeather | ' + Fal.i18n('api.updateWeather'))
@@ -450,7 +518,9 @@ export function getSceneWeatherAPIv1() {
       const currentWeatherMode = Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
       if (currentWeatherMode != GENERATOR_MODES.WEATHER_GENERATE) {
         await Fal.setSceneFlag('weatherMode', GENERATOR_MODES.WEATHER_GENERATE)
-        Logger.info('setWeather | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.WEATHER_GENERATE)
+        Logger.info(
+          'setWeather | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.WEATHER_GENERATE
+        )
       }
     } catch (error) {
       Logger.error('setWeather | ' + Fal.i18n('api.updateRegionFail') + error.message, true)
@@ -469,7 +539,7 @@ export function getSceneWeatherAPIv1() {
    * await SceneWeather.setWeatherTemplate('scene-weather.thunderstorm');
    */
   async function setWeatherTemplate(templateId = '') {
-    Logger.debug('setWeatherTemplate(...)', { 'templateId': templateId })
+    Logger.debug('setWeatherTemplate(...)', { templateId: templateId })
     if (!Permissions.hasPermission(Fal.userID(), 'sceneSettings')) {
       Logger.error('setWeatherTemplate | ' + Fal.i18n('api.noPermission'))
       return
@@ -485,19 +555,32 @@ export function getSceneWeatherAPIv1() {
       return
     }
     if (!Object.keys(SceneWeatherState._weatherTemplates).includes(templateId)) {
-      Logger.error('setWeatherTemplate | ' + Fal.i18n('api.setTemplate.noSuchTemplate') + templateId)
+      Logger.error(
+        'setWeatherTemplate | ' + Fal.i18n('api.setTemplate.noSuchTemplate') + templateId
+      )
       return
     }
     const weatherTemplate = SceneWeatherState._weatherTemplates[templateId]
     const currentTemplateId = Fal.getSceneFlag('weatherTemplate', null)
     if (currentTemplateId != templateId) {
       await Fal.setSceneFlag('weatherTemplate', templateId)
-      Logger.info('setWeatherTemplate | ' + Fal.i18n('api.setTemplate.updateWeatherTemplate') + Fal.i18n(weatherTemplate.name) + ' (' + templateId + ')')
+      Logger.info(
+        'setWeatherTemplate | ' +
+          Fal.i18n('api.setTemplate.updateWeatherTemplate') +
+          Fal.i18n(weatherTemplate.name) +
+          ' (' +
+          templateId +
+          ')'
+      )
     }
     const currentWeatherMode = Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
     if (currentWeatherMode != GENERATOR_MODES.WEATHER_TEMPLATE) {
       await Fal.setSceneFlag('weatherMode', GENERATOR_MODES.WEATHER_TEMPLATE)
-      Logger.info('setWeatherTemplate | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.WEATHER_TEMPLATE)
+      Logger.info(
+        'setWeatherTemplate | ' +
+          Fal.i18n('api.updateWeatherMode') +
+          GENERATOR_MODES.WEATHER_TEMPLATE
+      )
     }
   }
 
@@ -536,12 +619,12 @@ export function getSceneWeatherAPIv1() {
    * @param {number} regionSettings.winter.wind.var - The wind variation value to set for the winter (between 0 and 50).
    * @param {Object} regionSettings.winter.sun - The winter sun settings to set for the scene.
    * @param {number} regionSettings.winter.sun.hours - The sun hours value to set for the winter (between 1 and 23).
-   * 
+   *
    * @returns {Promise<void>}
    * @throws {Error} If the user does not have permission to change scene settings or if an error occurs while updating the region settings.
    */
   async function setRegion(regionSettings) {
-    Logger.debug('setRegion(...)', { 'regionSettings': regionSettings })
+    Logger.debug('setRegion(...)', { regionSettings: regionSettings })
     if (!Permissions.hasPermission(Fal.userID(), 'sceneSettings')) {
       Logger.error('setRegion | ' + Fal.i18n('api.noPermission'))
       return
@@ -549,49 +632,91 @@ export function getSceneWeatherAPIv1() {
 
     try {
       const safeRegionData = {
-        'elevation': _checkParam(regionSettings, 'elevation', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 10000)) }),
-        'vegetation': _checkParam(regionSettings, 'vegetation', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-        'waterAmount': _checkParam(regionSettings, 'waterAmount', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-        'summer': {
-          'temperature': {
-            'day': _checkParam(regionSettings, 'summer.temperature.day', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
-            'night': _checkParam(regionSettings, 'summer.temperature.night', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
-            'var': _checkParam(regionSettings, 'summer.temperature.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 20)) })
+        elevation: _checkParam(regionSettings, 'elevation', 'number', (v) => {
+          return Math.round(Utils.clamp(v, 0, 10000))
+        }),
+        vegetation: _checkParam(regionSettings, 'vegetation', 'number', (v) => {
+          return Math.round(Utils.clamp(v, 0, 100))
+        }),
+        waterAmount: _checkParam(regionSettings, 'waterAmount', 'number', (v) => {
+          return Math.round(Utils.clamp(v, 0, 100))
+        }),
+        summer: {
+          temperature: {
+            day: _checkParam(regionSettings, 'summer.temperature.day', 'number', (v) => {
+              return Math.round(Utils.clamp(v, -30, 50))
+            }),
+            night: _checkParam(regionSettings, 'summer.temperature.night', 'number', (v) => {
+              return Math.round(Utils.clamp(v, -30, 50))
+            }),
+            var: _checkParam(regionSettings, 'summer.temperature.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 20))
+            })
           },
-          'humidity': {
-            'day': _checkParam(regionSettings, 'summer.humidity.day', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-            'night': _checkParam(regionSettings, 'summer.humidity.night', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-            'var': _checkParam(regionSettings, 'summer.humidity.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 50)) })
+          humidity: {
+            day: _checkParam(regionSettings, 'summer.humidity.day', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 100))
+            }),
+            night: _checkParam(regionSettings, 'summer.humidity.night', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 100))
+            }),
+            var: _checkParam(regionSettings, 'summer.humidity.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 50))
+            })
           },
-          'wind': {
-            'avg': _checkParam(regionSettings, 'summer.wind.avg', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 70)) }),
-            'var': _checkParam(regionSettings, 'summer.wind.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 50)) })
+          wind: {
+            avg: _checkParam(regionSettings, 'summer.wind.avg', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 70))
+            }),
+            var: _checkParam(regionSettings, 'summer.wind.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 50))
+            })
           },
-          'sun': {
-            'hours': _checkParam(regionSettings, 'summer.sun.hours', 'number', (v) => { return Math.round(Utils.clamp(v, 1, 23)) })
+          sun: {
+            hours: _checkParam(regionSettings, 'summer.sun.hours', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 1, 23))
+            })
           }
         },
-        'winter': {
-          'temperature': {
-            'day': _checkParam(regionSettings, 'winter.temperature.day', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
-            'night': _checkParam(regionSettings, 'winter.temperature.night', 'number', (v) => { return Math.round(Utils.clamp(v, -30, 50)) }),
-            'var': _checkParam(regionSettings, 'winter.temperature.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 20)) })
+        winter: {
+          temperature: {
+            day: _checkParam(regionSettings, 'winter.temperature.day', 'number', (v) => {
+              return Math.round(Utils.clamp(v, -30, 50))
+            }),
+            night: _checkParam(regionSettings, 'winter.temperature.night', 'number', (v) => {
+              return Math.round(Utils.clamp(v, -30, 50))
+            }),
+            var: _checkParam(regionSettings, 'winter.temperature.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 20))
+            })
           },
-          'humidity': {
-            'day': _checkParam(regionSettings, 'winter.humidity.day', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-            'night': _checkParam(regionSettings, 'winter.humidity.night', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 100)) }),
-            'var': _checkParam(regionSettings, 'winter.humidity.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 50)) })
+          humidity: {
+            day: _checkParam(regionSettings, 'winter.humidity.day', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 100))
+            }),
+            night: _checkParam(regionSettings, 'winter.humidity.night', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 100))
+            }),
+            var: _checkParam(regionSettings, 'winter.humidity.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 50))
+            })
           },
-          'wind': {
-            'avg': _checkParam(regionSettings, 'winter.wind.avg', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 70)) }),
-            'var': _checkParam(regionSettings, 'winter.wind.var', 'number', (v) => { return Math.round(Utils.clamp(v, 0, 50)) })
+          wind: {
+            avg: _checkParam(regionSettings, 'winter.wind.avg', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 70))
+            }),
+            var: _checkParam(regionSettings, 'winter.wind.var', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 0, 50))
+            })
           },
-          'sun': {
-            'hours': _checkParam(regionSettings, 'winter.sun.hours', 'number', (v) => { return Math.round(Utils.clamp(v, 1, 23)) })
+          sun: {
+            hours: _checkParam(regionSettings, 'winter.sun.hours', 'number', (v) => {
+              return Math.round(Utils.clamp(v, 1, 23))
+            })
           }
-        },
+        }
       }
-      Logger.trace('setRegion(...)', { 'safeRegionData': safeRegionData })
+      Logger.trace('setRegion(...)', { safeRegionData: safeRegionData })
 
       await Fal.setSceneFlag('regionSettings', safeRegionData)
       Logger.info('setRegion | ' + Fal.i18n('api.updateRegion'))
@@ -599,7 +724,9 @@ export function getSceneWeatherAPIv1() {
       const currentWeatherMode = Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
       if (currentWeatherMode != GENERATOR_MODES.REGION_GENERATE) {
         await Fal.setSceneFlag('weatherMode', GENERATOR_MODES.REGION_GENERATE)
-        Logger.info('setRegion | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.REGION_GENERATE)
+        Logger.info(
+          'setRegion | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.REGION_GENERATE
+        )
       }
     } catch (error) {
       Logger.error('setRegion | ' + Fal.i18n('api.updateRegionFail') + error.message, true)
@@ -608,18 +735,18 @@ export function getSceneWeatherAPIv1() {
 
   /**
    * Sets the weather region template for the scene.
-   * 
+   *
    * @param {string} [templateId=''] - The ID of the weather region template to be set.
    * @returns {Promise<void>} - A Promise that resolves after setting the weather region template.
    * @throws {Error} - If the user does not have permission to access the scene settings,
    * or if the template ID format is invalid, or if the specified module is inactive, or if the specified template does not exist.
-   * 
+   *
    * @example
    * // Set the weather region template for the scene
    * await SceneWeather.setRegionTemplate('scene-weather.alpine');
    */
   async function setRegionTemplate(templateId = '') {
-    Logger.debug('setRegionTemplate(...)', { 'templateId': templateId })
+    Logger.debug('setRegionTemplate(...)', { templateId: templateId })
     if (!Permissions.hasPermission(Fal.userID(), 'sceneSettings')) {
       Logger.error('setRegionTemplate | ' + Fal.i18n('api.noPermission'))
       return
@@ -642,18 +769,27 @@ export function getSceneWeatherAPIv1() {
     const currentTemplateId = Fal.getSceneFlag('regionTemplate', null)
     if (currentTemplateId != templateId) {
       await Fal.setSceneFlag('regionTemplate', templateId)
-      Logger.info('setRegionTemplate | ' + Fal.i18n('api.setTemplate.updateRegionTemplate') + Fal.i18n(regionTemplate.name) + ' (' + templateId + ')')
+      Logger.info(
+        'setRegionTemplate | ' +
+          Fal.i18n('api.setTemplate.updateRegionTemplate') +
+          Fal.i18n(regionTemplate.name) +
+          ' (' +
+          templateId +
+          ')'
+      )
     }
     const currentWeatherMode = Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
     if (currentWeatherMode != GENERATOR_MODES.REGION_TEMPLATE) {
       await Fal.setSceneFlag('weatherMode', GENERATOR_MODES.REGION_TEMPLATE)
-      Logger.info('setRegionTemplate | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.REGION_TEMPLATE)
+      Logger.info(
+        'setRegionTemplate | ' + Fal.i18n('api.updateWeatherMode') + GENERATOR_MODES.REGION_TEMPLATE
+      )
     }
   }
 
   /**
    * A utility function for checking if a key exists in an object and optionally performs type checking and transformation on the value. It can also handle nested object keys.
-   * 
+   *
    * @private
    * @param {Object} input - The object to check for the existence of the key.
    * @param {string} keyName - The key to check in the input object. Can be a nested key using dot notation (e.g. 'parent.child.grandchild').
@@ -664,7 +800,14 @@ export function getSceneWeatherAPIv1() {
    * @throws {Error} If the keyName is a nested key and any of the intermediate keys do not exist in the input object.
    * @throws {Error} If the keyName is a nested key and an error occurs while traversing the nested keys (e.g. due to a type mismatch or missing key).
    */
-  function _checkParam(input = {}, keyName = '', type = null, transformer = (a) => { return a }) {
+  function _checkParam(
+    input = {},
+    keyName = '',
+    type = null,
+    transformer = (a) => {
+      return a
+    }
+  ) {
     if (!input || input == {} || !keyName) throw new Error('-')
     if (keyName.includes('.')) {
       // dice and calc
@@ -676,7 +819,7 @@ export function getSceneWeatherAPIv1() {
           throw new Error(treeTop + '.' + error.message)
         }
       } else {
-        Logger.debug('_checkParam failed: no such key', { 'input': input, 'treeTop': treeTop })
+        Logger.debug('_checkParam failed: no such key', { input: input, treeTop: treeTop })
         throw new Error(treeTop)
       }
     } else {
@@ -686,18 +829,23 @@ export function getSceneWeatherAPIv1() {
           // type check
           const vType = getType(value)
           if (vType != type) {
-            Logger.debug('_checkParam failed: invalid type', { 'input': input, 'keyName': keyName, 'value': value, 'vType': vType, 'type': type })
+            Logger.debug('_checkParam failed: invalid type', {
+              input: input,
+              keyName: keyName,
+              value: value,
+              vType: vType,
+              type: type
+            })
             throw new Error(keyName + '{' + vType + '} != {' + type + '}')
           }
         }
         return transformer(value)
       } else {
-        Logger.debug('_checkParam failed: no such key', { 'input': input, 'keyName': keyName })
+        Logger.debug('_checkParam failed: no such key', { input: input, keyName: keyName })
         throw new Error(keyName)
       }
     }
   }
-
 
   return {
     clearScene: clearScene,
@@ -720,5 +868,3 @@ export function getSceneWeatherAPIv1() {
     version: '1.0'
   }
 }
-
-

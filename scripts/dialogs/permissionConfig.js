@@ -23,7 +23,6 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { Permissions } from '../permissions.js'
 
 export class PermissionConfigDialog extends FormApplication {
-
   constructor() {
     super()
   }
@@ -41,7 +40,7 @@ export class PermissionConfigDialog extends FormApplication {
       closeOnSubmit: true,
       submitOnChange: false,
       submitOnClose: false,
-      width: 220 + (PermissionConfigDialog._getUserIds().length * 110),
+      width: 220 + PermissionConfigDialog._getUserIds().length * 110,
       resizable: true
     })
   }
@@ -54,38 +53,37 @@ export class PermissionConfigDialog extends FormApplication {
   static _getUserIds() {
     let userIds = [
       {
-        'id': 'player',
-        'name': Fal.i18n('USER.RolePlayer'),
-        'type': 'role'
+        id: 'player',
+        name: Fal.i18n('USER.RolePlayer'),
+        type: 'role'
       },
       {
-        'id': 'trustedPlayer',
-        'name': Fal.i18n('USER.RoleTrusted'),
-        'type': 'role'
+        id: 'trustedPlayer',
+        name: Fal.i18n('USER.RoleTrusted'),
+        type: 'role'
       },
       {
-        'id': 'assistantGameMaster',
-        'name': Fal.i18n('USER.RoleAssistant'),
-        'type': 'role'
+        id: 'assistantGameMaster',
+        name: Fal.i18n('USER.RoleAssistant'),
+        type: 'role'
       }
     ]
-    game.users.forEach(user => {
+    game.users.forEach((user) => {
       userIds.push({
-        'id': user._id,
-        'name': user.name,
-        'type': 'user',
-        'color': user.color || '#ffffff'
+        id: user._id,
+        name: user.name,
+        type: 'user',
+        color: user.color || '#ffffff'
       })
     })
     return userIds
   }
 
-
   /* --------------------- Functions, public ----------------------- */
 
   /**
    * Activare listeners. Specifically for the reset permission setting button.
-   * @param {jQuery} jQ 
+   * @param {jQuery} jQ
    */
   activateListeners(jQ) {
     super.activateListeners(jQ)
@@ -108,7 +106,7 @@ export class PermissionConfigDialog extends FormApplication {
 
   /** @override */
   async _onSubmit(event, options) {
-    event.target.querySelectorAll("input[disabled]").forEach(i => i.disabled = false)
+    event.target.querySelectorAll('input[disabled]').forEach((i) => (i.disabled = false))
     return super._onSubmit(event, options)
   }
 
@@ -120,52 +118,54 @@ export class PermissionConfigDialog extends FormApplication {
     const userIds = PermissionConfigDialog._getUserIds()
 
     let additionalData = {
-      'headline': userIds,
+      headline: userIds,
       matrix: []
     }
 
     const permissionIds = Permissions.getPermissionIds()
-    permissionIds.forEach(permissionId => {
+    permissionIds.forEach((permissionId) => {
       let userPermissions = []
-      userIds.forEach(userId => {
+      userIds.forEach((userId) => {
         userPermissions.push({
-          'id': userId.id,
-          'name': userId.name,
-          'check': Permissions.hasPermission(userId.id, permissionId, false),
-          'checkId': permissionId + '::' + userId.id
+          id: userId.id,
+          name: userId.name,
+          check: Permissions.hasPermission(userId.id, permissionId, false),
+          checkId: permissionId + '::' + userId.id
         })
       })
       additionalData.matrix.push({
-        'permissionId': permissionId,
-        'permissionName': Permissions.getPermissionNameI18n(permissionId),
-        'permissionHint': Permissions.getPermissionHintI18n(permissionId),
-        'users': userPermissions
+        permissionId: permissionId,
+        permissionName: Permissions.getPermissionNameI18n(permissionId),
+        permissionHint: Permissions.getPermissionHintI18n(permissionId),
+        users: userPermissions
       })
     })
 
     // Sort for consistency
-    additionalData.matrix.sort((a, b) => (a.permissionName.localeCompare(b.permissionName)))
+    additionalData.matrix.sort((a, b) => a.permissionName.localeCompare(b.permissionName))
     return additionalData
   }
 
   /**
    * Update the permission settings based on the formData
-   * @param {*} event 
-   * @param {*} formData 
+   * @param {*} event
+   * @param {*} formData
    */
   _updateObject(event, formData) {
     let permissions = {}
-    Object.keys(formData).filter(key => formData[key]).forEach(key => {
-      const [permissionId, userId] = key.split('::')
-      if (!(permissionId in permissions)) {
-        permissions[permissionId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
-      }
-      if (['player', 'trustedPlayer', 'assistantGameMaster'].includes(userId)) {
-        permissions[permissionId][userId] = true
-      } else {
-        permissions[permissionId].users.push(userId)
-      }
-    })
+    Object.keys(formData)
+      .filter((key) => formData[key])
+      .forEach((key) => {
+        const [permissionId, userId] = key.split('::')
+        if (!(permissionId in permissions)) {
+          permissions[permissionId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
+        }
+        if (['player', 'trustedPlayer', 'assistantGameMaster'].includes(userId)) {
+          permissions[permissionId][userId] = true
+        } else {
+          permissions[permissionId].users.push(userId)
+        }
+      })
     Permissions.updatePermissions(permissions)
   }
 }

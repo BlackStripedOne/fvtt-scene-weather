@@ -30,7 +30,6 @@ Hooks.on(EVENTS.REG_WEATHER_PERCIEVERS, async () => {
 const PREFIX = 'meteo.icon.'
 
 class IconPerciever extends WeatherPerception {
-
   /**
    * @override WeatherPerception.isAllowed(userId)
    */
@@ -51,7 +50,10 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.getUiHtmlFromModel(weatherModel)
    */
   async getUiHtmlFromModel(weatherModel) {
-    const uiHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/iconPerceptionUi.hbs', await this.getWeatherInfoFromModel(weatherModel))
+    const uiHtml = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/iconPerceptionUi.hbs',
+      await this.getWeatherInfoFromModel(weatherModel)
+    )
     return uiHtml
   }
 
@@ -59,11 +61,15 @@ class IconPerciever extends WeatherPerception {
    * @override WeatherPerception.getChatHtmlFromModel(weatherModel)
    */
   async getChatHtmlFromModel(weatherModel) {
-    const chatHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/iconPerceptionChat.hbs',
-      Utils.mergeObject({
-        'description': await this.getTextFromModel(weatherModel)
-      },
-        await this.getWeatherInfoFromModel(weatherModel)))
+    const chatHtml = await renderTemplate(
+      'modules/' + MODULE.ID + '/templates/iconPerceptionChat.hbs',
+      Utils.mergeObject(
+        {
+          description: await this.getTextFromModel(weatherModel)
+        },
+        await this.getWeatherInfoFromModel(weatherModel)
+      )
+    )
     return chatHtml
   }
 
@@ -72,42 +78,42 @@ class IconPerciever extends WeatherPerception {
    */
   async getWeatherInfoFromModel(modelData) {
     let weatherInfo = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_WEATHER_STRUCT), {
-      'temperature': {
-        'air': modelData.temp.air.toFixed(1),
-        'ground': modelData.temp.ground.toFixed(1),
-        'percieved': modelData.temp.percieved.toFixed(1)
+      temperature: {
+        air: modelData.temp.air.toFixed(1),
+        ground: modelData.temp.ground.toFixed(1),
+        percieved: modelData.temp.percieved.toFixed(1)
       },
-      'humidity': {
-        'percent': NaN
+      humidity: {
+        percent: NaN
       },
-      'wind': {
-        'speed': NaN,
-        'gusts': NaN,
-        'direction': NaN
+      wind: {
+        speed: NaN,
+        gusts: NaN,
+        direction: NaN
       },
-      'clouds': {
-        'height': NaN,
-        'amount': Math.round(modelData.clouds.coverage * 30) * 30,
-        'type': modelData.clouds.type
+      clouds: {
+        height: NaN,
+        amount: Math.round(modelData.clouds.coverage * 30) * 30,
+        type: modelData.clouds.type
       },
-      'sun': {
-        'amount': (modelData.sun.amount > 0.3) ? 1 : 0
+      sun: {
+        amount: modelData.sun.amount > 0.3 ? 1 : 0
       },
-      'precipitation': {
-        'amount': (modelData.precipitation.amount > 0.4) ? 1 : 0,
-        'type': modelData.precipitation.type
+      precipitation: {
+        amount: modelData.precipitation.amount > 0.4 ? 1 : 0,
+        type: modelData.precipitation.type
       },
-      'composite': {
-        'sun': (modelData.sun.amount > 0.3) ? 'sun' : 'none',
-        'clouds': 'none',
-        'preci': 'none',
-        'wind': 'none'
+      composite: {
+        sun: modelData.sun.amount > 0.3 ? 'sun' : 'none',
+        clouds: 'none',
+        preci: 'none',
+        wind: 'none'
       },
-      'descriptive': {
-        'sun': (modelData.sun.amount > 0.3) ? PREFIX + 'sun.sun' : PREFIX + 'sun.none',
-        'clouds': PREFIX + 'clouds.none',
-        'preci': PREFIX + 'precipitation.none',
-        'wind': PREFIX + 'wind.none'
+      descriptive: {
+        sun: modelData.sun.amount > 0.3 ? PREFIX + 'sun.sun' : PREFIX + 'sun.none',
+        clouds: PREFIX + 'clouds.none',
+        preci: PREFIX + 'precipitation.none',
+        wind: PREFIX + 'wind.none'
       }
     })
 
@@ -150,7 +156,10 @@ class IconPerciever extends WeatherPerception {
       weatherInfo.composite.wind = 'wind'
       weatherInfo.descriptive.preci = PREFIX + 'wind.wind'
     }
-    Logger.debug('IconPerciever.getWeatherInfoFromModel()', { 'modelData': modelData, 'weatherInfo': weatherInfo })
+    Logger.debug('IconPerciever.getWeatherInfoFromModel()', {
+      modelData: modelData,
+      weatherInfo: weatherInfo
+    })
     return weatherInfo
   }
 
@@ -159,11 +168,10 @@ class IconPerciever extends WeatherPerception {
    */
   getPercieverInfo() {
     const info = Utils.mergeObject(Utils.deepClone(WeatherPerception.DEFAULT_INFO_STRUCT), {
-      'id': 'icon',
-      'name': Fal.i18n(PREFIX + 'name')
+      id: 'icon',
+      name: Fal.i18n(PREFIX + 'name')
     })
-    Logger.debug('IconPerciever.getPercieverInfo()', { 'info': info })
+    Logger.debug('IconPerciever.getPercieverInfo()', { info: info })
     return info
   }
-
 }

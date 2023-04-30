@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -19,22 +20,24 @@ See the License for the specific language governing permissions and limitations 
 import { Utils } from '../utils.js'
 
 export class ColorFilter extends PIXI.filters.AdjustmentFilter {
-
   /**
    * Create a color adjustment filter based on the PIXI AdjustmentFilter
    * @see https://api.pixijs.io/@pixi/core/PIXI/Filter.html
-   * 
+   *
    * @param {object} optional parameters to overwrite and configure the filter
    */
   constructor({ options = {}, soft = false } = {}) {
     super()
-    const { color, ...otherOptions } = Utils.mergeObject({
-      tint: '#ffffff',
-      saturation: 1,
-      gamma: 1,
-      brightness: 1,
-      contrast: 1
-    }, options)
+    const { color, ...otherOptions } = Utils.mergeObject(
+      {
+        tint: '#ffffff',
+        saturation: 1,
+        gamma: 1,
+        brightness: 1,
+        contrast: 1
+      },
+      options
+    )
     const { r: red, g: green, b: blue } = foundry.utils.Color.from(options.tint)
     const newOptions = { ...otherOptions, red, green, blue }
     const keys = Object.keys(newOptions)
@@ -52,7 +55,7 @@ export class ColorFilter extends PIXI.filters.AdjustmentFilter {
   }
 
   /**
-   * Stop and destroy this filter.  
+   * Stop and destroy this filter.
    */
   async destroy() {
     this.enabled = false
@@ -62,5 +65,5 @@ export class ColorFilter extends PIXI.filters.AdjustmentFilter {
   /**
    * No animation for this filter
    */
-  async step() { }
+  async step() {}
 }

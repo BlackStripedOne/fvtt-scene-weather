@@ -26,7 +26,6 @@ import { NODE_TYPE, AMBIENCE_TYPE, AMBIENCE_MASK_COLOR } from '../constants.js'
  * @class
  */
 class TrackableArray {
-
   /**
    * Creates a new trackable array using a proxy.
    * @constructor
@@ -48,7 +47,7 @@ class TrackableArray {
       set(target, prop, value, receiver) {
         const oldValue = target[prop]
         if (value !== oldValue && !(Number.isNaN(value) && Number.isNaN(oldValue))) {
-          if (typeof value === "object" && value !== null) {
+          if (typeof value === 'object' && value !== null) {
             value = new TrackableArray(value)
           }
           target[prop] = value
@@ -78,7 +77,7 @@ class TrackableArray {
        */
       apply(target, thisArg, args) {
         const method = args[0]
-        if (["push", "pop", "shift", "unshift", "splice"].includes(method)) {
+        if (['push', 'pop', 'shift', 'unshift', 'splice'].includes(method)) {
           self.modified = true
         }
         return Reflect.apply(target, thisArg, args)
@@ -91,11 +90,12 @@ class TrackableArray {
        * @returns {*} - The value of the property.
        */
       get(target, prop, receiver) {
-        if (prop === "changed") {
-          return () => self.modified || target.some(item => item instanceof TrackableArray && item.changed())
+        if (prop === 'changed') {
+          return () =>
+            self.modified || target.some((item) => item instanceof TrackableArray && item.changed())
         }
         const value = Reflect.get(target, prop, receiver)
-        if (typeof value === "object" && value !== null) {
+        if (typeof value === 'object' && value !== null) {
           return new TrackableArray(value)
         }
         return value
@@ -111,7 +111,6 @@ class TrackableArray {
  * @class
  */
 export class WeatherNodeData {
-
   /**
    * A default schema for the node data object.
    * @type {Object}
@@ -119,7 +118,9 @@ export class WeatherNodeData {
   static defaultSchema = {
     type: 'number',
     initial: 0,
-    validation: (value) => { return true }
+    validation: (value) => {
+      return true
+    }
   }
 
   /**
@@ -127,17 +128,33 @@ export class WeatherNodeData {
    * @type {Object}
    */
   static metadata = {
-    'x': {},
-    'y': {},
-    'z': {},
-    'width': {},
-    'height': {},
-    'borderNodes': { type: 'Array', initial: new TrackableArray([]) },
-    'locked': { type: 'boolean', initial: false },
-    'enabled': { type: 'boolean', initial: true },
-    'feather': { type: 'number', initial: 0, validation: (value) => { return Number.between(value, 0, 100, true) } },
-    'type': { initial: NODE_TYPE.MASK, validation: (value) => { return Number.between(value, 0, 1, true) } },
-    'mask': { initial: AMBIENCE_TYPE.outside, validation: (value) => { return Number.between(value, 0, 4, true) } },
+    x: {},
+    y: {},
+    z: {},
+    width: {},
+    height: {},
+    borderNodes: { type: 'Array', initial: new TrackableArray([]) },
+    locked: { type: 'boolean', initial: false },
+    enabled: { type: 'boolean', initial: true },
+    feather: {
+      type: 'number',
+      initial: 0,
+      validation: (value) => {
+        return Number.between(value, 0, 100, true)
+      }
+    },
+    type: {
+      initial: NODE_TYPE.MASK,
+      validation: (value) => {
+        return Number.between(value, 0, 1, true)
+      }
+    },
+    mask: {
+      initial: AMBIENCE_TYPE.outside,
+      validation: (value) => {
+        return Number.between(value, 0, 4, true)
+      }
+    }
   }
 
   /**
@@ -163,17 +180,29 @@ export class WeatherNodeData {
     this._source = source
 
     // construct access to data layer
-    Object.keys(this.constructor.metadata).forEach(fieldName => {
-      const meta = Utils.mergeObject(Utils.deepClone(this.constructor.defaultSchema), this.constructor.metadata[fieldName])
+    Object.keys(this.constructor.metadata).forEach((fieldName) => {
+      const meta = Utils.mergeObject(
+        Utils.deepClone(this.constructor.defaultSchema),
+        this.constructor.metadata[fieldName]
+      )
       const type = meta.type
       Object.defineProperty(this, fieldName, {
         get() {
-          return (fieldName in this._source) ? this._source[fieldName] : meta.initial
+          return fieldName in this._source ? this._source[fieldName] : meta.initial
         },
         set(newValue) {
-          if (getType(newValue) != type) throw new Error('Invalid type [' + getType(newValue) + '] while trying to set field [' + fieldName + '] of type [' + meta.type + '].')
-          const sourceValue = (fieldName in this._source) ? this._source[fieldName] : meta.initial
-          this._persisted = this._persisted && (sourceValue == newValue)
+          if (getType(newValue) != type)
+            throw new Error(
+              'Invalid type [' +
+                getType(newValue) +
+                '] while trying to set field [' +
+                fieldName +
+                '] of type [' +
+                meta.type +
+                '].'
+            )
+          const sourceValue = fieldName in this._source ? this._source[fieldName] : meta.initial
+          this._persisted = this._persisted && sourceValue == newValue
           this._source[fieldName] = newValue
         },
         enumerable: true,
@@ -217,10 +246,13 @@ export class WeatherNodeData {
    */
   static defaultSource() {
     let defaultSource = {
-      '_id': ''
+      _id: ''
     }
-    Object.keys(WeatherNodeData.metadata).forEach(fieldName => {
-      const meta = Utils.mergeObject(Utils.deepClone(WeatherNodeData.defaultSchema), WeatherNodeData.metadata[fieldName])
+    Object.keys(WeatherNodeData.metadata).forEach((fieldName) => {
+      const meta = Utils.mergeObject(
+        Utils.deepClone(WeatherNodeData.defaultSchema),
+        WeatherNodeData.metadata[fieldName]
+      )
       defaultSource[fieldName] = meta.initial
     })
     return defaultSource
@@ -228,12 +260,11 @@ export class WeatherNodeData {
 
   static newDefaultBorderPointAt({ x = 0, y = 0, permeable = 0 } = {}) {
     return {
-      'x': x,
-      'y': y,
-      'permeable': permeable
+      x: x,
+      y: y,
+      permeable: permeable
     }
   }
-
 
   /**
    * Creates a new instance of the `WeatherNodeData` class and persists it to the database.
@@ -246,14 +277,16 @@ export class WeatherNodeData {
   static async create(data = null, forceId = false) {
     const newId = forceId ? data._id : randomID()
     let newData = Utils.mergeObject(Utils.deepClone(WeatherNodeData.defaultSource()), {
-      '_id': newId
+      _id: newId
     })
     if (data) {
       delete data._id // remove foreign id when creating a new one
       newData = Utils.mergeObject(newData, data, { insertKeys: false, enforceTypes: true })
     }
     const created = new WeatherNodeData(newData)
-    Logger.info('Created WeatherNode with id [' + created.id + '] in parent Scene [' + Fal.getScene().id + ']')
+    Logger.info(
+      'Created WeatherNode with id [' + created.id + '] in parent Scene [' + Fal.getScene().id + ']'
+    )
     await created.update()
     return created
   }
@@ -280,7 +313,7 @@ export class WeatherNodeData {
    */
   static loadAll() {
     const docData = Fal.getSceneFlag('nodes', {})
-    const allNodeDatas = Object.values(docData).map(data => {
+    const allNodeDatas = Object.values(docData).map((data) => {
       return new WeatherNodeData(data)
     })
     return allNodeDatas
@@ -352,7 +385,14 @@ export class WeatherNodeData {
         const leftNeighbor = (pointNr - 1 + numNodes) % numNodes
         if (pointNr !== segNr && segNr !== leftNeighbor) {
           const segment = segments[segNr]
-          const distance = this._pointToLineDistance(this.borderNodes[pointNr].x, this.borderNodes[pointNr].y, segment.p1.x, segment.p1.y, segment.p2.x, segment.p2.y)
+          const distance = this._pointToLineDistance(
+            this.borderNodes[pointNr].x,
+            this.borderNodes[pointNr].y,
+            segment.p1.x,
+            segment.p1.y,
+            segment.p2.x,
+            segment.p2.y
+          )
           if (distance < minDistance) {
             return false
           }
@@ -466,7 +506,7 @@ export class WeatherNodeData {
       permeable: 0
     })
     if (this._isPolygonValid(minDistance)) return true
-    Logger.debug('WeatherNodeData.addBorderNode(...)  -> invalid polygon', { 'position': position })
+    Logger.debug('WeatherNodeData.addBorderNode(...)  -> invalid polygon', { position: position })
     this.borderNodes.at(-1).x = goodPosition.x
     this.borderNodes.at(-1).y = goodPosition.y
     return false
@@ -477,29 +517,30 @@ export class WeatherNodeData {
     // only do so if the amount of borderNodes is larger then 2 ( at least complete face )
     // and not the last one, as this may be drag-created from next to last node
     if (this.borderNodes.length > 2) {
-      const borderNodes = this.borderNodes.map(node => { return { 'x': node.x, 'y': node.y } })
+      const borderNodes = this.borderNodes.map((node) => {
+        return { x: node.x, y: node.y }
+      })
       for (let i = 0; i < borderNodes.length - 2; i++) {
         const nodeA = borderNodes[i]
         const nodeB = borderNodes[(i + 1) % borderNodes.length]
-        if ((nodeA.x === nodeB.x) && (nodeA.y === nodeB.y)) {
+        if (nodeA.x === nodeB.x && nodeA.y === nodeB.y) {
           this.borderNodes.splice(i, 1)
         }
       }
     }
 
     const minX = this.borderNodes.reduce((smallest, current) => {
-      return (current.x < smallest) ? current.x : smallest
+      return current.x < smallest ? current.x : smallest
     }, this.borderNodes[0].x)
     const minY = this.borderNodes.reduce((smallest, current) => {
-      return (current.y < smallest) ? current.y : smallest
+      return current.y < smallest ? current.y : smallest
     }, this.borderNodes[0].y)
     const maxX = this.borderNodes.reduce((largest, current) => {
-      return (current.x > largest) ? current.x : largest
+      return current.x > largest ? current.x : largest
     }, this.borderNodes[0].x)
     const maxY = this.borderNodes.reduce((largest, current) => {
-      return (current.y > largest) ? current.y : largest
+      return current.y > largest ? current.y : largest
     }, this.borderNodes[0].y)
-
 
     // normalize points relative to minX and minY
     for (let i = 0; i < this.borderNodes.length; i++) {
@@ -537,7 +578,13 @@ export class WeatherNodeData {
     let nodes = Fal.getSceneFlag('nodes', {})
     if (this._source._id in nodes) {
       delete nodes[this._source._id]
-      Logger.info('Deleted WeatherNode with id [' + this._source._id + '] in parent Scene [' + Fal.getScene().id + ']')
+      Logger.info(
+        'Deleted WeatherNode with id [' +
+          this._source._id +
+          '] in parent Scene [' +
+          Fal.getScene().id +
+          ']'
+      )
       await Fal.unsetSceneFlag('nodes')
       await Fal.setSceneFlag('nodes', nodes)
     }
@@ -585,6 +632,3 @@ export class WeatherNodeData {
     //Hooks.callAll(`updateWeatherNodeData`, { 'persisted': true, 'data': this })  // TODO module name
   }
 }
-
-
-

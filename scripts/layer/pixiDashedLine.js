@@ -20,13 +20,12 @@ See the License for the specific language governing permissions and limitations 
 import { Utils, Logger } from '../utils.js'
 
 export class DashLine {
-
   // cache of PIXI.Textures for dashed lines
   static dashTextureCache = {}
 
   /**
    * Create a dashed Line
-   * 
+   *
    * @param graphics
    * @param [options]
    * @param [options.useTexture=false] - use the texture based render (useful for very large or very small dashed lines)
@@ -42,17 +41,22 @@ export class DashLine {
     this.cursor = new PIXI.Point()
     this.scale = 1
     this.graphics = graphics
-    options = Utils.mergeObject({
-      dash: [10, 5],
-      width: 1,
-      color: 0xffffff,
-      alpha: 1,
-      scale: 1,
-      useTexture: false,
-      alignment: 0.5
-    }, options)
+    options = Utils.mergeObject(
+      {
+        dash: [10, 5],
+        width: 1,
+        color: 0xffffff,
+        alpha: 1,
+        scale: 1,
+        useTexture: false,
+        alignment: 0.5
+      },
+      options
+    )
     this.dash = options.dash
-    this.dashSize = this.dash.reduce(function (a, b) { return a + b })
+    this.dashSize = this.dash.reduce(function (a, b) {
+      return a + b
+    })
     this.useTexture = options.useTexture
     this.options = options
     this._setLineStyle()
@@ -89,17 +93,17 @@ export class DashLine {
       // if so, return the cached texture
       return DashLine.dashTextureCache[key]
     }
-    var canvas = document.createElement("canvas")
+    var canvas = document.createElement('canvas')
     // set the canvas width and height based on the dash size and line width
     canvas.width = dashSize
     canvas.height = Math.ceil(options.width)
-    var context = canvas.getContext("2d")
+    var context = canvas.getContext('2d')
     // if the context is null, log a warning and return undefined
     if (!context) {
       Logger.warn('Did not get context from canvas')
       return
     }
-    context.strokeStyle = "white"
+    context.strokeStyle = 'white'
     context.globalAlpha = options.alpha
     context.lineWidth = options.width
     var x = 0
@@ -116,13 +120,12 @@ export class DashLine {
     // stroke the path to create the line
     context.stroke()
     // create a new PIXI texture from the canvas
-    var texture = DashLine.dashTextureCache[key] = PIXI.Texture.from(canvas)
+    var texture = (DashLine.dashTextureCache[key] = PIXI.Texture.from(canvas))
     // set the texture scaling mode to nearest
     texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST
     // return the texture
     return texture
   }
-
 
   /**
    * resets line style to enable dashed line (useful if lineStyle was changed on graphics element)
@@ -154,18 +157,19 @@ export class DashLine {
 
   // adjust the matrix for the dashed texture
   _adjustLineStyle(angle) {
-    var lineStyle = this.graphics.line;
-    lineStyle.matrix = new PIXI.Matrix();
+    var lineStyle = this.graphics.line
+    lineStyle.matrix = new PIXI.Matrix()
     if (angle) {
-      lineStyle.matrix.rotate(angle);
+      lineStyle.matrix.rotate(angle)
     }
-    if (this.scale !== 1)
-      lineStyle.matrix.scale(this.scale, this.scale);
-    var textureStart = -this.lineLength;
-    lineStyle.matrix.translate(this.cursor.x + textureStart * Math.cos(angle), this.cursor.y + textureStart * Math.sin(angle));
-    this.graphics.lineStyle(lineStyle);
+    if (this.scale !== 1) lineStyle.matrix.scale(this.scale, this.scale)
+    var textureStart = -this.lineLength
+    lineStyle.matrix.translate(
+      this.cursor.x + textureStart * Math.cos(angle),
+      this.cursor.y + textureStart * Math.sin(angle)
+    )
+    this.graphics.lineStyle(lineStyle)
   }
-
 
   /**
    * Moves the current drawing position to x, y.
@@ -184,7 +188,7 @@ export class DashLine {
   /**
    * Draws a dashed line using the current line style from the current drawing position to (x, y)
    * The current drawing position is then set to (x, y).
-   * 
+   *
    * @param x - the X coordinate to draw to
    * @param y - the Y coordinate to draw to
    * @returns - This Graphics object. Good for chaining method calls
@@ -213,7 +217,8 @@ export class DashLine {
       var y0 = this.cursor.y
       // find the first part of the dash for this line
       const place = this.lineLength % (this.dashSize * this.scale)
-      var dashIndex = 0, dashStart = 0
+      var dashIndex = 0,
+        dashStart = 0
       var dashX = 0
       for (var i = 0; i < this.dash.length; i++) {
         const dashSize = this.dash[i] * this.scale
@@ -228,17 +233,24 @@ export class DashLine {
       var remaining = length
       while (remaining > 0) {
         const dashSize = this.dash[dashIndex] * this.scale - dashStart
-        var dist = remaining > dashSize ? dashSize : remaining;
+        var dist = remaining > dashSize ? dashSize : remaining
         if (closed) {
-          var remainingDistance = DashLine.distance(x0 + cos * dist, y0 + sin * dist, this.start.x, this.start.y);
+          var remainingDistance = DashLine.distance(
+            x0 + cos * dist,
+            y0 + sin * dist,
+            this.start.x,
+            this.start.y
+          )
           if (remainingDistance <= dist) {
             if (dashIndex % 2 === 0) {
-              var lastDash = DashLine.distance(x0, y0, this.start.x, this.start.y) - this.dash[this.dash.length - 1] * this.scale;
-              x0 += cos * lastDash;
-              y0 += sin * lastDash;
-              this.graphics.lineTo(x0, y0);
+              var lastDash =
+                DashLine.distance(x0, y0, this.start.x, this.start.y) -
+                this.dash[this.dash.length - 1] * this.scale
+              x0 += cos * lastDash
+              y0 += sin * lastDash
+              this.graphics.lineTo(x0, y0)
             }
-            break;
+            break
           }
         }
         x0 += cos * dist
@@ -268,15 +280,16 @@ export class DashLine {
   }
 
   /**
-  * Draws a circle.
-  * @param x - The X coordinate of the center of the circle
-  * @param y - The Y coordinate of the center of the circle
-  * @param radius - The radius of the circle
-  * @returns - This Graphics object. Good for chaining method calls
-  */
+   * Draws a circle.
+   * @param x - The X coordinate of the center of the circle
+   * @param y - The Y coordinate of the center of the circle
+   * @param radius - The radius of the circle
+   * @returns - This Graphics object. Good for chaining method calls
+   */
   drawCircle(x, y, radius, points = 80, matrix) {
-    const interval = Math.PI * 2 / points
-    var angle = 0, first
+    const interval = (Math.PI * 2) / points
+    var angle = 0,
+      first
     if (matrix) {
       first = new PIXI.Point(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius)
       matrix.apply(first, first)
@@ -287,7 +300,8 @@ export class DashLine {
     }
     angle += interval
     for (var i = 1; i < points + 1; i++) {
-      const next = i === points ? first : [x + Math.cos(angle) * radius, y + Math.sin(angle) * radius]
+      const next =
+        i === points ? first : [x + Math.cos(angle) * radius, y + Math.sin(angle) * radius]
       this.lineTo(next[0], next[1])
       angle += interval
     }
@@ -305,7 +319,7 @@ export class DashLine {
    * @returns - This Graphics object. Good for chaining method calls
    */
   drawEllipse(x, y, radiusX, radiusY, points = 80, matrix) {
-    const interval = Math.PI * 2 / points
+    const interval = (Math.PI * 2) / points
     var first
     var point = new PIXI.Point()
     for (var i = 0; i < Math.PI * 2; i += interval) {
@@ -410,5 +424,4 @@ export class DashLine {
     }
     return this
   }
-
 }

@@ -22,7 +22,7 @@ import { MODULE } from './constants.js'
 
 /**
  * Registers the special helper functions for switch-cases with multiple case statements and default. Switch blocks are nestable.
- * 
+ *
  * {{#switch variable}}
  *  {{#case 'value1' 'value2'}}value 1 or 2{{/case}}
  *  {{#case 'value3'}}value 3{{/case}}
@@ -30,10 +30,9 @@ import { MODULE } from './constants.js'
  * {{/switch}}
  */
 export const registerHbHelpers = function () {
-
   Handlebars.__switch_stack__ = []
 
-  Handlebars.registerHelper("switch", function (value, options) {
+  Handlebars.registerHelper('switch', function (value, options) {
     Handlebars.__switch_stack__.push({
       switch_match: false,
       switch_value: value
@@ -43,7 +42,7 @@ export const registerHbHelpers = function () {
     return html
   })
 
-  Handlebars.registerHelper("case", function (value, options) {
+  Handlebars.registerHelper('case', function (value, options) {
     var args = Array.from(arguments)
     var options = args.pop()
     var caseValues = args
@@ -57,7 +56,7 @@ export const registerHbHelpers = function () {
     }
   })
 
-  Handlebars.registerHelper("default", function (options) {
+  Handlebars.registerHelper('default', function (options) {
     var stack = Handlebars.__switch_stack__[Handlebars.__switch_stack__.length - 1]
     if (!stack.switch_match) {
       return options.fn(this)
@@ -65,15 +64,13 @@ export const registerHbHelpers = function () {
   })
 
   Logger.debug('HB Helpers Registered')
-
 } // registerHbHelpers
 
 export const loadHandlebars = function () {
-  // register templates parts  
+  // register templates parts
   loadTemplates({
-    'regionConfigSummer': 'modules/' + MODULE.ID + '/templates/regionConfigSummer.hbs',
-    'regionConfigWinter': 'modules/' + MODULE.ID + '/templates/regionConfigWinter.hbs'
-  });
+    regionConfigSummer: 'modules/' + MODULE.ID + '/templates/regionConfigSummer.hbs',
+    regionConfigWinter: 'modules/' + MODULE.ID + '/templates/regionConfigWinter.hbs'
+  })
   Logger.debug('HB partials loaded')
-
 }

@@ -28,13 +28,12 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
  * TODO
  */
 export class MacroConfigDialog extends Application {
-  
   static _app = null
 
   /**
    * TODO
-   * 
-   * @param {*} force 
+   *
+   * @param {*} force
    */
   static refresh(force = false) {
     Logger.trace('MacroConfigDialog.refresh()')
@@ -70,18 +69,25 @@ export class MacroConfigDialog extends Application {
 
   /**
    * Activare listeners. Specifically for the reset permission setting button.
-   * 
-   * @param {jQuery} jQ 
+   *
+   * @param {jQuery} jQ
    */
   activateListeners(jQ) {
     super.activateListeners(jQ)
     jQ.find("button[type='generate']").on('click', async function () {
       const buttonJQ = $(this)
-      const includeTimeOfDay = jQ.find('input[name="macro.includeTimeOfDay"]').is(':checked') || false
-      const includeDayOfYear = jQ.find('input[name="macro.includeDayOfYear"]').is(':checked') || false
+      const includeTimeOfDay =
+        jQ.find('input[name="macro.includeTimeOfDay"]').is(':checked') || false
+      const includeDayOfYear =
+        jQ.find('input[name="macro.includeDayOfYear"]').is(':checked') || false
       const includeSeed = jQ.find('input[name="macro.includeSeed"]').is(':checked') || false
       const generatorMode = buttonJQ.attr('data-mode') || ''
-      Logger.trace('MacroConfigDialog.click(generateFromWeatherTemplate)', { 'generatorMode': generatorMode, 'includeTimeOfDay': includeTimeOfDay, 'includeDayOfYear': includeDayOfYear, 'includeSeed': includeSeed })
+      Logger.trace('MacroConfigDialog.click(generateFromWeatherTemplate)', {
+        generatorMode: generatorMode,
+        includeTimeOfDay: includeTimeOfDay,
+        includeDayOfYear: includeDayOfYear,
+        includeSeed: includeSeed
+      })
 
       let macroConfig = {
         img: 'modules/' + MODULE.ID + '/assets/sw-macro-icon.svg',
@@ -93,39 +99,59 @@ export class MacroConfigDialog extends Application {
 
       let commandIntermediate = ''
       if (includeSeed) {
-        commandIntermediate += await MacroGenerator.buildSetSceneSeed(weatherSettings.generator.seed)
+        commandIntermediate += await MacroGenerator.buildSetSceneSeed(
+          weatherSettings.generator.seed
+        )
       }
       if (includeTimeOfDay || includeDayOfYear) {
         commandIntermediate += await MacroGenerator.buildSetSceneTime({
-          'dayCycle': (includeTimeOfDay) ? TimeProvider.getDaylightCyclePct() : -1,
-          'yearCycle': (includeDayOfYear) ? TimeProvider.getSeasonCyclePct() / 2 : -1
+          dayCycle: includeTimeOfDay ? TimeProvider.getDaylightCyclePct() : -1,
+          yearCycle: includeDayOfYear ? TimeProvider.getSeasonCyclePct() / 2 : -1
         })
       }
 
       switch (generatorMode) {
         case 'weatherTemplate':
-          macroConfig.name = Fal.i18n('dialogs.macroConfig.weatherTemplate.title') + '(' + (weatherSettings.weather?.templateName ?? ' - ') + ')'
+          macroConfig.name =
+            Fal.i18n('dialogs.macroConfig.weatherTemplate.title') +
+            '(' +
+            (weatherSettings.weather?.templateName ?? ' - ') +
+            ')'
           macroConfig.command = await MacroGenerator.buildHeader(macroConfig.name)
           macroConfig.command += commandIntermediate
-          macroConfig.command += await MacroGenerator.buildSetSceneWeatherTemplate(weatherSettings.weather.templateId, weatherSettings.weather.templateName)
+          macroConfig.command += await MacroGenerator.buildSetSceneWeatherTemplate(
+          weatherSettings.weather.templateId,
+          weatherSettings.weather.templateName
+        )
           break
         case 'weather':
           macroConfig.name = Fal.i18n('dialogs.macroConfig.weather.title') + canvas.scene.name + ')'
           macroConfig.command = await MacroGenerator.buildHeader(macroConfig.name)
           macroConfig.command += commandIntermediate
-          macroConfig.command += await MacroGenerator.buildSetSceneWeatherSettings(weatherSettings.weather)
+          macroConfig.command += await MacroGenerator.buildSetSceneWeatherSettings(
+          weatherSettings.weather
+        )
           break
         case 'regionTemplate':
-          macroConfig.name = Fal.i18n('dialogs.macroConfig.regionTemplate.title') + '(' + (weatherSettings.region?.templateName ?? ' - ') + ')'
+          macroConfig.name =
+            Fal.i18n('dialogs.macroConfig.regionTemplate.title') +
+            '(' +
+            (weatherSettings.region?.templateName ?? ' - ') +
+            ')'
           macroConfig.command = await MacroGenerator.buildHeader(macroConfig.name)
           macroConfig.command += commandIntermediate
-          macroConfig.command += await MacroGenerator.buildSetSceneRegionTemplate(weatherSettings.region.templateId, weatherSettings.region.templateName)
+          macroConfig.command += await MacroGenerator.buildSetSceneRegionTemplate(
+          weatherSettings.region.templateId,
+          weatherSettings.region.templateName
+        )
           break
         case 'region':
           macroConfig.name = Fal.i18n('dialogs.macroConfig.region.title') + canvas.scene.name + ')'
           macroConfig.command = await MacroGenerator.buildHeader(macroConfig.name)
           macroConfig.command += commandIntermediate
-          macroConfig.command += await MacroGenerator.buildSetSceneRegionSettings(weatherSettings.region)
+          macroConfig.command += await MacroGenerator.buildSetSceneRegionSettings(
+          weatherSettings.region
+        )
           break
       }
       macroConfig.command += await MacroGenerator.buildUpdateConfig(true)
@@ -137,21 +163,18 @@ export class MacroConfigDialog extends Application {
     })
   }
 
-
-
   /**
    * @override
    */
   async _onSubmit(event, options) {
-    event.target.querySelectorAll("input[disabled]").forEach(i => i.disabled = false)
+    event.target.querySelectorAll('input[disabled]').forEach((i) => (i.disabled = false))
     return super._onSubmit(event, options)
   }
 
-
   /**
    * Returns the form data to render in the handlebars template
-   * 
-   * @returns 
+   *
+   * @returns
    */
   async getData() {
     const seasonPct = TimeProvider.getSeasonCyclePct()
@@ -161,50 +184,61 @@ export class MacroConfigDialog extends Application {
     if (weatherSettings === undefined) {
       Logger.warn(Fal.i18n('dialogs.macroConfig.disabledWarn'), true)
       return {
-        'enabled': false
+        enabled: false
       }
     }
 
     const data = {
-      'enabled': true,
-      'preCheckTime': [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(weatherSettings.generator.mode),
-      'preCheckDate': [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(weatherSettings.generator.mode), // TODO
-      'scene': {
-        'name': canvas.scene.name,
-        'id': canvas.scene._id,
-        'modeName': 'configTab.weatherModes.' + weatherSettings.generator.mode + '.name',
-        'modeHint': 'configTab.weatherModes.' + weatherSettings.generator.mode + '.hint',
-        'seed': weatherSettings.generator.seed
+      enabled: true,
+      preCheckTime: [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
+        weatherSettings.generator.mode
+      ),
+      preCheckDate: [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
+        weatherSettings.generator.mode
+      ), // TODO
+      scene: {
+        name: canvas.scene.name,
+        id: canvas.scene._id,
+        modeName: 'configTab.weatherModes.' + weatherSettings.generator.mode + '.name',
+        modeHint: 'configTab.weatherModes.' + weatherSettings.generator.mode + '.hint',
+        seed: weatherSettings.generator.seed
       },
-      'time': {
-        'summaryString': TimeProvider.getI18nDateString(),
-        'beforeSummerSolstice': !!(seasonPct <= 1.0),
-        'pctDistanceSummerSolstice': Math.round(((seasonPct > 1.0) ? seasonPct - 1.0 : seasonPct) * 100),
-        'seasonString': 'time.' + seasonId,
-        'seasonPct': (seasonPct > 1.0) ? seasonPct - 1.0 : seasonPct
+      time: {
+        summaryString: TimeProvider.getI18nDateString(),
+        beforeSummerSolstice: !!(seasonPct <= 1.0),
+        pctDistanceSummerSolstice: Math.round(
+          (seasonPct > 1.0 ? seasonPct - 1.0 : seasonPct) * 100
+        ),
+        seasonString: 'time.' + seasonId,
+        seasonPct: seasonPct > 1.0 ? seasonPct - 1.0 : seasonPct
       },
-      'weather': {
-        'detailHtml': await WeatherPerception.getAsUiHtml('scene-weather.precise', SceneWeather.getWeatherModel()),
-        'hasTemplate': !!(weatherSettings.generator.mode == GENERATOR_MODES.WEATHER_TEMPLATE),
-        'templateName': weatherSettings.weather?.templateName ?? ''
+      weather: {
+        detailHtml: await WeatherPerception.getAsUiHtml(
+          'scene-weather.precise',
+          SceneWeather.getWeatherModel()
+        ),
+        hasTemplate: !!(weatherSettings.generator.mode == GENERATOR_MODES.WEATHER_TEMPLATE),
+        templateName: weatherSettings.weather?.templateName ?? ''
       },
-      'region': {
-        'hasRegion': [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(weatherSettings.generator.mode),
-        'hasTemplate': !!(weatherSettings.generator.mode == GENERATOR_MODES.REGION_TEMPLATE),
-        'templateName': weatherSettings.region?.templateName ?? ''
+      region: {
+        hasRegion: [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
+          weatherSettings.generator.mode
+        ),
+        hasTemplate: !!(weatherSettings.generator.mode == GENERATOR_MODES.REGION_TEMPLATE),
+        templateName: weatherSettings.region?.templateName ?? ''
       }
     }
 
-    Logger.trace('MacroConfigDialog.getData()', { 'data': data })
+    Logger.trace('MacroConfigDialog.getData()', { data: data })
     return data
   }
 
   /**
    * Update the permission settings based on the formData
-   * @param {*} event 
-   * @param {*} formData 
+   * @param {*} event
+   * @param {*} formData
    */
   _updateObject(event, formData) {
-    Logger.trace('MacroConfigDialog._updateObject(...)', { 'formData': formData })
+    Logger.trace('MacroConfigDialog._updateObject(...)', { formData: formData })
   }
 }

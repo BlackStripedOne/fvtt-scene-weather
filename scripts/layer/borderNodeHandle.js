@@ -27,7 +27,6 @@ import { Logger, Utils } from '../utils.js'
  * @extends PIXI.Graphics
  */
 export class BorderNodeHandle extends PIXI.Graphics {
-
   /**
    * The weather node this handle is associated with.
    * @type {WeatherNode}
@@ -122,7 +121,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @returns {boolean} Returns true if the node is a shadow node, false otherwise.
    */
   get isShadow() {
-    return (this._weatherNode == null && this._borderNodeNr == -1)
+    return this._weatherNode == null && this._borderNodeNr == -1
   }
 
   /* --------------------- Public functions ----------------------- */
@@ -138,7 +137,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
     if (this.isShadow) {
       this.position.set(this._borderNodePosition.x, this._borderNodePosition.y)
       const distance = this._borderNodePosition.d || 9000
-      if (distance < (this.lw * 4)) {
+      if (distance < this.lw * 4) {
         this.alpha = 1.0
         this.hover = true
         this.scale.set(1.5, 1.5)
@@ -185,7 +184,6 @@ export class BorderNodeHandle extends PIXI.Graphics {
     this.interactive = true
   }
 
-
   /* --------------------- Private functions ----------------------- */
 
   /**
@@ -194,7 +192,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    */
   _drawHandle() {
     // TODO draw little plus symbol in case this is a shadow node
-    const borderColor = (this._maskType == -1) ? 0xFFFFFF : this._weatherNode.data.maskColor
+    const borderColor = this._maskType == -1 ? 0xffffff : this._weatherNode.data.maskColor
     // Determine circle radius and line width
     const lw = this.lw
     const circleRadius = this.hover ? lw * 4 : lw * 3
@@ -213,8 +211,8 @@ export class BorderNodeHandle extends PIXI.Graphics {
    */
   _assumeControl() {
     canvas.sceneweather.borderNodeControl = {
-      'id': this._weatherNode.id,
-      'nodeNr': this._borderNodeNr
+      id: this._weatherNode.id,
+      nodeNr: this._borderNodeNr
     }
   }
 
@@ -254,7 +252,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @returns {boolean} - true if the current instance can take control, false otherwise
    */
   _canControl() {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (canvas.sceneweather.borderNodeControl) {
       return this._isInControl()
     }
@@ -272,12 +270,12 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @calledBy this.createInteractionManager
    */
   _onHoverIn(event) {
-    //  only, when no other borderNode is in active control at the moment    
+    //  only, when no other borderNode is in active control at the moment
     if (!this._canControl()) return
 
     const handle = event.target
     handle.scale.set(1.5, 1.5)
-    event.data["borderNodeHandle"] = event.target
+    event.data['borderNodeHandle'] = event.target
     this.hover = true
   }
 
@@ -288,7 +286,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @calledBy this.createInteractionManager
    */
   _onHoverOut(event) {
-    //  only, when no other borderNode is in active control at the moment    
+    //  only, when no other borderNode is in active control at the moment
     if (this._isInControl()) return
 
     const { borderNodeHandle } = event.data
@@ -302,7 +300,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @param {MouseEvent} event - The mouse event that triggered the function.
    */
   _onDragLeftStart(event) {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (!this._canControl()) return
     if (this.isShadow) return
 
@@ -322,7 +320,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @param {Object} event.data.originalEvent - The original event that triggered the drag movement.
    */
   _onDragLeftMove(event) {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (!this._isInControl()) return
 
     if (this.isShadow) return
@@ -334,14 +332,22 @@ export class BorderNodeHandle extends PIXI.Graphics {
 
     // Snap the origin to the grid
     if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
-      destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
+      destination = canvas.grid.getSnappedPosition(
+        destination.x,
+        destination.y,
+        canvas.sceneweather.gridPrecision
+      )
     }
 
     // pan the canvas if the drag event approaches the edge
     canvas._onDragCanvasPan(originalEvent)
 
     // update Drawing dimensions
-    this._weatherNode.data.setBorderNode(destination, canvas.dimensions.size * 0.5, this._borderNodeNr)
+    this._weatherNode.data.setBorderNode(
+      destination,
+      canvas.dimensions.size * 0.5,
+      this._borderNodeNr
+    )
     this._weatherNode.data.normalize(false) // don't immediately update to not trigger a scene update
     this._weatherNode.refresh()
   }
@@ -351,7 +357,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @param {Event} event - The drag and drop event object.
    */
   _onDragLeftDrop(event) {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (!this._isInControl()) return
 
     if (this.isShadow) return
@@ -365,43 +371,51 @@ export class BorderNodeHandle extends PIXI.Graphics {
         */
     const clonedData = this._weatherNode.data.clone()
     const nodeToUpdate = {
-      'id': this._weatherNode.id,
-      'borderNodes': clonedData.borderNodes
+      id: this._weatherNode.id,
+      borderNodes: clonedData.borderNodes
     }
-    this._weatherNode.data.setBorderNode({
-      'x': this._originNode.borderNodes[this._borderNodeNr].x + this._originNode.x,
-      'y': this._originNode.borderNodes[this._borderNodeNr].y + this._originNode.y,
-    }, canvas.dimensions.size * 0.5, this._borderNodeNr)
+    this._weatherNode.data.setBorderNode(
+      {
+        x: this._originNode.borderNodes[this._borderNodeNr].x + this._originNode.x,
+        y: this._originNode.borderNodes[this._borderNodeNr].y + this._originNode.y
+      },
+      canvas.dimensions.size * 0.5,
+      this._borderNodeNr
+    )
     // Update this WeatherNode with the new borderNode
     canvas.sceneweather.updateNodes([nodeToUpdate])
 
     delete event.data._borderNodePosition
     this._onHoverOut(event)
-    // this.active = false    
+    // this.active = false
     this._yieldControl()
     this._originNode = null
   }
 
   /**
-   * This function is called when a left drag gesture is cancelled. It restores the original position of the border node 
-   * that was being dragged before the gesture was cancelled, and sets the scale of the interaction manager to 1.0. 
+   * This function is called when a left drag gesture is cancelled. It restores the original position of the border node
+   * that was being dragged before the gesture was cancelled, and sets the scale of the interaction manager to 1.0.
    * @param {MouseEvent} event - The event object for the drag cancellation.
    */
   _onDragLeftCancel(event) {
     if (!this._originNode) return
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (!this._canControl()) return
 
     if (this.isShadow) return
     // Restore original borderNode
-    this._weatherNode.data.setBorderNode({
-      'x': this._originNode.borderNodes[this._borderNodeNr].x + this._originNode.x,
-      'y': this._originNode.borderNodes[this._borderNodeNr].y + this._originNode.y,
-    }, canvas.dimensions.size * 0.5, this._borderNodeNr)
+    this._weatherNode.data.setBorderNode(
+      {
+        x: this._originNode.borderNodes[this._borderNodeNr].x + this._originNode.x,
+        y: this._originNode.borderNodes[this._borderNodeNr].y + this._originNode.y
+      },
+      canvas.dimensions.size * 0.5,
+      this._borderNodeNr
+    )
     this._weatherNode.data.normalize(false) // don't immediately update to not trigger a scene update
     this.scale.set(1.0, 1.0)
     this.hover = false
-    // this.active = false    
+    // this.active = false
     this._yieldControl()
     this._weatherNode.refresh()
   }
@@ -411,7 +425,7 @@ export class BorderNodeHandle extends PIXI.Graphics {
    * @param {MouseEvent} event - The MouseEvent object for the click event.
    */
   _onClickRight(event) {
-    // only, when no other borderNode is in active control at the moment    
+    // only, when no other borderNode is in active control at the moment
     if (!this._canControl()) return
 
     if (!this.isShadow) {
@@ -432,12 +446,17 @@ export class BorderNodeHandle extends PIXI.Graphics {
 
           delete event.data.borderNodeHandle
         } else {
-          Logger.info('Removing this BorderNode would result in an invalid shape. Please move this or another BorderNode first before trying to remove it again.', true) // TODO i18n
+          Logger.info(
+            'Removing this BorderNode would result in an invalid shape. Please move this or another BorderNode first before trying to remove it again.',
+            true
+          ) // TODO i18n
         }
       } else {
-        Logger.info('A WeatherNodeMask needs to have at least 3 BorderNodes in the shape. You can remove the entire mask by selecting it and pressing the delete key.', true)  // TODO i18n
+        Logger.info(
+          'A WeatherNodeMask needs to have at least 3 BorderNodes in the shape. You can remove the entire mask by selecting it and pressing the delete key.',
+          true
+        ) // TODO i18n
       }
     }
   }
-
 }

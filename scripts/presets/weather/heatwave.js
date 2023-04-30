@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -20,30 +21,30 @@ import { EVENTS, MODULE, PRECI_TYPE, CLOUD_TYPE } from '../../constants.js'
 
 Hooks.on(EVENTS.REG_TEMPLATE_WEATHER, async () => {
   SceneWeather.registerWeatherTemplate(MODULE.ID, 'heatwave', {
-    'name': 'templates.weather.heatwave.name',
-    'temp': {
-      'ground': 30,
-      'air': 37,
-      'percieved': 42
+    name: 'templates.weather.heatwave.name',
+    temp: {
+      ground: 30,
+      air: 37,
+      percieved: 42
     },
-    'wind': {
-      'speed': 0,
-      'gusts': 0,
-      'direction': 0
+    wind: {
+      speed: 0,
+      gusts: 0,
+      direction: 0
     },
-    'clouds': {
-      'coverage': 0,
-      'bottom': 0,
-      'top': 0,
-      'type': CLOUD_TYPE.none
+    clouds: {
+      coverage: 0,
+      bottom: 0,
+      top: 0,
+      type: CLOUD_TYPE.none
     },
-    'precipitation': {
-      'amount': 0,
-      'type': PRECI_TYPE.none
+    precipitation: {
+      amount: 0,
+      type: PRECI_TYPE.none
     },
-    'sun': {
-      'amount': 1.0,
+    sun: {
+      amount: 1.0
     },
-    'humidity': 80
+    humidity: 80
   })
 })

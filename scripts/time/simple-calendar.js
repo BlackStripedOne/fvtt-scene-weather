@@ -17,9 +17,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-
 import { TIME_PROVIDERS } from '../constants.js'
-import { Logger, Utils } from '../utils.js'
+import { Logger } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { TimeProvider } from './timeProvider.js'
 
@@ -37,14 +36,12 @@ Hooks.once('simple-calendar-init', () => {
   }
 })
 
-
 /**
  * A subclass of `TimeProvider` that provides time-related functionality specific to the Simple Calendar module for FoundryVTT.
- * 
+ *
  * @extends TimeProvider
  */
 export class ScTimeProvider extends TimeProvider {
-
   /**
    * The `_config` property holds an object that stores the default configuration for the ScTimeProvider class.
    *
@@ -69,15 +66,15 @@ export class ScTimeProvider extends TimeProvider {
    * is installed and enabled, these values will be replaced by the actual configuration of the in-game calendar.
    */
   static _config = {
-    'daysInYear': 365,
-    'summerSolstice': 172,
-    'winterSolstice': 355,
-    'monthOffset': [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
-    'hoursInDay': 24,
-    'minutesInHour': 60,
-    'secondsInMinute': 60,
-    'secondsInHour': 3600,
-    'secondsInDay': 86400
+    daysInYear: 365,
+    summerSolstice: 172,
+    winterSolstice: 355,
+    monthOffset: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
+    hoursInDay: 24,
+    minutesInHour: 60,
+    secondsInMinute: 60,
+    secondsInHour: 3600,
+    secondsInDay: 86400
   }
 
   /**
@@ -99,7 +96,7 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   async advanceGameTime(deltaSeconds = 0) {
-    Logger.warn('ScTimeProvider.advanceGameTime(' + deltaSeconds + ') -> no time authority, ignoring')
+    Logger.warn('ScTimeProvider.advanceGameTime(...) -> no time authority, ignoring')
   }
 
   /**
@@ -127,7 +124,9 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   getMonthOffset(monthNr) {
-    return ScTimeProvider._config.monthOffset[Utils.clamp(monthNr, 0, ScTimeProvider._config.monthOffset.length - 1)]
+    return ScTimeProvider._config.monthOffset[
+      Utils.clamp(monthNr, 0, ScTimeProvider._config.monthOffset.length - 1)
+    ]
   }
 
   /**
@@ -158,28 +157,34 @@ export class ScTimeProvider extends TimeProvider {
     const ssD = ScTimeProvider._config.summerSolstice
     const wsD = ScTimeProvider._config.winterSolstice
     const doY = this.getDayOfYear()
-    const summerWinterSolsticeDeltaDays = (wsD > ssD) ? wsD - ssD : ssD - wsD
+    const summerWinterSolsticeDeltaDays = wsD > ssD ? wsD - ssD : ssD - wsD
     let beforeSummerSolstice = doY < ssD
-    let distancePct = (beforeSummerSolstice) ? 1.0 - ((ssD - doY) / summerWinterSolsticeDeltaDays) : (doY - ssD) / summerWinterSolsticeDeltaDays
+    let distancePct = beforeSummerSolstice
+      ? 1.0 - (ssD - doY) / summerWinterSolsticeDeltaDays
+      : (doY - ssD) / summerWinterSolsticeDeltaDays
     if (distancePct > 1.0) {
       distancePct -= 1.0
       beforeSummerSolstice = !beforeSummerSolstice
     }
-    return (beforeSummerSolstice) ? distancePct : 1.0 + distancePct
+    return beforeSummerSolstice ? distancePct : 1.0 + distancePct
   }
 
   /**
    * @override
    */
   async setDaylightCyclePct(daylightCyclePct) {
-    Logger.trace('ScTimeProvider.setDaylightCyclePct(...) no time authority!', { 'daylightCyclePct': daylightCyclePct })
+    Logger.trace('ScTimeProvider.setDaylightCyclePct(...) no time authority!', {
+      daylightCyclePct: daylightCyclePct
+    })
   }
 
   /**
    * @override
    */
   async setSeasonCyclePct(seasonCyclePct) {
-    Logger.trace('ScTimeProvider.setSeasonCyclePct(...) no time authority!', { 'seasonCyclePct': seasonCyclePct })
+    Logger.trace('ScTimeProvider.setSeasonCyclePct(...) no time authority!', {
+      seasonCyclePct: seasonCyclePct
+    })
   }
 
   /**
@@ -187,9 +192,14 @@ export class ScTimeProvider extends TimeProvider {
    */
   getDayOfYear(dayDelta = 0, hourDelta = 0) {
     const scInstance = SimpleCalendar.api.timestampToDate(
-      Fal.getWorldTime() + (hourDelta * ScTimeProvider._config.secondsInHour) + (dayDelta * ScTimeProvider._config.secondsInDay)
+      Fal.getWorldTime() +
+        hourDelta * ScTimeProvider._config.secondsInHour +
+        dayDelta * ScTimeProvider._config.secondsInDay
     )
-    Logger.trace('ScTimeProvider.getDayOfYear()', { 'scInstance': scInstance, '_config': ScTimeProvider._config })
+    Logger.trace('ScTimeProvider.getDayOfYear()', {
+      scInstance: scInstance,
+      _config: ScTimeProvider._config
+    })
     return ScTimeProvider._config.monthOffset[scInstance.month] + scInstance.day
   }
 
@@ -197,9 +207,20 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   getHourOfDay(dayDelta = 0, hourDelta = 0) {
-    const currentWorldTime = Fal.getWorldTime() + (hourDelta * ScTimeProvider._config.secondsInHour) + (dayDelta * ScTimeProvider._config.secondsInDay)
-    const dayTime = Math.abs(Math.trunc((currentWorldTime % ScTimeProvider._config.secondsInDay) / ScTimeProvider._config.secondsInHour))
-    Logger.trace('ScTimeProvider.getHourOfDay()', { 'currentWorldTime': currentWorldTime, 'dayTime': dayTime })
+    const currentWorldTime =
+      Fal.getWorldTime() +
+      hourDelta * ScTimeProvider._config.secondsInHour +
+      dayDelta * ScTimeProvider._config.secondsInDay
+    const dayTime = Math.abs(
+      Math.trunc(
+        (currentWorldTime % ScTimeProvider._config.secondsInDay) /
+          ScTimeProvider._config.secondsInHour
+      )
+    )
+    Logger.trace('ScTimeProvider.getHourOfDay()', {
+      currentWorldTime: currentWorldTime,
+      dayTime: dayTime
+    })
     if (currentWorldTime < 0) {
       return ScTimeProvider._config.hoursInDay - dayTime
     } else return dayTime
@@ -211,7 +232,7 @@ export class ScTimeProvider extends TimeProvider {
   hourOfDayNoonPct(dayDelta = 0, hourDelta = 0) {
     // Normalize hour value to the range [0, 24)
     const hourOfDay = this.getHourOfDay(dayDelta, hourDelta) % ScTimeProvider._config.hoursInDay
-    return (Math.sin(((hourOfDay / (ScTimeProvider._config.hoursInDay / 2)) - 0.5) * (Math.PI)) + 1) / 2	// TODO may use sinetable for speed
+    return (Math.sin((hourOfDay / (ScTimeProvider._config.hoursInDay / 2) - 0.5) * Math.PI) + 1) / 2 // TODO may use sinetable for speed
   }
 
   /**
@@ -237,14 +258,14 @@ export class ScTimeProvider extends TimeProvider {
     } else if (dayOfYear < summerSolstice) {
       pct = (dayOfYear - wSb) / (summerSolstice - wSb)
     } else {
-      pct = 1 - ((dayOfYear - summerSolstice) / (wSa - summerSolstice))
+      pct = 1 - (dayOfYear - summerSolstice) / (wSa - summerSolstice)
     }
     return pct // TODO use sine
   }
 
   /**
    * Returns an object with information about the current time in the form of a string.
-   * 
+   *
    * @returns {object} An object containing information about the current time.
    * month: An object containing information about the current month.
    * month.number: A number representing the month (0-11).
@@ -266,25 +287,25 @@ export class ScTimeProvider extends TimeProvider {
   getTimeStringData() {
     const scInstance = SimpleCalendar.api.timestampToDate(Fal.getWorldTime())
     return {
-      'month': {
-        'number': scInstance.display.month,
-        'name': scInstance.display.monthName,
-        'prefix': '',
-        'suffix': ''
+      month: {
+        number: scInstance.display.month,
+        name: scInstance.display.monthName,
+        prefix: '',
+        suffix: ''
       },
-      'day': {
-        'number': scInstance.display.day,
-        'name': scInstance.display.day,
-        'prefix': '',
-        'suffix': scInstance.display.daySuffix
+      day: {
+        number: scInstance.display.day,
+        name: scInstance.display.day,
+        prefix: '',
+        suffix: scInstance.display.daySuffix
       },
-      'hour': {
-        'number': scInstance.hour,
-        'name': (scInstance.hour < 10) ? '0' + scInstance.hour : scInstance.hour
+      hour: {
+        number: scInstance.hour,
+        name: scInstance.hour < 10 ? '0' + scInstance.hour : scInstance.hour
       },
-      'minute': {
-        'number': scInstance.minute,
-        'name': (scInstance.minute < 10) ? '0' + scInstance.minute : scInstance.minute
+      minute: {
+        number: scInstance.minute,
+        name: scInstance.minute < 10 ? '0' + scInstance.minute : scInstance.minute
       }
     }
   }
@@ -301,33 +322,34 @@ export class ScTimeProvider extends TimeProvider {
 
   /**
    * (Re-)initialized the configuration for the ScTimeProvider class based on Simple Calendars settings.
-   * This method is invoked each time the hook event for Simple Calendars config change and initialization is 
+   * This method is invoked each time the hook event for Simple Calendars config change and initialization is
    * issued.
    */
   static initConfig() {
-    //const scInstance = SimpleCalendar.api.timestampToDate(Fal.getWorldTime())        
+    //const scInstance = SimpleCalendar.api.timestampToDate(Fal.getWorldTime())
     const months = SimpleCalendar.api.getAllMonths() || []
     const timeConfig = SimpleCalendar.api.getTimeConfiguration()
-    const daysInMonth = months.map(month => {
+    const daysInMonth = months.map((month) => {
       return month.numberOfDays
     })
     const startingDays = ScTimeProvider._getStartingDays(daysInMonth)
-    const totalDaysInYear = startingDays[startingDays.length - 1] + daysInMonth[daysInMonth.length - 1]
+    const totalDaysInYear =
+      startingDays[startingDays.length - 1] + daysInMonth[daysInMonth.length - 1]
 
     ScTimeProvider._config = {
-      'providerId': TIME_PROVIDERS.SIMPLE_CALENDAR,
-      'daysInYear': totalDaysInYear,
-      'summerSolstice': 172,  // will be replaced by config calculation
-      'winterSolstice': 355,  // as well
-      'monthOffset': startingDays,
-      'hoursInDay': timeConfig.hoursInDay,
-      'minutesInHour': timeConfig.minutesInHour,
-      'secondsInMinute': timeConfig.secondsInMinute,
-      'secondsInHour': timeConfig.secondsInMinute * timeConfig.minutesInHour,
-      'secondsInDay': timeConfig.secondsInMinute * timeConfig.minutesInHour * timeConfig.hoursInDay,
+      providerId: TIME_PROVIDERS.SIMPLE_CALENDAR,
+      daysInYear: totalDaysInYear,
+      summerSolstice: 172, // will be replaced by config calculation
+      winterSolstice: 355, // as well
+      monthOffset: startingDays,
+      hoursInDay: timeConfig.hoursInDay,
+      minutesInHour: timeConfig.minutesInHour,
+      secondsInMinute: timeConfig.secondsInMinute,
+      secondsInHour: timeConfig.secondsInMinute * timeConfig.minutesInHour,
+      secondsInDay: timeConfig.secondsInMinute * timeConfig.minutesInHour * timeConfig.hoursInDay
     }
     ScTimeProvider._calculateSolstices()
-    Logger.debug('ScTimeProvider._initConfig(simple-calendar)', { '_config': ScTimeProvider._config })
+    Logger.debug('ScTimeProvider._initConfig(simple-calendar)', { _config: ScTimeProvider._config })
   }
 
   /**
@@ -341,11 +363,19 @@ export class ScTimeProvider extends TimeProvider {
    * getStartingDays([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
    */
   static _getStartingDays(daysInMonth) {
-    const dayOffsets = daysInMonth.reduce((acc, val) => {
-      acc.push(acc[acc.length - 1] + val)
-      return acc
-    }, [0]).slice(0, -1)
-    Logger.trace('ScTimeProvider._getStartingDays(...)', { 'daysInMonth': daysInMonth, 'dayOffsets': dayOffsets })
+    const dayOffsets = daysInMonth
+      .reduce(
+        (acc, val) => {
+          acc.push(acc[acc.length - 1] + val)
+          return acc
+        },
+        [0]
+      )
+      .slice(0, -1)
+    Logger.trace('ScTimeProvider._getStartingDays(...)', {
+      daysInMonth: daysInMonth,
+      dayOffsets: dayOffsets
+    })
     return dayOffsets
   }
 
@@ -365,12 +395,13 @@ export class ScTimeProvider extends TimeProvider {
     let seasons = []
     ScTimeProvider._config.summerSolstice = -1
     ScTimeProvider._config.winterSolstice = -1
-    SimpleCalendar.api.getAllSeasons().forEach(season => {
-      const startingDay = ScTimeProvider._config.monthOffset[season.startingMonth] + season.startingDay
+    SimpleCalendar.api.getAllSeasons().forEach((season) => {
+      const startingDay =
+        ScTimeProvider._config.monthOffset[season.startingMonth] + season.startingDay
       seasons.push({
-        'icon': season.icon,
-        'dayLengthSeconds': season.sunsetTime - season.sunriseTime,
-        'startingDoY': startingDay
+        icon: season.icon,
+        dayLengthSeconds: season.sunsetTime - season.sunriseTime,
+        startingDoY: startingDay
       })
       if (season.icon == 'summer') {
         ScTimeProvider._config.summerSolstice = startingDay
@@ -383,16 +414,26 @@ export class ScTimeProvider extends TimeProvider {
     // for summer solstice
     if (ScTimeProvider._config.summerSolstice == -1) {
       // find season with longest sunshine duration
-      const summerSeason = sortedSeasons.reduce((longest, season) => longest.dayLengthSeconds >= season.dayLengthSeconds ? longest : season, null)
+      const summerSeason = sortedSeasons.reduce(
+        (longest, season) =>
+          longest.dayLengthSeconds >= season.dayLengthSeconds ? longest : season,
+        null
+      )
       ScTimeProvider._config.summerSolstice = summerSeason.startingDoY
     }
     // for winter solstice
     if (ScTimeProvider._config.winterSolstice == -1) {
       // find season with shortest sunshine duration
-      const winterSeason = sortedSeasons.reduce((shortest, season) => shortest.dayLengthSeconds <= season.dayLengthSeconds ? shortest : season, null)
+      const winterSeason = sortedSeasons.reduce(
+        (shortest, season) =>
+          shortest.dayLengthSeconds <= season.dayLengthSeconds ? shortest : season,
+        null
+      )
       ScTimeProvider._config.winterSolstice = winterSeason.startingDoY
     }
-    Logger.trace('ScTimeProvider._calculateSolstices()', { 'summerSolstice': ScTimeProvider._config.summerSolstice, 'winterSolstice': ScTimeProvider._config.winterSolstice })
+    Logger.trace('ScTimeProvider._calculateSolstices()', {
+      summerSolstice: ScTimeProvider._config.summerSolstice,
+      winterSolstice: ScTimeProvider._config.winterSolstice
+    })
   }
-
 }

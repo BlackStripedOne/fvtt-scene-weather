@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -18,11 +19,10 @@ See the License for the specific language governing permissions and limitations 
 
 import { Logger, Utils } from './utils.js'
 import { METEO, MODULE } from './constants.js'
-import { TimeProvider } from './timeProvider.js'
+import { TimeProvider } from './time/timeProvider.js'
 import { SceneWeatherState } from './state.js'
 import { Noise } from './noise.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
-
 
 /**
  *  WeatherModel produces SceneWeather (which also can be set via Weather Template option)
@@ -428,18 +428,16 @@ export class WeatherModel {
    * @private
    */
   static _windChill(temperature, windSpeed) {
-    if (temperature >= 10) return Tc
-    let Rc
+    if (temperature >= 10) return temperature
     if (windSpeed >= 4.8 && windSpeed <= 177) {
       // stronger wind cooling with more precise polynomial approximation
-      Rc = 13.12 + 0.6215 * temperature + (0.3965 * temperature - 11.37) * Math.pow(windSpeed, 0.16)
+      return 13.12 + 0.6215 * temperature + (0.3965 * temperature - 11.37) * Math.pow(windSpeed, 0.16)
     } else if (windSpeed < 4.8) {
       // less wind cooling with faster polynomial approximation
-      Rc = temperature + 0.2 * (0.1345 * temperature - 1.59) * windSpeed
+      return temperature + 0.2 * (0.1345 * temperature - 1.59) * windSpeed
     } else {
-      Rc = temperature
+      return temperature
     }
-    return Rc
   }
 
   /**

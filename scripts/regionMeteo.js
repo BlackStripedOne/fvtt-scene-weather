@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -17,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { TimeProvider } from './timeProvider.js'
+import { TimeProvider } from './time/timeProvider.js'
 import { Noise } from './noise.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { SceneWeatherState } from './state.js'

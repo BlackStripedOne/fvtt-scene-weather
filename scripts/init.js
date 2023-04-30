@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -21,10 +22,9 @@ import { Logger } from './utils.js'
 import { registerSettingsPreInit, registerSettingsPostInit } from './settings.js'
 import { registerHbHelpers, loadHandlebars } from './hbHelpers.js'
 import { getSceneWeatherAPIv1 } from './api.js'
-import { WeatherLayer } from './weatherLayer.js'
-import { WeatherTab } from './weatherTab.js'
-import { WeatherUi } from './weatherUi.js'
-import { MeteoUi } from './meteoUi.js'
+import { WeatherTab } from './ui/weatherTab.js'
+import { WeatherUi } from './ui/weatherUi.js'
+import { MeteoUi } from './ui/meteoUi.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { MacroConfigDialog } from './macros/macroConfig.js'
 
@@ -78,6 +78,12 @@ Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
 
   Hooks.on('updateScene', async (scene, deltaData, options, id) => {
     if (deltaData['flags'] !== undefined && deltaData.flags[MODULE.ID] !== undefined) {
+      if ('nodes' in deltaData.flags[MODULE.ID] || '-=nodes' in deltaData.flags[MODULE.ID]) {
+        Logger.trace('updateScene-> weatherNodes updates Call updateWeatherMask')
+        await canvas.sceneweatherfx.updateWeatherMask()
+        return
+      }
+
       Logger.trace('updateScene-> ', { 'deltaData': deltaData, 'options': options })
       SceneWeather.updateWeatherConfig({
         forSceneId: deltaData._id,
@@ -91,6 +97,8 @@ Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
       if ((deltaData.flags[MODULE.ID]['weatherMode'] !== undefined) ||
         (deltaData.flags[MODULE.ID]['timeProvider'] !== undefined)) {
         // redraw potentially changed button sidebar
+        // Re-render Scene controls
+        // TODO if ( ui.controls ) ui.controls.initialize({layer: this.constructor.layerOptions.name, tool});
         ui.controls.initialize()
         // redraw changes to macro config dialog
         MacroConfigDialog.refresh()
@@ -111,8 +119,8 @@ Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
  */
 Hooks.once('setup', () => {
   Logger.trace('->Hook:setup')
-  WeatherLayer.registerLayers()
-  WeatherLayer.registerLayerButtons()
+  //WeatherLayer.registerLayers()
+  //WeatherLayer.registerLayerButtons()
 
   // Register SceneWeather Effect  
   // in case we want to add our effect to the basic effects. Currently, we don't.
@@ -139,16 +147,15 @@ Hooks.on('canvasReady', async (canvasData) => {
  * Only called once. Everything is set up
  */
 Hooks.on('ready', async () => {
-  // TODO
-
-  Hooks.callAll(MODULE.LCCNAME + 'Ready')
+  // TODO check if all elements are properly loaded and registered
+  Hooks.callAll(EVENTS.MODULE_READY)
   Logger.info("Ready")
 })
 
 /**
  * TODO
  */
-Hooks.on(MODULE.LCCNAME + 'Ready', async () => {
+Hooks.on(EVENTS.MODULE_READY, async () => {
   Logger.trace('->Hook:' + MODULE.LCCNAME + 'Ready')
 })
 

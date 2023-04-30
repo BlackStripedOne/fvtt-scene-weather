@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -16,15 +17,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
-import { MODULE, RAIN_MODES, GENERATOR_MODES } from './constants.js'
-import { RegionConfigDialog } from './regionConfig.js'
-import { WeatherConfigDialog } from './weatherConfig.js'
-import { WeatherModel } from './weatherModel.js'
-import { RegionMeteo } from './regionMeteo.js'
-import { SceneWeatherState } from './state.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
-import { TimeProvider } from './timeProvider.js'
+import { Logger, Utils } from '../utils.js'
+import { MODULE, RAIN_MODES, GENERATOR_MODES } from '../constants.js'
+import { RegionConfigDialog } from '../dialogs/regionConfig.js'
+import { WeatherConfigDialog } from '../dialogs/weatherConfig.js'
+import { WeatherModel } from '../weatherModel.js'
+import { RegionMeteo } from '../regionMeteo.js'
+import { SceneWeatherState } from '../state.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { TimeProvider } from '../time/timeProvider.js'
 
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
@@ -37,8 +38,6 @@ export class WeatherTab {
    * @param {*} jQ - the jQuery instance of the html where the tab shall be injected
    */
   static async addControlsTab(app, jQ) {
-    Logger.debug('WeatherTab.addControlsTab', { 'app': app, 'jQ': jQ })
-
     const weatherSettings = app.document.flags[MODULE.ID]
     const defaultOptions = {
       'weatherMode': 'disabled',
@@ -93,9 +92,6 @@ export class WeatherTab {
    * @param {*} selectedMode - the id of the current selected mode for preselection and showing/hiding the others 
    */
   static activateListeners(app, jQ, selectedMode) {
-    // TODO: No super in static super.activateListeners(jQ)
-    Logger.debug('WeatherTab.activateListeners', { 'app': app, 'jQ': jQ, 'select': selectedMode })
-
     // initial selection
     jQ.find('div[id="sceneWeather.mode.' + selectedMode + '"]').addClass('active')
     jQ.find('div[id="not_sceneWeather.mode.' + selectedMode + '"]').removeClass('active')
@@ -149,7 +145,6 @@ export class WeatherTab {
         }
       })// each
       app.setPosition({ height: 'auto' })
-      Logger.debug('onChange', { 'app': app, 'jQ': jQ })
     }) // on change
   }
 }

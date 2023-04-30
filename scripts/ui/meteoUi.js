@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -16,11 +17,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from './utils.js'
-import { MODULE } from './constants.js'
-import { FoundryAbstractionLayer as Fal } from './fal.js'
+import { Logger, Utils } from '../utils.js'
+import { EVENTS, MODULE } from '../constants.js'
+import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
-Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
+Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   // TODO only for GMs?
   if (data.sceneId == canvas.scene._id && data.model !== undefined) {
     MeteoUi.update()
@@ -31,10 +32,18 @@ Hooks.on(MODULE.LCCNAME + 'WeatherUpdated', async (data) => {
  * TODO
  */
 export class MeteoUi extends FormApplication {
+
   static _isOpen = false
+
   static _context = undefined
+
   static _fromHr = -12
+
   static _toHr = 12
+
+  constructor() {
+    super()
+  }
 
   async _render(force = false, options = {}) {
     await super._render(force, options)
@@ -57,9 +66,6 @@ export class MeteoUi extends FormApplication {
     return super.close(options)
   }
 
-  constructor() {
-    super()
-  }
 
   static get defaultOptions() {
     this.initialPosition = Fal.getSetting('meteoPosition', { 'top': 40, 'left': 40 })

@@ -1,6 +1,7 @@
 /*
 Copyright (c) 2023 BlackStripedOne
 This software is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+This software has been made possible by my loving husband, who supports my hobbies by creating freetime for me. <3
 
 You may obtain a copy of the License at:
 https://creativecommons.org/licenses/by-sa/4.0/legalcode
@@ -18,18 +19,18 @@ See the License for the specific language governing permissions and limitations 
 
 
 import { TIME_PROVIDERS } from '../constants.js'
-import { Logger } from '../utils.js'
+import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
-import { TimeProvider } from '../timeProvider.js'
+import { TimeProvider } from './timeProvider.js'
 
-Hooks.once("init", () => {
+Hooks.once('init', () => {
   Logger.trace('->Hook:init -> ScTimeProvider.init()')
   if (Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
     TimeProvider._instances[TIME_PROVIDERS.SIMPLE_CALENDAR] = new ScTimeProvider()
   }
 })
 
-Hooks.once("simple-calendar-init", () => {
+Hooks.once('simple-calendar-init', () => {
   Logger.trace('->Hook:simple-calendar-init -> ScTimeProvider.initConfig()')
   if (Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
     ScTimeProvider.initConfig()
@@ -98,7 +99,7 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   async advanceGameTime(deltaSeconds = 0) {
-    Logger.warn('ScTimeProvider.advanceGameTime(...) -> no time authority, ignoring')
+    Logger.warn('ScTimeProvider.advanceGameTime(' + deltaSeconds + ') -> no time authority, ignoring')
   }
 
   /**

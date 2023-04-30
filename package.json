@@ -2,17 +2,21 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -wcm",
-    "lint": "eslint --ext .js scripts/."
+    "lint": "eslint --ext .js scripts/.",    
+    "lint:fix": "eslint --ext .js --fix scripts/."
   },
   "devDependencies": {
     "@rollup/plugin-multi-entry": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.25.0",
+    "eslint": "^8.37.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.3.0",
-    "eslint-plugin-promise": "^6.1.0",
+    "eslint-plugin-promise": "^6.1.0",    
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-unicorn": "^46.0.0",
     "node-sass": "^8.0.0",
     "rollup": "^2.56.3",
     "rollup-plugin-scss": "^4.0.0",

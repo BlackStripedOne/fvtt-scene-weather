@@ -22,6 +22,7 @@ import { Logger } from './utils.js'
 import { RegionConfigDialog } from './dialogs/regionConfig.js'
 import { WeatherConfigDialog } from './dialogs/weatherConfig.js'
 import { PermissionConfigDialog } from './dialogs/permissionConfig.js'
+import { WelcomeDialog } from './dialogs/welcomeDialog.js'
 import { Permissions } from './permissions.js'
 
 function onChangeFunction(value) {
@@ -33,12 +34,12 @@ export const registerSettingsPostInit = function () {
 }
 
 export const registerSettingsPreInit = function () {
-  game.settings.register(MODULE.ID, 'startup', {
-    name: 'One-Time Startup Prompt',
+  game.settings.register(MODULE.ID, 'welcomePrompt', {
+    name: 'Version-Based Welcome Prompt',
     scope: 'world',
     config: false,
-    type: Boolean,
-    default: false
+    type: String,
+    default: '0.0.0'
   })
 
   game.settings.registerMenu(MODULE.ID, 'permissionSettingsMenu', {
@@ -309,6 +310,15 @@ export const registerSettingsPreInit = function () {
       trace: 'settings.loglevel.trace'
     },
     default: 'info'
+  })
+
+  game.settings.registerMenu(MODULE.ID, 'welcomeDialog', {
+    name: 'dialogs.welcome.name',
+    label: 'dialogs.welcome.label',
+    hint: 'dialogs.welcome.hint',
+    icon: 'fas fa-regular fa-book',
+    type: WelcomeDialog,
+    restricted: true
   })
 
   Logger.debug('Settings Registered')

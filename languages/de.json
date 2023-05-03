@@ -1,6 +1,7 @@
 {
   "sceneweather": {
-    "fxname": "Scene Weather"
+    "fxname": "Scene Weather",
+    "foundryVersionCheck": "{module} setzt Foundry VTT Version {minVersion} oder neuer voraus. {module} funktioniert eventuell nicht wie erwartet mit Version {gameVersion}."
   },
   "time": {
     "minute": "Minute",
@@ -212,7 +213,30 @@
     "kmh": "km/h",
     "hday": "h/Tag",
     "ok": "Ok",
+    "understood": "Okay, Verstanden",
     "pixels": "Pixels",
+    "or": "oder",
+    "welcome": {
+      "title": "Scene Weather - Wilkommen",
+      "name": "Versions Historie",
+      "label": "Changelog Anzeigen",
+      "hint": "Zeige den Wilkommens-Dialog mit den Änderungen der vergangenen Versionen und der aktuellen Version erneut an.",
+      "devWarning": "<strong>Dies ist ein Development-Snapshot des SceneWeather Modules!</strong><br>Bitte beachte, dass verschiedene Functionen neu, gar nicht oder auf ungewohnte Weise funktionieren oder vorhanden sind.<br>Diese Version kann deine Daten deiner Welt eventuell nachhaltig verändern, so dass SceneWeather in der normalen Version nicht mehr korrekt funktionieren wird.<br><strong>Bitte erstelle vor der Benutzung ein Backup deiner Welt. Die Benutzung ist nur für tapfere Helden und Spielleiter</strong> (oder Freunde von Drachen).",
+      "intro": "Danke, dass du das SceneWeather Modul für FoundryVTT installiert hast. Dieser Info-Dialog erscheint bei der ersten Benutzung von SceneWeather, um dir eine kleine Einstiegshilfe für die Verwendung des Moduls und die Funktionen zu geben.",
+      "sceneConfig": "Die Wetter Einstellungen für eine Scene findest du in der Scenen-Konfiguration, unter dem neuen Tab <span class=\"config-tab\"><i class=\"fas fa-solid fa-cloud-bolt-sun\"></i> Wetter</span>. Hier kannst du das Wetter für eine Scene Aktivieren und Einstellen.",
+      "sceneLayer": "Durch Auswahl des SceneWeather Layers <span class=\"layer-button\"><i class=\"fas fa-solid fa-cloud-bolt-sun\"></i></span> kannst du weitere Informationen, Einstellungen positionsbezogene Elemente sehen.",
+      "updateAvailable": "Eine neuere Version ist verfügbar.",
+      "currentVersion": "Aktuell installiert:",
+      "newestVersion": "Verfügbare Version:",
+      "changelog": "Neuerungen:",
+      "webDocs": "Aktuelle Änderungen und Informationen zu dieser Modul-Version findest du im Internet unter",
+      "webDoc": "Eine umfangreiche Dokumentation des Moduls findest du im Internet unter",
+      "versionHint": "Aktuelle Version",
+      "readmeHint": "Aktuelle Readme",
+      "reset": "Setze die Sichtbarkeit dieses Dialogs beim Start zurück",
+      "dontShow": "Zeige diesen Dialog für diese Version nicht mehr an",
+      "showAgainHint": "Wenn du diesen Dialog erneut sehen möchtest, kannst du diesen jederzeit wie Folgt aufrufen:"
+    },
     "weatherNodeHud": {
       "enabled": "Aktivieren/Deaktivieren",
       "locked": "Sperrzustand umschalten",

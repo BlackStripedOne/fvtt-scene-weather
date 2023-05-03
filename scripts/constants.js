@@ -23,8 +23,7 @@ See the License for the specific language governing permissions and limitations 
 export let MODULE = {
   ID: 'scene-weather',
   NAME: 'Scene Weather',
-  LCCNAME: 'sceneWeather',
-  VERSION: 'development'
+  LCCNAME: 'sceneWeather'
 }
 
 export const SWCONFIG = {
@@ -169,7 +168,7 @@ export const HUMIDITY_LEVELS = {
   pleasant: 50,
   sticky: 65,
   humid: 75,
-  oppressive: Infinity
+  oppressive: Number.POSITIVE_INFINITY
 }
 
 // percent 0.0..1.0
@@ -177,7 +176,7 @@ export const SUN_INTENSITY = {
   gloomy: 0.1,
   shaded: 0.3,
   normal: 0.7,
-  bright: Infinity
+  bright: Number.POSITIVE_INFINITY
 }
 
 // percent 0.0..1.0
@@ -186,7 +185,7 @@ export const PRECI_AMOUNT = {
   slight: 0.4,
   average: 0.7,
   heavy: 0.95,
-  extreme: Infinity
+  extreme: Number.POSITIVE_INFINITY
 }
 
 // https://education.nationalgeographic.org/resource/beaufort-scale/
@@ -203,14 +202,14 @@ export const WIND_SPEED = {
   strongGale: 88,
   wholeGale: 102,
   storm: 118,
-  hurricane: Infinity
+  hurricane: Number.POSITIVE_INFINITY
 }
 
 export const CLOUD_HEIGHT = {
   low: 600,
   mid: 1000,
   high: 4000,
-  veryhigh: Infinity
+  veryhigh: Number.POSITIVE_INFINITY
 }
 
 export const TEMP_TYPES = {
@@ -222,5 +221,5 @@ export const TEMP_TYPES = {
   mild: 22,
   warm: 30,
   hot: 37,
-  searing: Infinity
+  searing: Number.POSITIVE_INFINITY
 }

@@ -25,34 +25,43 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
  */
 export class Logger {
   static info(message, notify = false) {
-    console.log('%c' + MODULE.NAME + ' | ' + message, 'color: cornflowerblue;')
-    if (notify) ui.notifications.info(message)
+    if (notify) {
+      ui.notifications.info(message)
+    } else {
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: cornflowerblue;')
+    }
   }
 
   static warn(message, notify = false, permanent = false) {
-    console.error(
-      '%c' + MODULE.NAME + ' | ' + message,
-      'color: gold; background-color: darkgoldenrod;'
-    )
-    if (notify) ui.notifications.warn(MODULE.NAME + ` | ${message}`, { permanent: permanent })
+    if (notify) {
+      ui.notifications.warn(message, { permanent: permanent })
+    } else {
+      console.error(
+        '%c' + MODULE.NAME + ' | ' + message,
+        'color: gold; background-color: darkgoldenrod;'
+      )
+    }
   }
 
   static error(message, notify = false, permanent = false) {
-    console.error(
-      '%c' + MODULE.NAME + ' | ' + message,
-      'color: orangered; background-color: darkred;'
-    )
-    if (notify) ui.notifications.error(MODULE.NAME + ` | ${message}`, { permanent: permanent })
+    if (notify) {
+      ui.notifications.error(message, { permanent: permanent })
+    } else {
+      console.error(
+        '%c' + MODULE.NAME + ' | ' + message,
+        'color: orangered; background-color: darkred;'
+      )
+    }
   }
 
   static _dereferencer = {
     info: {
-      debug: Logger._ignore,
-      trace: Logger._ignore
+      debug: () => { },
+      trace: () => { }
     },
     debug: {
       debug: Logger._debug,
-      trace: Logger._ignore
+      trace: () => { }
     },
     trace: {
       debug: Logger._debug,
@@ -66,10 +75,6 @@ export class Logger {
 
   static trace(message, data) {
     Logger._dereferencer[Fal.getSetting('loglevel', 'info')].trace(message, data)
-  }
-
-  static _ignore(message, data) {
-    // we ignore this
   }
 
   static _debug(message, data) {
@@ -94,29 +99,30 @@ export class Logger {
     }
   }
 }
+
 /**
  * Utilit class for generic fvtt ease-of-uses
  */
-export class Utils {
+export const Utils = {
   /**
    * Returns the nested leaf of an object's tree denoted by a period-separated string.
    * @param {Object} obj - The object with nested objects.
    * @param {string} str - The period-separated string that denotes the path to the nested leaf.
    * @returns {*} The nested leaf of the object's tree that is denoted by the names in the string, or undefined if the path is not valid.
    */
-  static getNestedLeaf(obj, str) {
+  getNestedLeaf(obj, str) {
     const keys = str.split('.')
     let value = obj
 
     for (let key of keys) {
       if (!value.hasOwnProperty(key)) {
-        return undefined
+        return
       }
       value = value[key]
     }
 
     return value
-  }
+  },
 
   /**
    * Creates a MouseInteractionManager with the given parameters.
@@ -148,7 +154,7 @@ export class Utils {
    *  longPress: () => { return true; }
    * });
    */
-  static createInteractionManager(instance, handlers = {}, permissions = {}, target = null) {
+  createInteractionManager(instance, handlers = {}, permissions = {}, target = null) {
     const options = { target: target }
     // merge manually set permissions with default perimssions for all given handlers
     permissions = Utils.mergeObject(
@@ -161,14 +167,14 @@ export class Utils {
     )
     // Create the interaction manager
     return new MouseInteractionManager(instance, canvas.stage, permissions, handlers, options)
-  }
+  },
 
   /**
    * Limits the rate of user interaction to a specific sample rate.
    * @param {Object} instance - The instance of the class where the method is called.
    * @returns {Boolean} - True if the rate of interaction is limited, False if not.
    */
-  static throttleInteractivity(instance) {
+  throttleInteractivity(instance) {
     // limit rate of interaction
     const sampleRate = Math.ceil(1000 / (canvas.app.ticker.maxFPS || 60))
     const last = instance._drawTime || 0
@@ -178,23 +184,23 @@ export class Utils {
     }
     instance['_drawTime'] = Date.now()
     return false
-  }
+  },
 
   /**
    * Calculates a 32-bit hash from a given string.
    * @param {string} string - The input string to generate the hash from.
    * @returns {number} The 32-bit hash generated from the input string.
    */
-  static getSeedFromString(string) {
+  getSeedFromString(string) {
     let hash = 0
     if (string.length === 0) return hash
     for (let i = 0; i < string.length; i++) {
       const char = string.charCodeAt(i)
       hash = (hash << 5) - hash + char
-      hash |= 0 // Convert to 32bit integer
+      hash = Math.trunc(hash) // Convert to 32bit integer
     }
     return Math.abs(hash)
-  }
+  },
 
   /**
    * Test if two objects contain the same enumerable keys and values.
@@ -202,7 +208,7 @@ export class Utils {
    * @param {object} b  The second object.
    * @returns {boolean}
    */
-  static objectsEqual(a, b) {
+  objectsEqual(a, b) {
     if (a === undefined || b === undefined) return false
     if (a == null || b == null) return a === b
     if (getType(a) !== 'Object' || getType(b) !== 'Object') return a === b
@@ -216,7 +222,7 @@ export class Utils {
       if (t0 === 'Object') return Utils.objectsEqual(v0, v1)
       return v0 === v1
     })
-  }
+  },
 
   /**
    * Update a source object by replacing its keys and values with those from a target object.
@@ -250,7 +256,7 @@ export class Utils {
    *                                                    overwritten records.
    *
    */
-  static mergeObject(
+  mergeObject(
     original,
     other = {},
     {
@@ -285,7 +291,7 @@ export class Utils {
       if (Object.keys(original).some((k) => /\./.test(k))) {
         const expanded = expand ? expandObject(original) : original // TODO Utils.expandObject
         if (inplace && expand) {
-          Object.keys(original).forEach((k) => delete original[k])
+          for (const k of Object.keys(original)) delete original[k]
           Object.assign(original, expanded)
         } else original = expanded
       } else if (!inplace) original = Utils.deepClone(original)
@@ -300,19 +306,13 @@ export class Utils {
       }
     }
     return original
-  }
+  },
 
   /**
    * A helper function for merging objects when the target key does not exist in the original
    * @private
    */
-  static _mergeInsert(
-    original,
-    k,
-    v,
-    { insertKeys, insertValues, performDeletions, expand } = {},
-    _d
-  ) {
+  _mergeInsert(original, k, v, { insertKeys, insertValues, performDeletions, expand } = {}, _d) {
     // Delete a key
     if (k.startsWith('-=') && performDeletions) {
       delete original[k.slice(2)]
@@ -332,13 +332,13 @@ export class Utils {
     }
     // Insert a key
     original[k] = v
-  }
+  },
 
   /**
    * A helper function for merging objects when the target key exists in the original
    * @private
    */
-  static _mergeUpdate(
+  _mergeUpdate(
     original,
     k,
     v,
@@ -372,7 +372,7 @@ export class Utils {
       }
       original[k] = v
     }
-  }
+  },
 
   /**
    * Flatten a possibly multi-dimensional object to a one-dimensional one by converting all nested keys to dot notation
@@ -380,22 +380,22 @@ export class Utils {
    * @param {number} [_d=0]     Track the recursion depth to prevent overflow
    * @return {object}           A flattened object
    */
-  static flattenObject(obj, _d = 0) {
+  flattenObject(obj, _d = 0) {
     return flattenObject(obj, _d)
-  }
+  },
 
   /**
    * TODO
    *
    * @param {string} text
    */
-  static copyToClipboard(text = '') {
+  copyToClipboard(text = '') {
     let temp = $('<input>')
     $('body').append(temp)
     temp.val(text).select()
     document.execCommand('copy')
     temp.remove()
-  }
+  },
 
   /**
    * Returns the next element in an array after the given current element. If the current element
@@ -407,11 +407,11 @@ export class Utils {
    * of the array if the current element is the last one in the array. If the array is empty or
    * the current element is not in the array, currentElement is returned.
    */
-  static arrayNext(arr = [], currentElement = '') {
-    if (!arr.length) return currentElement
+  arrayNext(arr = [], currentElement = '') {
+    if (arr.length === 0) return currentElement
     const currentIndex = arr.indexOf(currentElement)
     return arr[(currentIndex + 1) % arr.length] || arr[0]
-  }
+  },
 
   /**
    * Returns the previous element in an array before the given current element. If the current
@@ -423,11 +423,11 @@ export class Utils {
    * of the array if the current element is the first one in the array. If the array is empty or
    * the current element is not in the array, currentElement is returned.
    */
-  static arrayPrev(arr = [], currentElement = '') {
-    if (!arr.length) return currentElement
+  arrayPrev(arr = [], currentElement = '') {
+    if (arr.length === 0) return currentElement
     const currentIndex = arr.indexOf(currentElement)
     return arr[(currentIndex + arr.length - 1) % arr.length] || arr[0]
-  }
+  },
 
   /**
    * Clamps a number between a minimum and maximum value.
@@ -438,10 +438,10 @@ export class Utils {
    * @returns {number} The clamped number.
    *
    */
-  static clamp(number, min, max) {
+  clamp(number, min, max) {
     // TODO Math.clamped ?
     return Math.min(Math.max(number, min), max)
-  }
+  },
 
   /**
    * Maps a value from one range to another range.
@@ -461,7 +461,7 @@ export class Utils {
    * const outputMax = 1
    * const mappedValue = map(current, inMin, inMax, outMin, outMax) // Returns 0.5
    */
-  static map(inputValue, inputMin, inputMax, outputMin, outputMax) {
+  map(inputValue, inputMin, inputMax, outputMin, outputMax) {
     if (inputMin < inputMax) {
       inputValue = Math.max(Math.min(inputValue, inputMax), inputMin)
     } else {
@@ -471,7 +471,7 @@ export class Utils {
     return (inputValue - inputMin) * (outputRange / inputRange) + outputMin
     //const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
     //return Utils.clamp(mapped, outMin, outMax)
-  }
+  },
 
   /**
    * Maps a numeric value between two ranges to a color value between two hexadecimal values.
@@ -482,7 +482,7 @@ export class Utils {
    * @param {string} hexMax - The hexadecimal color value for the maximum output.
    * @returns {string} - The hexadecimal color value that corresponds to the mapped value.
    */
-  static mapColorHex(current, inMin, inMax, hexMin, hexMax) {
+  mapColorHex(current, inMin, inMax, hexMin, hexMax) {
     const { r: redMin, g: greenMin, b: blueMin } = foundry.utils.Color.from(hexMin)
     const { r: redMax, g: greenMax, b: blueMax } = foundry.utils.Color.from(hexMax)
     return foundry.utils.Color.fromRGB([
@@ -490,7 +490,7 @@ export class Utils {
       Utils.map(current, inMin, inMax, greenMin, greenMax),
       Utils.map(current, inMin, inMax, blueMin, blueMax)
     ]).toString()
-  }
+  },
 
   /**
    * Round a number to the given number of decimals.
@@ -498,9 +498,9 @@ export class Utils {
    * @param {number} decimals The number of decimals to round to
    * @returns {number} The rounded result
    */
-  static roundToDecimals(number, decimals) {
+  roundToDecimals(number, decimals) {
     return Number(Math.round(number + 'e' + decimals) + 'e-' + decimals)
-  }
+  },
 
   /**
    * Omit a specific key from an object.
@@ -508,10 +508,10 @@ export class Utils {
    * @param {string|number|symbol} key The key to omit
    * @returns {object} The object without the given key.
    */
-  static omit(object, key) {
+  omit(object, key) {
     const { [key]: _omitted, ...rest } = object
     return rest
-  }
+  },
 
   /**
    * Checks if a given bit in a given number is set.
@@ -520,9 +520,9 @@ export class Utils {
    * @param {number} bit The bit number to check (0-based index).
    * @returns {object} `true` if the specified bit is set, `false` otherwise.
    */
-  static isBitSet(num, bit) {
+  isBitSet(num, bit) {
     return (num & (1 << bit)) !== 0
-  }
+  },
 
   /**
    * Foundry VTT's deepClone function wrapped here to avoid code error highlighting due to missing definition.
@@ -530,7 +530,7 @@ export class Utils {
    * @param {*} original
    * @param {*} options
    */
-  static deepClone(original, options) {
+  deepClone(original, options) {
     // eslint-disable-next-line no-undef
     return deepClone(original, options)
   }

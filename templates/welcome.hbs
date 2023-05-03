@@ -1,0 +1,65 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <h1>{{localize 'dialogs.welcome.title'}}</h1>
+  {{#if isDevVersion}}
+  <p class="notes dev"><i class="fa-solid fa-flask-round-potion"></i>{{{localize 'dialogs.welcome.devWarning'}}}</p>
+  {{/if}}
+  {{#if isFirstTime}}
+  <p class="notes">{{{localize 'dialogs.welcome.intro'}}}</p>
+  <p class="notes">{{{localize 'dialogs.welcome.sceneConfig'}}} {{{localize 'dialogs.welcome.sceneLayer'}}}</p>
+  {{/if}}
+
+  {{#if canUpdate}}
+  <p class="hint">{{localize 'dialogs.welcome.updateAvailable'}} {{localize 'dialogs.welcome.currentVersion'}} <span
+      class="version">{{currentVersion}}</span>, {{localize 'dialogs.welcome.newestVersion'}} <span
+      class="version">{{latestVersion}}</span></p>
+  {{/if}}
+
+  <h2>{{localize 'dialogs.welcome.changelog'}}</h2>
+  {{#if hasChangelog}}
+  <ul class="changelog-list">
+    {{#each changelog}}
+    <li class="changelog-item form-group">
+      <a class="versionKey" href="{{this.url}}" target="_blank" rel="nofollow"
+        title="{{this.version}}">{{this.version}}</a>
+      <div class="versionValue">{{{this.html}}}</div>
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p class="notes">
+    {{localize 'dialogs.welcome.webDocs'}} <a href="{{url}}" target="_blank" rel="nofollow"
+      title="{{localize 'dialogs.welcome.versionHint'}}">{{url}}</a> {{localize 'dialogs.or'}} <a href="{{readmeUrl}}"
+      target="_blank" rel="nofollow" title="{{localize 'dialogs.welcome.readmeHint'}}">{{readmeUrl}}</a>.
+  </p>
+  {{/if}}
+
+  <p class="hint">{{localize 'dialogs.welcome.webDoc'}} <a href="{{readmeUrl}}" target="_blank" rel="nofollow"
+      title="SceneWeather Docs">{{readmeUrl}}</a> .</p>
+
+  </hr>
+
+  {{#if showAll}}
+  <div class="form-group">
+    <label>{{localize 'dialogs.welcome.reset'}}</label>
+    <input type="checkbox" name="reset">
+  </div>
+  {{else}}
+  {{#unless isDevVersion}}<div class="form-group">
+    <label>{{localize 'dialogs.welcome.dontShow'}}</label>
+    <input type="checkbox" name="dontShowAgain" {{checked dontShowAgain}}>
+  </div>{{/unless}}
+  <p class="notes">
+    {{localize 'dialogs.welcome.showAgainHint'}}<br><span class="settings-icon"><i class="fas fa-cogs"></i></span> ->
+    <span class="settings-button"><i class="fas fa-cogs"></i> {{localize 'SETTINGS.Configure'}}</span> -> <span
+      class="section-select">{{localize 'sceneweather.fxname'}}</span> -> <span class="section-button"><i
+        class="fas fa-regular fa-book"></i> {{localize 'dialogs.welcome.label'}}</span>
+  </p>
+  {{/if}}
+
+  <div class="form-group">
+    <button type="submit">
+      <i class="fas fa-save"></i> {{localize 'dialogs.understood'}}
+    </button>
+  </div>
+
+</form>

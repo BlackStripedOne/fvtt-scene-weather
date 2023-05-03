@@ -1,6 +1,7 @@
 {
   "sceneweather": {
-    "fxname": "Scene Weather"
+    "fxname": "Scene Weather",
+    "foundryVersionCheck": "{module} recommends Foundry VTT version {minVersion} or newer. {module} might not work as expected in the currently installed version ({gameVersion})."
   },
   "time": {
     "minute": "minute",
@@ -212,7 +213,30 @@
     "kmh": "kph",
     "hday": "h/day",
     "ok": "Ok",
+    "understood": "Understood, Dismiss",
     "pixels": "pixels",
+    "or": "or",
+    "welcome": {
+      "title": "Scene Weather - Welcome",
+      "name": "Version history",
+      "label": "Display changelog",
+      "hint": "Show the welcome dialog again with the changes of the past versions and the current version.",
+      "devWarning": "<strong>This is a development snapshot of the SceneWeather Module!</strong><br>Please note that various functions are new, don't work at all, or work in an unfamiliar way.<br>This version may change your world data permanent so that SceneWeather will no longer work correctly in the normal version.<br><strong>Please create a backup of your world before use. It is advised to proceed only for brave heroes and game masters</strong> (or friends of dragons).",
+      "intro": "Thanks for installing the SceneWeather module for FoundryVTT. This info dialog appears when you use SceneWeather for the first time to give you a little help on how to use the module and its functions.",
+      "sceneConfig": "You can find the weather settings for a scene in the scene configuration, at the new tab <span class=\"config-tab\"><i class=\"fas fa-solid fa-cloud-bolt-sun\"> </i> Weather</span>. Here you can activate and set the weather for a scene.",
+      "sceneLayer": "By selecting the SceneWeather layer <span class=\"layer-button\"><i class=\"fas fa-solid fa-cloud-bolt-sun\"></i></span> you can get more information, change settings and view weather nodes.",
+      "updateAvailable": "An updated version of the SceneWeather module is available!",
+      "currentVersion": "Currently installed version:",
+      "newestVersion": "Available version:",
+      "changelog": "Changelog:",
+      "webDocs": "Latest changes and information about this module version can be found on the Internet at",
+      "webDoc": "A comprehensive documentation of the module can be found on the Internet at",
+      "versionHint": "Current version",
+      "readmeHint": "Current readme",
+      "reset": "Reset the visibility of this dialog on startup",
+      "dontShow": "Don't show this dialog anymore for this version",
+      "showAgainHint": "If you want to see this dialog again, you can call it up at any time as follows:"
+    },
     "weatherNodeHud": {
       "enabled": "Activate/Deactivate",
       "locked": "Lock/Unlock",

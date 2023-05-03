@@ -1,0 +1,132 @@
+#welcome-scene-weather .notes {
+  max-width: 600px;
+  font-size: var(--font-size-12);
+  line-height: var(--line-height-16);
+  color: var(--color-text-dark-secondary);
+  margin: 7px 0;
+  flex: 1;
+}
+
+#welcome-scene-weather .hint {
+  max-width: 600px;
+  line-height: var(--line-height-12);
+  color: var(--color-text-dark-secondary);
+  margin: 3px 0;
+  font-size: var(--font-size-11);
+  font-style: italic;
+  flex: 1;
+}
+
+#welcome-scene-weather .dev {
+  color: rosybrown;
+  background-color: darkred;
+  padding: 10px 10px 10px 35px;
+  border: 2px rosybrown solid;
+  border-radius: 6px;
+  box-shadow: 5px 5px 5px gray;
+  display: inline-block;
+  position: relative;
+  font-size: 10px !important;
+  line-height: 12px !important;
+}
+
+#welcome-scene-weather .dev i {
+  position: absolute;
+  top: 1.25em;
+  left: 0.5rem;
+  transform: translateY(-50%);
+  font-size: 1.25rem;
+}
+
+
+#welcome-scene-weather ul.changelog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 400px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+#welcome-scene-weather li.changelog-item {
+  padding: 5px;
+  border-bottom: 1px solid var(--color-border-light-tertiary);
+  display: flex;
+  align-items: flex-start;
+}
+
+#welcome-scene-weather li.changelog-item .versionKey {
+  flex-grow: 0;
+  min-width: 50px;
+  text-align: center;
+  height: 16px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: 3px;
+  padding: 0px 3px;
+  margin: 2px 5px 0px 0px;
+  font-size: var(--font-size-11);
+  line-height: 16px;
+  text-decoration: none;
+  background: green;
+  color: var(--color-text-light-highlight);
+  font-size: 10px;
+}
+
+#welcome-scene-weather li.changelog-item .versionValue {
+  font-size: 10px;
+  max-width: 540px;
+}
+
+#welcome-scene-weather span.settings-button {
+  background-image: linear-gradient(to right top, #be2020, #af1622, #9f0d22, #8f0522, #7f0021);
+  color: white;
+  border: 1px solid black;
+  white-space: nowrap;
+}
+
+#welcome-scene-weather span.settings-icon {
+  color: var(--color-text-light-highlight);
+  border: 1px solid #000;
+  box-shadow: 0 0 10px #000;
+  background-color: rgba(16, 13, 8, .4784313725);
+}
+
+#welcome-scene-weather span.section-select {
+  font-weight: bold;
+  text-shadow: 0 0 10px #bc886f, 0 0 10px #bc886f;
+}
+
+#welcome-scene-weather span.section-button {
+  background: rgba(0, 0, 0, 0.1);
+  border: 2px groove var(--color-border-light-highlight);
+  border-radius: 3px;
+}
+
+#welcome-scene-weather span.config-tab {
+  text-shadow: 0 0 10px #bc886f, 0 0 10px #bc886f;
+}
+
+#welcome-scene-weather span.layer-button {
+  margin: 0 0 10px 0;
+  box-sizing: content-box;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px var(--color-shadow-dark);
+  color: var(--color-text-light-heading);
+  border: 1px solid var(--color-border-dark);
+  border-radius: 3px;
+}
+
+#welcome-scene-weather span.version {
+  min-width: 55px;
+  text-align: center;
+  height: 20px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: 3px;
+  padding: 0 3px;
+  margin: 0 0 0 2px;
+  font-size: var(--font-size-11);
+  line-height: 18px;
+  text-decoration: none;
+  background: green;
+  color: var(--color-text-light-highlight);
+}

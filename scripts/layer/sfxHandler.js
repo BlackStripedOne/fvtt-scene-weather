@@ -29,7 +29,7 @@ Hooks.on(EVENTS.MODULE_READY, () => {
     Hooks.callAll(EVENTS.REG_WEATHER_SFX, sfxHandler)
 
     // Show debugging toast only on log levels trace and debug
-    if (['trace', 'debug'].includes(Fal.getSetting('loglevel', 'info'))) {
+    if (Fal.isGm() && ['trace', 'debug'].includes(Fal.getSetting('loglevel', 'info'))) {
       canvas.sceneweather.sfxHandler._injectDebugToast()
     }
   }

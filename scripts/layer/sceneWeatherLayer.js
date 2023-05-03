@@ -61,7 +61,7 @@ Hooks.on(EVENTS.MODULE_READY, () => {
       nodeBtn.toggleClass(
         'active',
         Object.keys(SceneWeatherLayer.nodeTypes).includes(controls.activeTool) ||
-          controls.activeTool == 'weatherNode'
+        controls.activeTool == 'weatherNode'
       )
       nodeBtn.attr('data-tooltip', 'layer.controls.' + canvas.sceneweather.selectedTool)
       nodeBtn
@@ -98,7 +98,7 @@ Hooks.once('setup', () => {
         title: 'dialogs.weatherUi.toggleTitle',
         icon: 'fas fa-solid fa-window-maximize',
         visible:
-          WeatherPerception.getAllowedIds(userId).length >= 1 &&
+          WeatherPerception.getAllowedIds(userId).length > 0 &&
           Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
         toggle: true,
         active: WeatherUi._isOpen,
@@ -211,8 +211,7 @@ Hooks.once('setup', () => {
         name: 'snapToGrid',
         title: 'layer.controls.snapToGrid',
         icon: 'fas fa-solid fa-frame',
-        visible:
-          Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
+        visible: Permissions.hasPermission(userId, 'sceneSettings'),
         toggle: true,
         active: canvas.sceneweather?.snapToGrid,
         onClick: () => {
@@ -426,7 +425,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {WeatherNode[]}
    */
   get controlled() {
-    return Array.from(this.controlledNodes.values())
+    return [...this.controlledNodes.values()]
   }
 
   /**
@@ -465,7 +464,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       case NODE_TYPE.EMITTER:
         return new EmitterWeatherNode(weatherNodeData)
       default:
-        return undefined
+        return
     }
   }
 
@@ -584,7 +583,7 @@ export class SceneWeatherLayer extends InteractionLayer {
         let weatherNodeUpdate = {
           id: update.id
         }
-        Object.keys(WeatherNodeData.metadata).forEach((key) => {
+        for (const key of Object.keys(WeatherNodeData.metadata)) {
           if (key in update) {
             if (WeatherNodeData.metadata[key].type == 'Array') {
               weatherNodeUpdate[key] = node.data[key].map(({ x, y, permeable }) => ({
@@ -598,7 +597,7 @@ export class SceneWeatherLayer extends InteractionLayer {
               node.data[key] = update[key]
             }
           }
-        })
+        }
         node.data.normalize(false)
         const promise = node.data.update()
         node.refresh()
@@ -726,18 +725,18 @@ export class SceneWeatherLayer extends InteractionLayer {
 
     // maybe release WeatherNodes no longer controlled
     const toRelease = oldSet.filter((weatherNode) => !newSet.includes(weatherNode))
-    if (releaseOthers) toRelease.forEach((weatherNode) => weatherNode.release(releaseOptions))
+    if (releaseOthers) for (const weatherNode of toRelease) weatherNode.release(releaseOptions)
 
     // control new WeatherNodes
     if (Fal.isEmpty(controlOptions)) controlOptions.releaseOthers = false
     const toControl = newSet.filter((weatherNode) => !oldSet.includes(weatherNode))
 
     this.controlledNodes.clear()
-    toControl.forEach((weatherNode) => {
+    for (const weatherNode of toControl) {
       if (weatherNode.control(controlOptions)) {
         this.controlledNodes.set(weatherNode.id, weatherNode)
       }
-    })
+    }
 
     // return a boolean for whether the control set was changed
     return (releaseOthers && toRelease.length) || toControl.length > 0
@@ -748,12 +747,12 @@ export class SceneWeatherLayer extends InteractionLayer {
    */
   clearPreviewContainer() {
     if (!this.preview) return
-    this.preview.removeChildren().forEach((pixiContainer) => {
+    for (const pixiContainer of this.preview.removeChildren()) {
       // Removes all internal references and listeners as well as removes children from the display list. Do not use a Container after calling destroy.
       // See https://pixijs.download/dev/docs/PIXI.Container.html
       // children -> if set to true, all the children will have their destroy method called as well. 'options' will be passed on to those calls.
       pixiContainer.destroy({ children: true })
-    })
+    }
   }
 
   /**
@@ -828,7 +827,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       case NODE_TYPE.EMITTER:
         return new EmitterWeatherNode(weatherNodeData)
       default:
-        return undefined
+        return
     }
   }
 
@@ -847,7 +846,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       if (Object.keys(SceneWeatherLayer.nodeTypes).includes(this.selectedTool)) {
         return SceneWeatherLayer.nodeTypes[this.selectedTool].builder(origin)
       }
-      return undefined
+      return
     }
   }
 
@@ -898,9 +897,9 @@ export class SceneWeatherLayer extends InteractionLayer {
     // clear history data
     this._history = []
     // release all WeatherNodes currently controlled
-    this.controlled.forEach((weatherNode) => {
+    for (const weatherNode of this.controlled) {
       weatherNode.release()
-    })
+    }
     this.controlledNodes.clear()
     this.borderNodeControl = null
     // clear all huds
@@ -935,9 +934,9 @@ export class SceneWeatherLayer extends InteractionLayer {
   _activate() {
     this.weatherNodesContainer.visible = true
     // for each weatherNode, refresh them
-    this.nodes.forEach((weatherNode) => {
+    for (const weatherNode of this.nodes) {
       weatherNode.refresh()
-    })
+    }
     this.borderNodeControl = null
     // Assign key handlers
     this._onkeydown = this._handleKeydown.bind(this)
@@ -972,9 +971,9 @@ export class SceneWeatherLayer extends InteractionLayer {
     this.weatherNodesContainer.visible = false
     this.releaseAll()
     // for each weatherNode, refresh them
-    this.nodes.forEach((weatherNode) => {
+    for (const weatherNode of this.nodes) {
       weatherNode.refresh()
-    })
+    }
     this.clearPreviewContainer()
   }
 
@@ -1150,7 +1149,7 @@ export class SceneWeatherLayer extends InteractionLayer {
   async _onShiftRelease(event) {
     // Identify nodes which are candidates for deletion
     const controlledNodes = this.controlled
-    if (!controlledNodes.length) return
+    if (controlledNodes.length === 0) return
     // find hovered borderNode
     const weatherNode = controlledNodes.find((weatherNode) => {
       return weatherNode._borders.handle.find((borderHandle) => {
@@ -1168,7 +1167,7 @@ export class SceneWeatherLayer extends InteractionLayer {
   async _onShift(event) {
     // Identify nodes which are candidates for deletion
     const controlledNodes = this.controlled
-    if (!controlledNodes.length) return
+    if (controlledNodes.length === 0) return
     // find hovered borderNode
     const weatherNode = controlledNodes.find((weatherNode) => {
       return weatherNode._borders.handle.find((borderHandle) => {
@@ -1189,7 +1188,7 @@ export class SceneWeatherLayer extends InteractionLayer {
   async _onDelete(event) {
     // Identify nodes which are candidates for deletion
     const controlledNodes = this.controlled
-    if (!controlledNodes.length) return
+    if (controlledNodes.length === 0) return
     // Restrict to nodes which can be deleted
     const deletableNodes = controlledNodes.reduce((resultNodes, weatherNode) => {
       if (weatherNode.data.locked) return resultNodes
@@ -1201,7 +1200,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       return resultNodes
     }, [])
     // if nothing is to delete, bail out
-    if (!deletableNodes.length) return
+    if (deletableNodes.length === 0) return
     this.deleteWeatherNodes(deletableNodes)
     this._nodeFrame.refresh()
     // Hooks.callAll(`updateWeatherNodes`, { 'update': [], 'deletion': deletedNodeIds, 'addition': [] })  // TODO module name
@@ -1263,7 +1262,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     // don't handly copy of selected text
     if (window.getSelection().toString() !== '') return false
     this._clipboard = this.controlled
-    if (this._clipboard.length)
+    if (this._clipboard.length > 0)
       Logger.info('Copied data for ' + this._clipboard.length + ' WeatherNodes', true) // TODO i18n
   }
 
@@ -1275,7 +1274,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @private
    */
   _onPaste(context) {
-    if (this._clipboard.length) {
+    if (this._clipboard.length > 0) {
       const pos = canvas.app.renderer.plugins.interaction.mouse.getLocalPosition(canvas.stage)
       this.pasteObjects(pos, { snap: canvas.sceneweather.snapToGrid && !context.isShift })
     }
@@ -1290,7 +1289,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {Promise<Document[]>} An Array of created Document instances
    */
   async pasteObjects(position, { snap = true } = {}) {
-    if (!this._clipboard.length) return
+    if (this._clipboard.length === 0) return
     // get the left-most object in the set
     this._clipboard.sort((weatherNodeA, weatherNodeB) => weatherNodeA.data.x - weatherNodeB.data.x)
     const { x, y } = this._clipboard[0].data
@@ -1320,7 +1319,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       }
     }
     // no weathernodes pasted
-    if (!toCreate.length) return
+    if (toCreate.length === 0) return
     // initially release all previous weathernodes
     this.releaseAll()
     await this.createWeatherNodes(toCreate, {
@@ -1361,7 +1360,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    */
   _onUndo(context) {
     if (!canvas.ready) return false
-    if (this._history.length) {
+    if (this._history.length > 0) {
       const event = this._history.pop()
       switch (event.type) {
         case 'deleteWeatherNode':

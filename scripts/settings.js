@@ -244,7 +244,7 @@ export const registerSettingsPreInit = function () {
     type: Number,
     range: {
       min: 200,
-      max: 32000,
+      max: 32_000,
       step: 200
     },
     default: 3200,

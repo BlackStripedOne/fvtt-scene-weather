@@ -214,33 +214,54 @@ export class WelcomeDialog extends FormApplication {
       let content = block
       // Determine the type of block.
       switch (tag) {
-        case '-':
+      case '-':
         // Unordered list.
-            content = '<ul><li>' + content.split(/\n\- /).slice(1).map(convertInlineElements).join('</li>\n<li>') + '</li></ul>'
-            break;
-        case '1':
-          // Ordered list.
-            content = '<ol><li>' + content.split(/\n[1-9]\d*\.? /).slice(1).map(convertInlineElements).join('</li>\n<li>') + '</li></ol>'
-            break;
-        case ' ':
-          // Code block.
-            content = '<pre><code>' + escape(content.replace(/\n    /g, '\n').trim()) + '</code></pre>'
+        content =
+            '<ul><li>' +
+            content.split(/\n- /).slice(1).map(convertInlineElements).join('</li>\n<li>') +
+            '</li></ul>'
         break
-        case '>':
-          // Blockquote.
-            content = '<blockquote>' + content.split(/\n> /).slice(1).map(convertInlineElements).join('\n') + '</blockquote>'
+      case '1':
+        // Ordered list.
+        content =
+            '<ol><li>' +
+            content
+              .split(/\n[1-9]\d*\.? /)
+              .slice(1)
+              .map(convertInlineElements)
+              .join('</li>\n<li>') +
+            '</li></ol>'
         break
-        case '#':
-          // Heading.
-          let level = 1
-          while (block[level] === '#') {
-          level++
-        }
-            content = '<h' + level + '>' + convertInlineElements(block.slice(level).trim()) + '</h' + level + '>'
+      case ' ':
+        // Code block.
+        content =
+            '<pre><code>' + escape(content.replace(/\n {4}/g, '\n').trim()) + '</code></pre>'
           break
-        default:
-        // Paragraph.
-          content = '<p>' + convertInlineElements(content) + '</p>'
+      case '>':
+        // Blockquote.
+        content =
+            '<blockquote>' +
+            content.split(/\n> /).slice(1).map(convertInlineElements).join('\n') +
+            '</blockquote>'
+          break
+      case '#':
+        // Heading.
+        let level = 1
+        while (block[level] === '#') {
+            level++
+          }
+        content =
+            '<h' +
+            level +
+            '>' +
+            convertInlineElements(block.slice(level).trim()) +
+            '</h' +
+            level +
+            '>'
+        break
+      default:
+          // Paragraph.
+        content = '<p>' + convertInlineElements(content) + '</p>'
       }
 
       html += content

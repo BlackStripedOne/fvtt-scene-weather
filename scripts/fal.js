@@ -390,7 +390,7 @@ export const FoundryAbstractionLayer = {
    *
    * @param {String} toTranslate The value to translate
    * @param {Object} tokens THe token pairs for formatting. They should appear ar '{tokenName}' in the text.
-   * @returns {String} The translated value 
+   * @returns {String} The translated value
    */
   i18nf(toTranslate, tokens = {}) {
     return game.i18n.format(toTranslate, tokens)

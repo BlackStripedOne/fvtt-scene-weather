@@ -27,11 +27,15 @@ Hooks.once('ready', () => {
   const currentModuleVersion = Fal.getModuleVersion()
   // show warning if foundry version is too old
   if (Fal.isNewerVersion(Fal.getModule().compatibility.verified, Fal.gameVersion)) {
-    Logger.error(Fal.i18nf('sceneweather.foundryVersionCheck', {
-      'module': MODULE.NAME,
-      'minVersion': Fal.getModule().compatibility.verified,
-      'gameVersion': Fal.gameVersion
-    }), true, true)
+    Logger.error(
+      Fal.i18nf('sceneweather.foundryVersionCheck', {
+        module: MODULE.NAME,
+        minVersion: Fal.getModule().compatibility.verified,
+        gameVersion: Fal.gameVersion
+      }),
+      true,
+      true
+    )
   }
   // show welcome/changelog dialog
   if (lastWelcomePromt != currentModuleVersion || currentModuleVersion == 'development') {
@@ -92,13 +96,17 @@ export class WelcomeDialog extends FormApplication {
     let latestVersion = currentModuleVersion
     if (versions) {
       // filter only versions newer then lastWelcomePromt and as new as currentModuleVersion
-      versions = versions.filter(version => {
-        if (isNewerVersion(version.version, latestVersion)) latestVersion = version.version
-        return ((this._showAll) || (isNewerVersion(version.version, lastWelcomePromt) && !isNewerVersion(version.version, currentModuleVersion)))    // TODO use Fal
+      versions = versions.filter((version) => {
+        if (Fal.isNewerVersion(version.version, latestVersion)) latestVersion = version.version
+        return (
+          this._showAll ||
+          (Fal.isNewerVersion(version.version, lastWelcomePromt) &&
+            !Fal.isNewerVersion(version.version, currentModuleVersion))
+        )
       })
     }
     let data = {
-      dontShowAgain: (lastWelcomePromt == currentModuleVersion),
+      dontShowAgain: lastWelcomePromt == currentModuleVersion,
       isDevVersion: currentModuleVersion == 'development',
       isFirstTime: lastWelcomePromt == '0.0.0',
       changelog: versions || [],
@@ -126,7 +134,7 @@ export class WelcomeDialog extends FormApplication {
       const parsedUrl = new URL(Fal.getModule().url)
       const [, user, repo] = parsedUrl.pathname.split('/')
       return 'https://api.github.com/repos/' + user + '/' + repo + '/releases'
-    } catch (err) {
+    } catch {
       return 'https://api.github.com/repos/BlackStripedOne/fvtt-scene-weather/releases'
     }
   }
@@ -148,19 +156,21 @@ export class WelcomeDialog extends FormApplication {
     const response = await fetch(releasesApi)
     if (response && response.ok) {
       const data = await response.json()
-      const versions = data.map(release => {
-        if (!release.draft && !release.prerelease) {
-          return {
-            version: release.tag_name,
-            html: this._markdownToHtml(release.body),
-            md: release.body,
-            url: release.html_url
+      const versions = data
+        .map((release) => {
+          if (!release.draft && !release.prerelease) {
+            return {
+              version: release.tag_name,
+              html: this._markdownToHtml(release.body),
+              md: release.body,
+              url: release.html_url
+            }
           }
-        }
-      }).filter((item) => typeof item !== 'undefined')
-      return (versions.length === 0) ? undefined : versions
+        })
+        .filter((item) => item !== undefined)
+      return versions.length === 0 ? undefined : versions
     } else {
-      return undefined
+      return
     }
   }
 
@@ -201,39 +211,39 @@ export class WelcomeDialog extends FormApplication {
       .split(/\n\n+/)
       .forEach(function (block) {
         let tag = block[0]  // first remaining character determins the type of markdown tag
-        let content = block
-        // Determine the type of block.
-        switch (tag) {
-          case '-':
-            // Unordered list.
+      let content = block
+      // Determine the type of block.
+      switch (tag) {
+        case '-':
+        // Unordered list.
             content = '<ul><li>' + content.split(/\n\- /).slice(1).map(convertInlineElements).join('</li>\n<li>') + '</li></ul>'
             break;
-          case '1':
-            // Ordered list.
+        case '1':
+          // Ordered list.
             content = '<ol><li>' + content.split(/\n[1-9]\d*\.? /).slice(1).map(convertInlineElements).join('</li>\n<li>') + '</li></ol>'
             break;
-          case ' ':
-            // Code block.
+        case ' ':
+          // Code block.
             content = '<pre><code>' + escape(content.replace(/\n    /g, '\n').trim()) + '</code></pre>'
-            break
-          case '>':
-            // Blockquote.
+        break
+        case '>':
+          // Blockquote.
             content = '<blockquote>' + content.split(/\n> /).slice(1).map(convertInlineElements).join('\n') + '</blockquote>'
-            break
-          case '#':
-            // Heading.
-            let level = 1
-            while (block[level] === '#') {
-              level++
-            }
-            content = '<h' + level + '>' + convertInlineElements(block.slice(level).trim()) + '</h' + level + '>'
-            break
-          default:
-            // Paragraph.
-            content = '<p>' + convertInlineElements(content) + '</p>'
+        break
+        case '#':
+          // Heading.
+          let level = 1
+          while (block[level] === '#') {
+          level++
         }
+            content = '<h' + level + '>' + convertInlineElements(block.slice(level).trim()) + '</h' + level + '>'
+          break
+        default:
+        // Paragraph.
+          content = '<p>' + convertInlineElements(content) + '</p>'
+      }
 
-        html += content
+      html += content
       })
 
     return html

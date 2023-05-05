@@ -17,14 +17,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { PRECI_TYPE, CLOUD_TYPE, AMBIENCE_TYPE, EVENTS, WIND_SPEED } from '../constants.js'
+import { PRECI_TYPE, CLOUD_TYPE, AMBIENCE_TYPE, EVENTS } from '../constants.js'
 import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { SceneWeatherState } from '../state.js'
 
-
-// on
-//  - movement
+/**
+ * This function is an event listener that is triggered when a token is updated. In this case for the movement only.
+ * It updates the ambience for each controlled token on the canvas based on the current ambience model.
+ * @param {object} doc - The document associated with the token being updated.
+ * @param {object} change - The change that is being made to the token.
+ * @param {object} flags - Any flags that are associated with the update.
+ * @param {string} id - The id of the token being updated.
+ */
 Hooks.on('updateToken', async (doc, change, flags, id) => {
   Logger.trace('TokenAmbience:updateToken  -> (...)', { 'doc': doc, 'change': change, 'flags': flags, 'id': id })
   Fal.getControlledTokens().forEach((token) => {
@@ -40,6 +45,11 @@ Hooks.on('updateToken', async (doc, change, flags, id) => {
   })
 })
 
+/**
+ * Hooks into the weather updated event to update the ambience for owned tokens.
+ * This will update the ambience on all owned tokwns of the current player.
+ * @param {Function} async (data) => {...} - The function to be called when the event is triggered.
+ */
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   Logger.trace('TokenAmbience:weatherUpdated', { 'data': data })
   Fal.getOwnedTokens().forEach((token) => {
@@ -55,7 +65,12 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
   })
 })
 
-// handle creation of new tokens on the layer
+/**
+ * This function handles the creation of new tokens on the layer. It is triggered by
+ * the 'refreshToken' hook.
+ * @param {Token} token - The token that is being refreshed.
+ * @param {Object} options - Additional options for the token refresh.
+ */
 Hooks.on('refreshToken', async (token, options) => {
   if (token.isOwner && !('ambience' in token)) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
@@ -65,12 +80,20 @@ Hooks.on('refreshToken', async (token, options) => {
       TokenAmbience.injectAmbienceToToken(token, ambienceModel)
     }
   }
-
 })
 
-// on
-//  - deselect token
-//  - select token
+/**
+ * The callback function registered by this code will be triggered when the control of a
+ * Token changes and will execute the following logic:
+ * If the tokenControl parameter is true, it will get the ambienceModel for the token using
+ * the TokenAmbience.getAmbienceModelForToken() method and update any scene weather sound
+ * effects using the canvas.sceneweather.sfxHandler.updateSounds() method. Finally, it will
+ * inject the ambienceModel to the token using the TokenAmbience.injectAmbienceToToken() method.
+ * If the tokenControl parameter is false, it will disable all scene weather sound effects
+ * using the canvas.sceneweather.sfxHandler.disableAllSounds() method.
+ * @param {Token} token - The Token whose control has changed.
+ * @param {boolean} tokenControl - A boolean indicating whether the Token is currently under the control of a player.
+ */
 Hooks.on('controlToken', async (token, tokenControl) => {
   Logger.trace('TokenAmbience:controlToken', { 'token': token, 'tokenControl': tokenControl })
   if (tokenControl) {
@@ -90,7 +113,12 @@ Hooks.on('controlToken', async (token, tokenControl) => {
 })
 
 /**
- * TODO
+ * A static class that provides methods to retrieve and inject ambience data for tokens.
+ * Ambience data contains information about the weather conditions at a given position, such as
+ * temperature, humidity, clouds, precipitation, wind, and sun.
+ * It uses a weather provider to get the weather model for a given position and filters
+ * it through any SceneWeather nodes at the position to get the final ambience data.
+ * The class also provides methods to inject the ambience data into a token object.
  */
 export class TokenAmbience {
 
@@ -118,8 +146,10 @@ export class TokenAmbience {
     condition: AMBIENCE_TYPE.outside
   }
 
-
-  // Internal model
+  /**
+   * Retrieves the ambience model for a given token, based on its position and the scene weather.
+   * @param {Token} token - The token for which to retrieve the ambience model.
+   */
   static getAmbienceModelForToken(token) {
     if (!token || !token instanceof Token) return undefined
     if (!token || !canvas || !canvas.ready) return undefined
@@ -133,8 +163,11 @@ export class TokenAmbience {
   }
 
   /**
-   * TODO Internal representation, not for API use
-   * @calledBy API -> Should NOT
+   * Returns the ambience model for the given position and weather provider. This is returning the internal representation only.
+   * @param {Object} [position={ x: 0, y: 0 }] - The position object with x and y properties.
+   * @param {Object} weatherProvider - The weather provider object.
+   * @returns {Object|undefined} The filtered weather model with the ambience type set to "outside", or undefined if the weather model is not available.
+   * @calledBy API -> Should NOT be used for external use
    */
   static getAmbienceModelForPosition({ x = 0, y = 0 } = {}, weatherProvider) {
     const weatherModel = weatherProvider.getWeatherModel()
@@ -156,6 +189,11 @@ export class TokenAmbience {
     }
   }
 
+  /**
+   * Injects the ambience to a given token.
+   * @param {Object} token - The token object to inject the ambience to.
+   * @param {Object} ambienceModel - The ambience model to use.
+   */
   static injectAmbienceToToken(token, ambienceModel) {
     // set ambience to token
     const ambienceData = TokenAmbience.getAmbienceForPosition({ 'ambienceModel': ambienceModel })
@@ -171,8 +209,17 @@ export class TokenAmbience {
       canvas.sceneweather.debugToast.setDebugData('ambience', ambienceData)
     }
   }
-
-  // TODO to external representation
+  
+  /**
+   * Returns the ambience data for a given position using an ambience model or a weather provider. This returns the external
+   * representation attached to the tokens. The structure is TokenAmbience.AMBIENCE_STRUCT.
+   * @param {Object} [params={}] - The parameters object.
+   * @param {number} [params.x] - The x coordinate of the position.
+   * @param {number} [params.y] - The y coordinate of the position.
+   * @param {Object} [params.ambienceModel] - The ambience model object.
+   * @param {Object} [weatherProvider] - The weather provider object.
+   * @returns {Object} - The ambience data object. TokenAmbience.AMBIENCE_STRUCT
+   */
   static getAmbienceForPosition({ x, y, ambienceModel } = {}, weatherProvider) {
     if (ambienceModel === undefined) {
       if (weatherProvider) {

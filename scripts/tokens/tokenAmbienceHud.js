@@ -17,12 +17,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Utils, Logger } from '../utils.js'
+import { Utils } from '../utils.js'
 import { MODULE } from '../constants.js'
 import { Permissions } from '../permissions.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
-// inject a new template to the static built hud container of foundry.
+/**
+ * This function injects a new template to the static built HUD container
+ * of Foundry Virtual Tabletop (VTT) as it is not build to be extensible yet.
+ * @param {object} app - The Foundry application object.
+ * @param {object} jQ - The jQuery object used to manipulate the HUD container.
+ * @param {object} options - Additional options that can be passed in for customization.
+ */
 Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
   const hud = canvas.hud.tokenAmbience?.options || {
     id: 'tokenambience-hud'
@@ -32,6 +38,11 @@ Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
   }
 })
 
+/**
+ * Hooks on 'hoverToken' event to show/hide the token ambience HUD when hovering over a token.
+ * @param {Token} token - The token being hovered over.
+ * @param {boolean} hovered - Whether the token is being hovered over or not.
+ */
 Hooks.on('hoverToken', (token, hovered) => {
   if (token.isPreview) return
   if (hovered) {
@@ -50,6 +61,14 @@ Hooks.on('hoverToken', (token, hovered) => {
   }
 })
 
+/**
+ * This function registers a listener to the 'destroyToken' event using the Hooks.on() function
+ * provided by the Foundry Virtual Tabletop API.
+ * When this event is triggered, the callback function is executed with the destroyed token as
+ * a parameter. The function checks if the token is the current token displayed in the TokenAmbienceHud,
+ * and if so, clears the ambience effects from the HUD using the clear() function.
+ * @param {Token} token - The token that was destroyed
+ */
 Hooks.on('destroyToken', (token) => {
   const hud = TokenAmbienceHud.getTokenAmbienceHud()
   if (hud.token === token) {
@@ -57,7 +76,16 @@ Hooks.on('destroyToken', (token) => {
   }
 })
 
-// handle token updates/movement
+/**
+ * Handle token updates/movement This function is a callback that is triggered when a token is
+ * updated or moved in a Foundry VTT game.
+ * It clears the TokenAmbienceHud if the token being updated or moved is the same as the one
+ * being displayed in the hud.
+ * @param {object} doc - The updated token's data.
+ * @param {object} delta - The changes made to the token's data.
+ * @param {object} options - Options for updating the token.
+ * @param {string} id - The ID of the updated token.
+ */
 Hooks.on('updateToken', async (doc, delta, options, id) => {
   const hud = TokenAmbienceHud.getTokenAmbienceHud()
   if (hud && hud.token && delta._id && hud.token.id === delta._id) {
@@ -66,10 +94,15 @@ Hooks.on('updateToken', async (doc, delta, options, id) => {
 })
 
 /**
- * Use call 'renderTokenAmbienceHud' (TokenAmbienceHud, html, data) to intercept drawing and add your own elements.
+ * Exntending the HUD:
+ * - Use call 'renderTokenAmbienceHud' (TokenAmbienceHud, html, data) to intercept drawing and add your own elements.
  */
 export class TokenAmbienceHud extends Application {
 
+  /**
+   * The bound token for which the HUD shall be rendered.
+   * @type {Token|undefined}
+   */
   token = undefined
 
   /* --------------------- static ----------------------- */

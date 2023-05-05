@@ -33,7 +33,7 @@ Hooks.on('renderHeadsUpDisplay', (app, jQ, options) => {
   const hud = canvas.hud.tokenAmbience?.options || {
     id: 'tokenambience-hud'
   }
-  if (jQ.find('#' + hud.id).length == 0) {
+  if (jQ.find('#' + hud.id).length === 0) {
     jQ.append('<template id="' + hud.id + '"></template>')
   }
 })

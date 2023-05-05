@@ -31,10 +31,15 @@ import { SceneWeatherState } from '../state.js'
  * @param {string} id - The id of the token being updated.
  */
 Hooks.on('updateToken', async (doc, change, flags, id) => {
-  Logger.trace('TokenAmbience:updateToken  -> (...)', { 'doc': doc, 'change': change, 'flags': flags, 'id': id })
-  Fal.getControlledTokens().forEach((token) => {
+  Logger.trace('TokenAmbience:updateToken  -> (...)', {
+    doc: doc,
+    change: change,
+    flags: flags,
+    id: id
+  })
+  for (const token of Fal.getControlledTokens()) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('updateToken', { 'token': token, 'ambienceModel': ambienceModel })
+    Logger.trace('updateToken', { token: token, ambienceModel: ambienceModel })
     if (ambienceModel) {
       if (canvas.sceneweather.sfxHandler) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
@@ -42,7 +47,7 @@ Hooks.on('updateToken', async (doc, change, flags, id) => {
       // set ambience to token
       TokenAmbience.injectAmbienceToToken(token, ambienceModel)
     }
-  })
+  }
 })
 
 /**
@@ -51,10 +56,10 @@ Hooks.on('updateToken', async (doc, change, flags, id) => {
  * @param {Function} async (data) => {...} - The function to be called when the event is triggered.
  */
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
-  Logger.trace('TokenAmbience:weatherUpdated', { 'data': data })
-  Fal.getOwnedTokens().forEach((token) => {
+  Logger.trace('TokenAmbience:weatherUpdated', { data: data })
+  for (const token of Fal.getOwnedTokens()) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('weatherUpdated', { 'token': token, 'ambienceModel': ambienceModel })
+    Logger.trace('weatherUpdated', { token: token, ambienceModel: ambienceModel })
     if (ambienceModel) {
       if (canvas.sceneweather.sfxHandler && token.controlled) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
@@ -62,7 +67,7 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
       // set ambience to token
       TokenAmbience.injectAmbienceToToken(token, ambienceModel)
     }
-  })
+  }
 })
 
 /**
@@ -74,7 +79,7 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
 Hooks.on('refreshToken', async (token, options) => {
   if (token.isOwner && !('ambience' in token)) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('createToken', { 'token': token, 'ambienceModel': ambienceModel })
+    Logger.trace('createToken', { token: token, ambienceModel: ambienceModel })
     if (ambienceModel) {
       // set ambience to token
       TokenAmbience.injectAmbienceToToken(token, ambienceModel)
@@ -95,10 +100,10 @@ Hooks.on('refreshToken', async (token, options) => {
  * @param {boolean} tokenControl - A boolean indicating whether the Token is currently under the control of a player.
  */
 Hooks.on('controlToken', async (token, tokenControl) => {
-  Logger.trace('TokenAmbience:controlToken', { 'token': token, 'tokenControl': tokenControl })
+  Logger.trace('TokenAmbience:controlToken', { token: token, tokenControl: tokenControl })
   if (tokenControl) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('controlToken', { 'token': token, 'ambienceModel': ambienceModel })
+    Logger.trace('controlToken', { token: token, ambienceModel: ambienceModel })
     if (!ambienceModel) return
     if (canvas.sceneweather.sfxHandler) {
       canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, false)
@@ -151,11 +156,11 @@ export class TokenAmbience {
    * @param {Token} token - The token for which to retrieve the ambience model.
    */
   static getAmbienceModelForToken(token) {
-    if (!token || !token instanceof Token) return undefined
-    if (!token || !canvas || !canvas.ready) return undefined
+    if (!token || !token instanceof Token) return
+    if (!token || !canvas || !canvas.ready) return
     // no SceneWeather enabled, no ambience
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
-    if (!weatherProvider) return undefined
+    if (!weatherProvider) return
     return TokenAmbience.getAmbienceModelForPosition(
       token.center || { x: -1, y: -1 },
       weatherProvider
@@ -177,15 +182,15 @@ export class TokenAmbience {
         base: Utils.deepClone(weatherModel)
       })
       let filteredWeatherModel = weatherModelAtPosition
-      canvas.sceneweather.getNodesAt({ x: x, y: y, onlyEnabled: true }).forEach((weatherNode) => {
+      for (const weatherNode of canvas.sceneweather.getNodesAt({ x: x, y: y, onlyEnabled: true })) {
         filteredWeatherModel = weatherNode.filterWeatherModel(
           filteredWeatherModel,
           weatherModelAtPosition
         )
-      })
+      }
       return filteredWeatherModel
     } else {
-      return undefined
+      return
     }
   }
 
@@ -196,7 +201,7 @@ export class TokenAmbience {
    */
   static injectAmbienceToToken(token, ambienceModel) {
     // set ambience to token
-    const ambienceData = TokenAmbience.getAmbienceForPosition({ 'ambienceModel': ambienceModel })
+    const ambienceData = TokenAmbience.getAmbienceForPosition({ ambienceModel: ambienceModel })
     if (!('ambience' in token)) token.ambience = {}
     token.ambience = Utils.mergeObject(token.ambience, ambienceData)
 
@@ -252,7 +257,11 @@ export class TokenAmbience {
       },
       condition: Utils.getKeyByValue(AMBIENCE_TYPE, ambienceModel.condition, 'unknown')
     })
-    Logger.trace('TokenAmbience.getAmbienceForPosition(...)', { 'weatherProvider': weatherProvider, 'ambienceModel': ambienceModel, 'ambience': ambience })
+    Logger.trace('TokenAmbience.getAmbienceForPosition(...)', {
+      weatherProvider: weatherProvider,
+      ambienceModel: ambienceModel,
+      ambience: ambience
+    })
     return ambience
   }
 }

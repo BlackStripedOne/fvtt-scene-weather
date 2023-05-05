@@ -22,51 +22,66 @@ import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { SceneWeatherState } from '../state.js'
 
+
 // on
 //  - movement
 Hooks.on('updateToken', async (doc, change, flags, id) => {
-  //Logger.debug('->Hook:updateToken  -> (...)', { 'doc': doc, 'change': change, 'flags': flags, 'id': id })
+  Logger.trace('TokenAmbience:updateToken  -> (...)', { 'doc': doc, 'change': change, 'flags': flags, 'id': id })
   Fal.getControlledTokens().forEach((token) => {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
+    Logger.trace('updateToken', { 'token': token, 'ambienceModel': ambienceModel })
     if (ambienceModel) {
-      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', {
-        token: token,
-        ambienceModel: ambienceModel
-      })
       if (canvas.sceneweather.sfxHandler) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
       }
+      // set ambience to token
+      TokenAmbience.injectAmbienceToToken(token, ambienceModel)
     }
   })
 })
 
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
-  // Logger.debug('->Hook:WeatherUpdated -> update token ambiences', { 'data': data })
-  Fal.getControlledTokens().forEach((token) => {
+  Logger.trace('TokenAmbience:weatherUpdated', { 'data': data })
+  Fal.getOwnedTokens().forEach((token) => {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
+    Logger.trace('weatherUpdated', { 'token': token, 'ambienceModel': ambienceModel })
     if (ambienceModel) {
-      Logger.trace('Hook:WeatherUpdated -> updateSounds for token', {
-        token: token,
-        ambienceModel: ambienceModel
-      })
-      if (canvas.sceneweather.sfxHandler) {
+      if (canvas.sceneweather.sfxHandler && token.controlled) {
         canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, true)
       }
+      // set ambience to token
+      TokenAmbience.injectAmbienceToToken(token, ambienceModel)
     }
   })
+})
+
+// handle creation of new tokens on the layer
+Hooks.on('refreshToken', async (token, options) => {
+  if (token.isOwner && !('ambience' in token)) {
+    const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
+    Logger.trace('createToken', { 'token': token, 'ambienceModel': ambienceModel })
+    if (ambienceModel) {
+      // set ambience to token
+      TokenAmbience.injectAmbienceToToken(token, ambienceModel)
+    }
+  }
+
 })
 
 // on
 //  - deselect token
 //  - select token
 Hooks.on('controlToken', async (token, tokenControl) => {
-  // Logger.debug('->Hook:controlToken  -> (...)', { 'token': token, 'tokenControl': tokenControl })
+  Logger.trace('TokenAmbience:controlToken', { 'token': token, 'tokenControl': tokenControl })
   if (tokenControl) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
+    Logger.trace('controlToken', { 'token': token, 'ambienceModel': ambienceModel })
     if (!ambienceModel) return
     if (canvas.sceneweather.sfxHandler) {
       canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, false)
     }
+    // set ambience to token
+    TokenAmbience.injectAmbienceToToken(token, ambienceModel)
   } else {
     if (canvas.sceneweather.sfxHandler) {
       canvas.sceneweather.sfxHandler.disableAllSounds(false)
@@ -74,28 +89,36 @@ Hooks.on('controlToken', async (token, tokenControl) => {
   }
 })
 
-const AMBIENCE_STRUCT = {
-  temp: {
-    actual: 0, // degrees celsius
-    percieved: 0 // degrees celsius
-  },
-  humidity: 0, // percent
-  precipitation: {
-    type: PRECI_TYPE.none,
-    cloudType: CLOUD_TYPE.none,
-    amount: 0 // percent
-  },
-  windSpeed: 0,
-  sun: {
-    amount: 0 // percent sunshine
-  },
-  condition: AMBIENCE_TYPE.outside
-}
-
 /**
  * TODO
  */
 export class TokenAmbience {
+
+  static AMBIENCE_STRUCT = {
+    temp: {
+      actual: 0, // degrees celsius
+      percieved: 0 // degrees celsius
+    },
+    humidity: 0, // percent
+    clouds: {
+      type: CLOUD_TYPE.none,
+      amount: 0 // percent
+    },
+    precipitation: {
+      type: PRECI_TYPE.none,
+      amount: 0 // percent
+    },
+    wind: {
+      speed: 0,
+      direction: 0
+    },
+    sun: {
+      amount: 0 // percent sunshine
+    },
+    condition: AMBIENCE_TYPE.outside
+  }
+
+
   // Internal model
   static getAmbienceModelForToken(token) {
     if (!token || !token instanceof Token) return undefined
@@ -133,8 +156,56 @@ export class TokenAmbience {
     }
   }
 
+  static injectAmbienceToToken(token, ambienceModel) {
+    // set ambience to token
+    const ambienceData = TokenAmbience.getAmbienceForPosition({ 'ambienceModel': ambienceModel })
+    if (!('ambience' in token)) token.ambience = {}
+    token.ambience = Utils.mergeObject(token.ambience, ambienceData)
+
+    // debugging toast
+    if (canvas.sceneweather.debugToast) {
+      ambienceData.tokenName = token.name
+      ambienceData.tokenId = 'Token.' + token.id
+      ambienceData.x = token.x
+      ambienceData.y = token.y
+      canvas.sceneweather.debugToast.setDebugData('ambience', ambienceData)
+    }
+  }
+
   // TODO to external representation
-  static getAmbienceForPosition(options, weatherProvider) {
-    return TokenAmbience.getAmbienceModelForPosition(options, weatherProvider)
+  static getAmbienceForPosition({ x, y, ambienceModel } = {}, weatherProvider) {
+    if (ambienceModel === undefined) {
+      if (weatherProvider) {
+        ambienceModel = TokenAmbience.getAmbienceModelForPosition({ x, y }, weatherProvider)
+      } else {
+        return Utils.deepClone(TokenAmbience.AMBIENCE_STRUCT)
+      }
+    }
+    // transfer model to external mergeObject
+    const ambience = Utils.mergeObject(Utils.deepClone(TokenAmbience.AMBIENCE_STRUCT), {
+      temp: {
+        actual: Math.round(ambienceModel.temp.air), // degrees celsius
+        percieved: Math.round(ambienceModel.temp.percieved) // degrees celsius
+      },
+      humidity: Math.round(ambienceModel.humidity), // percent
+      clouds: {
+        type: Utils.getKeyByValue(CLOUD_TYPE, ambienceModel.clouds.type, 'unknown'),
+        amount: Math.round(ambienceModel.clouds.coverage * 100) // in percent
+      },
+      precipitation: {
+        type: Utils.getKeyByValue(PRECI_TYPE, ambienceModel.precipitation.type, 'unknown'),
+        amount: Math.round(ambienceModel.precipitation.amount * 100) // in percent
+      },
+      wind: {
+        speed: Math.round(ambienceModel.wind.speed), // in km/h
+        direction: Math.round(ambienceModel.wind.direction) // in degree
+      },
+      sun: {
+        amount: Math.round(ambienceModel.sun.amount * 100) // in percent
+      },
+      condition: Utils.getKeyByValue(AMBIENCE_TYPE, ambienceModel.condition, 'unknown')
+    })
+    Logger.trace('TokenAmbience.getAmbienceForPosition(...)', { 'weatherProvider': weatherProvider, 'ambienceModel': ambienceModel, 'ambience': ambience })
+    return ambience
   }
 }

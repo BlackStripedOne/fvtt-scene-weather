@@ -509,6 +509,13 @@
       "info": "[Info] Nur relevante Informationen",
       "debug": "[Debug] Informationen zur Fehlererkennung",
       "trace": "[Trace] Informationen über den internen Ablauf"
+    },
+    "ambienceTokenHudPosition": {
+      "name": "Position des Ambience HUD",
+      "hint": "Position des angezeigtes HUD für die Token Ambience. Dieses wird bei Mouse-Over am Token angezeigt, entweder oberhalb oder unterhalb des Tokens. Mit dieser Option kann das HUD auch deaktiviert werden.",
+      "none": "Nicht angezeigt",
+      "top": "Oberhalb des Tokens",
+      "bottom": "Unterhalb des Tokens"
     }
   },
   "templates": {

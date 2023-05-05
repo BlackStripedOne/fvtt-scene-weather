@@ -479,6 +479,13 @@
       "info": "[Info] Relevant information only",
       "debug": "[Debug] Error detection information",
       "trace": "[Trace] Information about the internal process"
+    },
+    "ambienceTokenHudPosition": {
+      "name": "Position of the ambience HUD",
+      "hint": "Position of the displayed HUD for the token ambience. This is displayed on the token when you mouse over it, either above or below the token. This option can also be used to disable the HUD.",
+      "none": "Do not display a HUD",
+      "top": "Above the token",
+      "bottom": "Below the token"
     }
   },
   "templates": {

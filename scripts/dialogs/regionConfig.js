@@ -72,7 +72,7 @@ export class RegionConfigDialog extends FormApplication {
       navSelector: '.tabs',
       contentSelector: '.content',
       initial: 'summer',
-      callback: (instance, tabs, tabName) => {}
+      callback: (instance, tabs, tabName) => { }
     })
     tabs.bind(jQ[0])
 
@@ -134,7 +134,7 @@ export class RegionConfigDialog extends FormApplication {
    */
   getData() {
     let additionalData = {
-      waterAmounts: Array.from({ length: 7 }, (_, i) => ({
+      waterAmounts: Array.from({ length: 5 }, (_, i) => ({
         id: i * 25,
         name: `dialogs.regionConfig.waterAmounts_${i * 25}`
       }))

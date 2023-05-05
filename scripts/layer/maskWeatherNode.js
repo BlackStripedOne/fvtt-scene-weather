@@ -22,7 +22,7 @@ import { WeatherNodeConfig } from './weatherNodeConfig.js'
 import { WeatherNodeData } from './weatherNodeData.js'
 import { BorderNodeHandle } from './borderNodeHandle.js'
 import { BorderHandle } from './borderHandle.js'
-import { PRECI_TYPE, AMBIENCE_TYPE, NODE_TYPE, CREATION_STATES } from '../constants.js'
+import { PRECI_TYPE, AMBIENCE_TYPE, NODE_TYPE, CREATION_STATES, CLOUD_TYPE } from '../constants.js'
 import { Meteo } from '../meteo.js'
 import { AbstractWeatherNode } from './abstractWeatherNode.js'
 
@@ -177,15 +177,15 @@ export class MaskWeatherNode extends AbstractWeatherNode {
     this.mouseInteractionManager = mgr.activate()
 
     // handlers for the border nodes
-    this._borderNodes.handle.forEach((borderNodeHandle) => {
+    for (const borderNodeHandle of this._borderNodes.handle) {
       borderNodeHandle.activateListeners()
-    })
+    }
     this._borderNodes.interactive = true
 
     // handlers for the borders
-    this._borders.handle.forEach((borderHandle) => {
+    for (const borderHandle of this._borders.handle) {
       borderHandle.activateListeners()
-    })
+    }
     this._borders.interactive = true
   }
 
@@ -234,6 +234,12 @@ export class MaskWeatherNode extends AbstractWeatherNode {
     switch (this.data.mask) {
       case AMBIENCE_TYPE.lightroof:
         return Utils.mergeObject(Utils.deepClone(outsideWeatherModel), {
+          clouds: {
+            coverage: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.coverage : 0,
+            bottom: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.bottom : 0,
+            top: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.top : 0,
+            type: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.type : 0
+          },
           precipitation: {
             amount: outsideWeatherModel.precipitation.amount * 0.5
           },
@@ -244,6 +250,12 @@ export class MaskWeatherNode extends AbstractWeatherNode {
         })
       case AMBIENCE_TYPE.roof:
         return Utils.mergeObject(Utils.deepClone(outsideWeatherModel), {
+          clouds: {
+            coverage: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.coverage : 0,
+            bottom: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.bottom : 0,
+            top: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.top : 0,
+            type: (outsideWeatherModel.clouds.type == CLOUD_TYPE.fog) ? outsideWeatherModel.clouds.type : 0
+          },
           precipitation: {
             amount: 0,
             type: PRECI_TYPE.none
@@ -255,6 +267,12 @@ export class MaskWeatherNode extends AbstractWeatherNode {
         })
       case AMBIENCE_TYPE.inside:
         return Utils.mergeObject(Utils.deepClone(outsideWeatherModel), {
+          clouds: {
+            coverage: 0.0,
+            bottom: 0,
+            top: 0,
+            type: CLOUD_TYPE.none
+          },
           precipitation: {
             amount: 0,
             type: PRECI_TYPE.none
@@ -281,6 +299,12 @@ export class MaskWeatherNode extends AbstractWeatherNode {
       case AMBIENCE_TYPE.underground:
         // const medianTemperature
         return Utils.mergeObject(Utils.deepClone(outsideWeatherModel), {
+          clouds: {
+            coverage: 0.0,
+            bottom: 0,
+            top: 0,
+            type: CLOUD_TYPE.none
+          },
           precipitation: {
             amount: 0,
             type: PRECI_TYPE.none
@@ -315,11 +339,11 @@ export class MaskWeatherNode extends AbstractWeatherNode {
 
   _clearBorderElements() {
     // remove all old borderNodeHandles
-    this._borderNodes.removeChildren().forEach((nodeToRemove) => {})
+    this._borderNodes.removeChildren()
     this._borderNodes.handle = []
 
     // remove all old borderHandles
-    this._borders.removeChildren().forEach((borderToRemove) => {})
+    this._borders.removeChildren()
     this._borders.handle = []
   }
 
@@ -332,18 +356,18 @@ export class MaskWeatherNode extends AbstractWeatherNode {
       )
     }
     // apply action handlers to new borderNodeHandles
-    this._borderNodes.handle.forEach((borderNodeHandle) => {
+    for (const borderNodeHandle of this._borderNodes.handle) {
       borderNodeHandle.activateListeners()
-    })
+    }
 
     // add new created set of borderHandles
     for (let i = 0; i < this.data.borderNodes.length; i++) {
       this._borders.handle[i] = this._borders.addChild(new BorderHandle(this, i))
     }
     // apply action handlers to new borderNodeHandles
-    this._borders.handle.forEach((borderHandle) => {
+    for (const borderHandle of this._borders.handle) {
       borderHandle.activateListeners()
-    })
+    }
   }
 
   /**
@@ -383,16 +407,16 @@ export class MaskWeatherNode extends AbstractWeatherNode {
   }
 
   _refreshBorderNodes() {
-    this._borderNodes.handle.forEach((borderNodeHandle) => {
+    for (const borderNodeHandle of this._borderNodes.handle) {
       borderNodeHandle.refresh()
-    })
+    }
     this._borderNodes.visible = true
   }
 
   _refreshBorders() {
-    this._borders.handle.forEach((borderHandle) => {
+    for (const borderHandle of this._borders.handle) {
       borderHandle.refresh()
-    })
+    }
     this._borders.visible = true
   }
 

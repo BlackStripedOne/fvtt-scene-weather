@@ -27,11 +27,6 @@ Hooks.on(EVENTS.MODULE_READY, () => {
     const sfxHandler = new SfxHandler()
     canvas.sceneweather.sfxHandler = sfxHandler
     Hooks.callAll(EVENTS.REG_WEATHER_SFX, sfxHandler)
-
-    // Show debugging toast only on log levels trace and debug
-    if (Fal.isGm() && ['trace', 'debug'].includes(Fal.getSetting('loglevel', 'info'))) {
-      canvas.sceneweather.sfxHandler._injectDebugToast()
-    }
   }
 
   Hooks.on('globalAmbientVolumeChanged', async (volume) => {
@@ -202,10 +197,15 @@ export class SfxHandler {
   tick(timeElapsed) {
     this._sysTick += timeElapsed
     this._updateVolumes()
-    this._setDebugWindow({
-      tick: this._sysTick,
-      sfx: this._soundEffects
-    })
+    // update debugging information
+    if (canvas.sceneweather.debugToast) {
+      canvas.sceneweather.debugToast.setDebugData('sfx', {
+        tick: this._sysTick,
+        globalVolume: this._globalVolume.toFixed(3),
+        sfxVolume: this._sfxVolume.toFixed(3),
+        sfx: this._soundEffects
+      })
+    }
   }
 
   /**
@@ -369,66 +369,5 @@ export class SfxHandler {
       arr[startIndex].gain,
       arr[endIndex].gain
     )
-  }
-
-  /*--------------------- Functions, private, debug/trace only --------------------- */
-
-  _debugToast = undefined
-
-  _setVisibile(visible) {
-    if (!this._debugToast) return
-    if (visible) {
-      this._debugToast.css('visibility', 'visible')
-    } else {
-      this._debugToast.css('visibility', 'hidden')
-    }
-  }
-
-  _setPosition(element) {
-    if (!this._debugToast) return
-    const { width } = element.getBoundingClientRect()
-    if (width) {
-      this._debugToast.css('right', width + 40 + 'px')
-    }
-  }
-
-  _setDebugWindow(data) {
-    if (!this._debugToast) return
-    let html = 't:' + Math.round(data.tick)
-    html += '</br>v:' + this._globalVolume.toFixed(3)
-    html += '</br>s:' + this._sfxVolume.toFixed(3)
-    html += '<ul>'
-    Object.keys(data.sfx).forEach((sfxId) => {
-      const sfx = data.sfx[sfxId]
-      const offset = sfx.sound.currentTime || 0
-      html += '<li>' + sfxId + ' / ' + sfx.gain.toFixed(3) + ' / ' + offset.toFixed(1) + '</li>'
-    })
-    html += '</ul>'
-    this._debugToast.html(html)
-  }
-
-  _injectDebugToast() {
-    const sidebar = $('#sidebar')
-    if (sidebar) {
-      sidebar.after("<div id='sceneweatherdebug'></div>")
-      this._debugToast = $('#sceneweatherdebug')
-      this._debugToast.css({
-        position: 'fixed',
-        top: '10px',
-        border: '1px solid white',
-        background: 'rgba(0,0,0,0.2)',
-        'border-radius': '4px',
-        padding: '10px',
-        'font-size': '10px',
-        color: 'white',
-        visibility: 'visible',
-        'z-index': '31',
-        'pointer-events': 'all'
-      })
-      this._setPosition(sidebar[0])
-      Hooks.on('collapseSidebar', (sidebar, collapsed) => {
-        this._setPosition(sidebar.element[0])
-      })
-    }
   }
 }

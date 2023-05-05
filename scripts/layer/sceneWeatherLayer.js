@@ -44,6 +44,7 @@ import { EmitterWeatherNode } from './emitterWeatherNode.js'
 Hooks.on(EVENTS.MODULE_READY, () => {
   Hooks.on('renderSceneControls', (controls, html) => {
     if (controls.activeControl == 'sceneweather') {
+      if (!canvas.sceneweather.options.canControl) return
       const nodeBtn = $('li[data-tool="weatherNode"]', html)
       const activeTool = game.activeTool
       let nodeTypes = $('<ol>')
@@ -473,8 +474,10 @@ export class SceneWeatherLayer extends InteractionLayer {
     const layerOptions = foundry.utils.mergeObject(super.layerOptions, {
       name: 'sceneweather',
       sortActiveTop: true,
-      zIndex: 479
+      zIndex: 479,
+      canControl: Permissions.hasPermission(Fal.userID(), 'sceneSettings')
     })
+    Logger.trace('LAYER_OPTIONS', { 'layerOptions': layerOptions })
     return layerOptions
   }
 
@@ -505,6 +508,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       fireEvent = true
     } = {}
   ) {
+    if (!this.options.canControl) return
     const newWeatherNodes = []
     const promises = nodeDatas.map(async (nodeData) => {
       // TODO don't update each individually, if there are more then one to be more resource friendly on client updates
@@ -575,6 +579,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {Promise} A promise that resolves when all weather nodes have been updated.
    */
   async updateNodes(nodesToUpdate = [], { storeHistory = true, fireEvent = true } = {}) {
+    if (!this.options.canControl) return
     const matches = []
     const weatherNodeUpdates = []
     const promises = this.weatherNodesContainer.children.map(async (node) => {
@@ -639,6 +644,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     deletableNodes,
     { removeFromContainer = this.weatherNodesContainer, storeHistory = true, fireEvent = true } = {}
   ) {
+    if (!this.options.canControl) return
     if (storeHistory) {
       // add event to the history
       this.storeHistory('createWeatherNode', {
@@ -712,6 +718,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     { x, y, width, height, releaseOptions = {}, controlOptions = {} } = {},
     { releaseOthers = true } = {}
   ) {
+    if (!this.options.canControl) return
     const oldSet = this.controlled
 
     // identify WeatherNodes that are visible
@@ -761,6 +768,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {PlaceableObject[]}  An array of nodes that were controlled
    */
   controlAll(options = {}) {
+    if (!this.options.canControl) return []
     // if we are in creation of a new WeatherNode, ignore clicks
     if (this.createState > CREATION_STATES.NONE) return
     options.releaseOthers = false
@@ -778,6 +786,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {number}         The number of PlaceableObject instances which were released
    */
   releaseAll(options = {}) {
+    if (!this.options.canControl) return 0
     let released = 0
     for (let weatherNode of this.nodes) {
       if (!weatherNode.controlled) continue
@@ -794,6 +803,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {Promise<Document[]>}    An array of Document nodes which were deleted by the operation
    */
   async deleteAll() {
+    if (!this.options.canControl) return
     return Dialog.confirm({
       title: Fal.i18n('dialogs.deleteAllNodes.title'),
       content: Fal.i18n('dialogs.deleteAllNodes.content'),
@@ -864,10 +874,6 @@ export class SceneWeatherLayer extends InteractionLayer {
     this.weatherNodesContainer.sortableChildren = true
     this.weatherNodesContainer.visible = false
 
-    // if the user has no permissions, stop here and don't render/add any WeatherNodes
-    const userPermission = Permissions.hasPermission(Fal.userID(), 'sceneSettings')
-    if (!userPermission) return
-
     // set the sort function
     // Sorts children by zIndex. Previous order is maintained for 2 children with the same zIndex.
     // See https://pixijs.download/dev/docs/PIXI.Container.html
@@ -887,9 +893,9 @@ export class SceneWeatherLayer extends InteractionLayer {
     })
 
     // wait for all nodes to draw, before setting them visible in the container
-    this.visible = true
+    this.visible = this.options.canControl
     await Promise.all(promises)
-    this.weatherNodesContainer.visible = true
+    this.weatherNodesContainer.visible = this.options.canControl
   }
 
   /** @override */
@@ -932,24 +938,26 @@ export class SceneWeatherLayer extends InteractionLayer {
 
   /** @override */
   _activate() {
-    this.weatherNodesContainer.visible = true
+    this.weatherNodesContainer.visible = this.options.canControl
     // for each weatherNode, refresh them
     for (const weatherNode of this.nodes) {
       weatherNode.refresh()
     }
     this.borderNodeControl = null
-    // Assign key handlers
-    this._onkeydown = this._handleKeydown.bind(this)
-    document.addEventListener('keydown', this._onkeydown)
-    this._onkeyup = this._handleKeyup.bind(this)
-    document.addEventListener('keyup', this._onkeyup)
+    if (this.options.canControl) {
+      // Assign key handlers
+      this._onkeydown = this._handleKeydown.bind(this)
+      document.addEventListener('keydown', this._onkeydown)
+      this._onkeyup = this._handleKeyup.bind(this)
+      document.addEventListener('keyup', this._onkeyup)
 
-    this._nodeFrame.activateListeners()
+      this._nodeFrame.activateListeners()
 
-    // enable events for children
-    // Determines if the children to the displayObject can be clicked/touched Setting this to false allows PixiJS to bypass a recursive hitTest function
-    // See https://pixijs.download/dev/docs/PIXI.Container.html
-    canvas.primary.interactiveChildren = true
+      // enable events for children
+      // Determines if the children to the displayObject can be clicked/touched Setting this to false allows PixiJS to bypass a recursive hitTest function
+      // See https://pixijs.download/dev/docs/PIXI.Container.html
+      canvas.primary.interactiveChildren = true
+    }
   }
 
   /** @override */

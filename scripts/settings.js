@@ -24,13 +24,30 @@ import { WeatherConfigDialog } from './dialogs/weatherConfig.js'
 import { PermissionConfigDialog } from './dialogs/permissionConfig.js'
 import { WelcomeDialog } from './dialogs/welcomeDialog.js'
 import { Permissions } from './permissions.js'
+import { FoundryAbstractionLayer as Fal } from './fal.js'
 
 function onChangeFunction(value) {
   Hooks.callAll(EVENTS.SETTINGS_UPDATED, value)
 }
 
+Hooks.on(EVENTS.MODULE_READY, async () => {
+  game.settings.register(MODULE.ID, 'ambienceTokenHudPosition', {
+    name: 'settings.ambienceTokenHudPosition.name',
+    hint: 'settings.ambienceTokenHudPosition.hint',
+    scope: 'client',
+    config: Permissions.hasPermission(Fal.userID(), 'ambienceHud'),
+    type: String,
+    choices: {
+      none: 'settings.ambienceTokenHudPosition.none',
+      top: 'settings.ambienceTokenHudPosition.top',
+      bottom: 'settings.ambienceTokenHudPosition.bottom'
+    },
+    default: 'top'
+  })
+})
+
 export const registerSettingsPostInit = function () {
-  // TODO
+
 }
 
 export const registerSettingsPreInit = function () {

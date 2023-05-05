@@ -25,6 +25,7 @@ import { getSceneWeatherAPIv1 } from './api.js'
 import { WeatherTab } from './ui/weatherTab.js'
 import { WeatherUi } from './ui/weatherUi.js'
 import { MeteoUi } from './ui/meteoUi.js'
+import { Meteo } from './meteo.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { MacroConfigDialog } from './macros/macroConfig.js'
 
@@ -48,6 +49,8 @@ Hooks.once('init', () => {
   registerHbHelpers()
   loadHandlebars()
 
+  Meteo.init()
+
   // Registering api
   window.SceneWeather = getSceneWeatherAPIv1()
   Logger.info('API registered at global symbol SceneWeather')
@@ -62,7 +65,6 @@ Hooks.once('init', () => {
    * @param {SceneControl[]} controls The SceneControl configurations
    */
   Hooks.callAll(EVENTS.REG_FX_GENERATORS)
-
   Hooks.callAll(EVENTS.REG_FX_FILTERS)
   Hooks.callAll(EVENTS.REG_TEMPLATE_REGION)
   Hooks.callAll(EVENTS.REG_TEMPLATE_WEATHER)

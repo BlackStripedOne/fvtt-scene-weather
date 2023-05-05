@@ -125,7 +125,11 @@ export const METEO = {
   g: 9.80665,
   mAir: 0.0289644, // molar mass of Earth's air: 0.0289644 kg/mol
   R: 8.3144598, // universal gas constant: 8.3144598 J/(mol·K)'
-  Tzero: 237.7 // saturation vapor pressure in Kelvin, over a flat surface of water
+  Tzero: 237.7, // saturation vapor pressure in Kelvin, over a flat surface of water
+  Tmin: -30,  // degrees C
+  Tmax: 50, // degrees C
+  VwindMin: 0, // km/h
+  VwindMax: 120 // km/h
 }
 
 export const SEASONS = {

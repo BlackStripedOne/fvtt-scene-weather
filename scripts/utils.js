@@ -104,6 +104,12 @@ export class Logger {
  * Utilit class for generic fvtt ease-of-uses
  */
 export const Utils = {
+
+  getKeyByValue(obj, value, defaultValue = null) {
+    const key = Object.keys(obj).find(key => obj[key] === value)
+    return key !== undefined ? key : defaultValue
+  },
+
   /**
    * Returns the nested leaf of an object's tree denoted by a period-separated string.
    * @param {Object} obj - The object with nested objects.

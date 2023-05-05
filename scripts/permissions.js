@@ -51,7 +51,8 @@ export class Permissions {
     sceneSettings: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
     weatherUiControls: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
     timeControls: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
-    meteogramUi: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
+    meteogramUi: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
+    ambienceHud: Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
   }
 
   /**
@@ -80,6 +81,9 @@ export class Permissions {
     },
     meteogramUi: {
       assistantGameMaster: true
+    },
+    ambienceHud: {
+      assistantGameMaster: true
     }
   }
 
@@ -90,13 +94,13 @@ export class Permissions {
    */
   static _getDefaultPermissions() {
     let defaultPermissions = Utils.deepClone(Permissions.DEFAULT_PERMISSIONS)
-    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
+    for (const percieverId of Object.keys(WeatherPerception._registeredPercievers)) {
       defaultPermissions['perciever.' + percieverId] = Utils.mergeObject(
         Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT),
         defaultPermissions['perciever.' + percieverId] || {}
       )
-    })
-    Logger.debug('Permissions._getDefaultPermissions()', { defaultPermissions: defaultPermissions })
+    }
+    Logger.trace('Permissions._getDefaultPermissions()', { defaultPermissions: defaultPermissions })
     return defaultPermissions
   }
 
@@ -109,7 +113,7 @@ export class Permissions {
     const defaultPermissions = Permissions._getDefaultPermissions()
     const storedPermissions = Fal.getSetting('permissions', null)
     if (storedPermissions == null) {
-      Logger.debug('Permissions._loadPermissions -> no stored permissions', {
+      Logger.trace('Permissions._loadPermissions -> no stored permissions', {
         default: defaultPermissions
       })
       Permissions._permissions = defaultPermissions
@@ -119,7 +123,7 @@ export class Permissions {
         insertKeys: false,
         expand: false
       })
-      Logger.debug('Permissions._loadPermissions -> loaded from settings', {
+      Logger.trace('Permissions._loadPermissions -> loaded from settings', {
         default: defaultPermissions,
         effective: effectivePermissions,
         stored: storedPermissions
@@ -135,20 +139,20 @@ export class Permissions {
    */
   static async resetPermissions() {
     let emptyPermissions = Utils.deepClone(Permissions.EMPTY_PERMISSIONS)
-    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
+    for (const percieverId of Object.keys(WeatherPerception._registeredPercievers)) {
       if (!('perciever.' + percieverId in emptyPermissions)) {
         emptyPermissions['perciever.' + percieverId] = Utils.deepClone(
           Permissions.DEFAULT_PERMISSION_STRUCT
         )
       }
-    })
+    }
     Permissions._permissions = Utils.mergeObject(
       emptyPermissions,
       Permissions.DEFAULT_PERMISSIONS,
       { expand: false }
     )
     Fal.setSetting('permissions', Permissions._permissions)
-    Logger.debug('Permissions.resetPermissions()', { permissions: Permissions._permissions })
+    Logger.trace('Permissions.resetPermissions()', { permissions: Permissions._permissions })
   }
 
   /**
@@ -157,20 +161,20 @@ export class Permissions {
    * @param {object} permissions - The permissions to update.
    */
   static async updatePermissions(permissions) {
-    Object.keys(WeatherPerception._registeredPercievers).forEach((percieverId) => {
+    for (const percieverId of Object.keys(WeatherPerception._registeredPercievers)) {
       if (!('perciever.' + percieverId in permissions)) {
         permissions['perciever.' + percieverId] = Utils.deepClone(
           Permissions.DEFAULT_PERMISSION_STRUCT
         )
       }
-    })
+    }
     Permissions._permissions = Utils.mergeObject(
       Utils.deepClone(Permissions.EMPTY_PERMISSIONS),
       permissions,
       { expand: false }
     )
     Fal.setSetting('permissions', Permissions._permissions)
-    Logger.debug('Permissions.updatePermissions(...)', { permissions: Permissions._permissions })
+    Logger.trace('Permissions.updatePermissions(...)', { permissions: Permissions._permissions })
   }
 
   /**
@@ -214,7 +218,7 @@ export class Permissions {
   static getPermissionIds() {
     if (Permissions._permissions === undefined) Permissions._loadPermissions()
     const permissionIds = Object.keys(Permissions._permissions)
-    Logger.debug('Permissions.getPermissionIds()', { permissionIds: permissionIds })
+    Logger.trace('Permissions.getPermissionIds()', { permissionIds: permissionIds })
     return permissionIds
   }
 
@@ -229,7 +233,7 @@ export class Permissions {
     if (!permissionId) return Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
     if (Permissions._permissions === undefined) Permissions._loadPermissions()
     if (permissionId in Permissions._permissions) {
-      Logger.debug('Permissions.getPermissionForId(...)', {
+      Logger.trace('Permissions.getPermissionForId(...)', {
         permissionId: permissionId,
         permission: Permissions._permissions[permissionId]
       })
@@ -239,7 +243,7 @@ export class Permissions {
         { inplace: false, expand: false }
       )
     } else {
-      Logger.debug('Permissions.getPermissionForId(unknown)', { permissionId: permissionId })
+      Logger.trace('Permissions.getPermissionForId(unknown)', { permissionId: permissionId })
       return Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
     }
   }
@@ -278,4 +282,5 @@ export class Permissions {
         return false
     }
   }
+
 }

@@ -121,6 +121,15 @@ export const FoundryAbstractionLayer = {
   },
 
   /**
+   * Get owned tokens
+   *
+   * @returns {Array} The owned tokens
+   */
+  getOwnedTokens() {
+    return game.canvas.tokens.ownedTokens
+  },
+
+  /**
    * Get one controlled tokens
    *
    * @returns {Object} The first controlled token

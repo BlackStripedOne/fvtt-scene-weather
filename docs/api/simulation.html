@@ -7,10 +7,10 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Documentation for the SceneWeather FoundryVTT module" name="description"/>
 <meta content="BlackStripedOne" name="author"/>
-<link href="https://blackstripedone.github.io/fvtt-scene-weather/api/index.html" rel="canonical"/>
+<link href="https://blackstripedone.github.io/fvtt-scene-weather/api/simulation.html" rel="canonical"/>
 <link href="../assets/favicon.ico" rel="icon"/>
 <meta content="mkdocs-1.2.3, mkdocs-material-8.1.4" name="generator"/>
-<title>Using the API - SceneWeather</title>
+<title>Simulation and procedural generation - SceneWeather</title>
 <link href="../assets/stylesheets/main.bb3983ee.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.e6a45f82.min.css" rel="stylesheet"/>
 <meta content="#ff6e42" name="theme-color"/>
@@ -27,7 +27,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#using-the-api">
+<a class="md-skip" href="#simulation-and-procedural-generation">
           Skip to content
         </a>
 </div>
@@ -51,7 +51,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Using the API
+              Simulation and procedural generation
             
           </span>
 </div>
@@ -245,38 +245,10 @@
           SceneWeather API
         </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-          Using the API
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="index.html">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
         Using the API
       </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
-  </a>
-</li>
-</ul>
-</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="sceneInfos.html">
@@ -293,10 +265,33 @@
         Token Ambience
       </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="simulation.html">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Simulation and procedural generation
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="simulation.html">
         Simulation and procedural generation
       </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updateweatherconfig">
+    updateWeatherConfig
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#update-the-weather-simulation">
+    Update the weather simulation
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="extendingApi.html">
@@ -411,18 +406,13 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
+<a class="md-nav__link" href="#updateweatherconfig">
+    updateWeatherConfig
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
+<a class="md-nav__link" href="#update-the-weather-simulation">
+    Update the weather simulation
   </a>
 </li>
 </ul>
@@ -432,28 +422,14 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="using-the-api">Using the API<a class="headerlink" href="#using-the-api" title="Permanent link">¶</a></h1>
-<p>How to interface with the SceneWeather API...</p>
-<h2 id="automation">Automation<a class="headerlink" href="#automation" title="Permanent link">¶</a></h2>
-<h2 id="macros-and-api">Macros and API<a class="headerlink" href="#macros-and-api" title="Permanent link">¶</a></h2>
-<ul>
-<li>In your own module</li>
-<li>Via Macros</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="c1">// To get the version of the SceneWeather API, simple get the parameter</span>
-<span class="kd">const</span> <span class="nx">apiVersion</span> <span class="o">=</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">version</span>
-</code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Make sure that an api function you want to use is available in the version of the module you are using.</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c1">// Set the generator seed of the current scene.</span>
-<span class="k">await</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">setSeed</span><span class="p">(</span><span class="s1">'the quick fox jumps over the wooden fence'</span><span class="p">);</span>
-</code></pre></div>
-<h2 id="versions">Versions<a class="headerlink" href="#versions" title="Permanent link">¶</a></h2>
-<ul>
-<li>Module Versions 1-2: Api Version 1.0</li>
-</ul>
+<h1 id="simulation-and-procedural-generation">Simulation and procedural generation<a class="headerlink" href="#simulation-and-procedural-generation" title="Permanent link">¶</a></h1>
+<h2 id="updateweatherconfig"><code>updateWeatherConfig</code><a class="headerlink" href="#updateweatherconfig" title="Permanent link">¶</a></h2>
+<p>Update the current weather on a scene by directly setting the weather configuration of that scene.</p>
+<p>```javascript
+await SceneWeather.updateWeatherConfig(weatherConfig);
+```` </p>
+<h2 id="update-the-weather-simulation">Update the weather simulation<a class="headerlink" href="#update-the-weather-simulation" title="Permanent link">¶</a></h2>
+<p>updateWeather: updateWeather,</p>
 </article>
 </div>
 </div>
@@ -464,7 +440,7 @@
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a class="md-footer__link md-footer__link--prev" href="../usage/playerview.html" rel="prev">
+<a class="md-footer__link md-footer__link--prev" href="tokenAmbience.html" rel="prev">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -473,17 +449,17 @@
 <span class="md-footer__direction">
                 Previous
               </span>
-              From a player's perspective
+              Token Ambience
             </div>
 </div>
 </a>
-<a class="md-footer__link md-footer__link--next" href="sceneInfos.html" rel="next">
+<a class="md-footer__link md-footer__link--next" href="extendingApi.html" rel="next">
 <div class="md-footer__title">
 <div class="md-ellipsis">
 <span class="md-footer__direction">
                 Next
               </span>
-              Getting Scene Infos
+              Extending SceneWeather yourself
             </div>
 </div>
 <div class="md-footer__button md-icon">

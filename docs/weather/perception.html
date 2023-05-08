@@ -7,10 +7,10 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Documentation for the SceneWeather FoundryVTT module" name="description"/>
 <meta content="BlackStripedOne" name="author"/>
-<link href="https://blackstripedone.github.io/fvtt-scene-weather/api/index.html" rel="canonical"/>
+<link href="https://blackstripedone.github.io/fvtt-scene-weather/weather/perception.html" rel="canonical"/>
 <link href="../assets/favicon.ico" rel="icon"/>
 <meta content="mkdocs-1.2.3, mkdocs-material-8.1.4" name="generator"/>
-<title>Using the API - SceneWeather</title>
+<title>Individual perception - SceneWeather</title>
 <link href="../assets/stylesheets/main.bb3983ee.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.e6a45f82.min.css" rel="stylesheet"/>
 <meta content="#ff6e42" name="theme-color"/>
@@ -27,7 +27,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#using-the-api">
+<a class="md-skip" href="#individual-perception">
           Skip to content
         </a>
 </div>
@@ -51,7 +51,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Using the API
+              Individual perception
             
           </span>
 </div>
@@ -128,8 +128,8 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
 <label class="md-nav__link" for="__nav_2">
           Concepts of Weather
           <span class="md-nav__icon md-icon"></span>
@@ -141,27 +141,55 @@
         </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../weather/index.html">
+<a class="md-nav__link" href="index.html">
         Basic Weather Concepts
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../weather/simulation.html">
+<a class="md-nav__link" href="simulation.html">
         Region vs. Weather
       </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../weather/perception.html">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Individual perception
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="perception.html">
         Individual perception
       </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#individual-perception-through-perciever-modules">
+    Individual perception through Perciever modules
+  </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../weather/area.html">
+<a class="md-nav__link" href="#influence-on-gameplay">
+    Influence on gameplay
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#todo-concept-of-token-ambience-perception">
+    (todo) Concept of token ambience perception
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="area.html">
         (todo) Areas and Masks
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../weather/effects.html">
+<a class="md-nav__link" href="effects.html">
         Weather Effects
       </a>
 </li>
@@ -233,8 +261,8 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" id="__nav_5" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" id="__nav_5" type="checkbox"/>
 <label class="md-nav__link" for="__nav_5">
           SceneWeather API
           <span class="md-nav__icon md-icon"></span>
@@ -245,61 +273,33 @@
           SceneWeather API
         </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-          Using the API
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="index.html">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../api/index.html">
         Using the API
       </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
-  </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="sceneInfos.html">
+<a class="md-nav__link" href="../api/sceneInfos.html">
         Getting Scene Infos
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="sceneSettings.html">
+<a class="md-nav__link" href="../api/sceneSettings.html">
         Configuring a Scene
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="tokenAmbience.html">
+<a class="md-nav__link" href="../api/tokenAmbience.html">
         Token Ambience
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="simulation.html">
+<a class="md-nav__link" href="../api/simulation.html">
         Simulation and procedural generation
       </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="extendingApi.html">
+<a class="md-nav__link" href="../api/extendingApi.html">
         Extending SceneWeather yourself
       </a>
 </li>
@@ -411,18 +411,18 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
+<a class="md-nav__link" href="#individual-perception-through-perciever-modules">
+    Individual perception through Perciever modules
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
+<a class="md-nav__link" href="#influence-on-gameplay">
+    Influence on gameplay
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
+<a class="md-nav__link" href="#todo-concept-of-token-ambience-perception">
+    (todo) Concept of token ambience perception
   </a>
 </li>
 </ul>
@@ -432,27 +432,23 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="using-the-api">Using the API<a class="headerlink" href="#using-the-api" title="Permanent link">¶</a></h1>
-<p>How to interface with the SceneWeather API...</p>
-<h2 id="automation">Automation<a class="headerlink" href="#automation" title="Permanent link">¶</a></h2>
-<h2 id="macros-and-api">Macros and API<a class="headerlink" href="#macros-and-api" title="Permanent link">¶</a></h2>
+<h1 id="individual-perception">Individual perception<a class="headerlink" href="#individual-perception" title="Permanent link">¶</a></h1>
 <ul>
-<li>In your own module</li>
-<li>Via Macros</li>
+<li>What is weather perception</li>
+<li>Individual perception based on weathersense/knowledge/experience/origin climate etc.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="c1">// To get the version of the SceneWeather API, simple get the parameter</span>
-<span class="kd">const</span> <span class="nx">apiVersion</span> <span class="o">=</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">version</span>
-</code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Make sure that an api function you want to use is available in the version of the module you are using.</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c1">// Set the generator seed of the current scene.</span>
-<span class="k">await</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">setSeed</span><span class="p">(</span><span class="s1">'the quick fox jumps over the wooden fence'</span><span class="p">);</span>
-</code></pre></div>
-<h2 id="versions">Versions<a class="headerlink" href="#versions" title="Permanent link">¶</a></h2>
+<h2 id="individual-perception-through-perciever-modules">Individual perception through Perciever modules<a class="headerlink" href="#individual-perception-through-perciever-modules" title="Permanent link">¶</a></h2>
 <ul>
-<li>Module Versions 1-2: Api Version 1.0</li>
+<li>What is a perciever module</li>
+<li>How is weather perception done -&gt; GM text, chat, WeatherUI</li>
+</ul>
+<h2 id="influence-on-gameplay">Influence on gameplay<a class="headerlink" href="#influence-on-gameplay" title="Permanent link">¶</a></h2>
+<ul>
+<li>How can percieved weather influence a players perspective and gameplay</li>
+</ul>
+<h2 id="todo-concept-of-token-ambience-perception">(todo) Concept of token ambience perception<a class="headerlink" href="#todo-concept-of-token-ambience-perception" title="Permanent link">¶</a></h2>
+<ul>
+<li>Using API and token/player based ambience where the token is placed on the scene</li>
 </ul>
 </article>
 </div>
@@ -464,7 +460,7 @@
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a class="md-footer__link md-footer__link--prev" href="../usage/playerview.html" rel="prev">
+<a class="md-footer__link md-footer__link--prev" href="simulation.html" rel="prev">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -473,17 +469,17 @@
 <span class="md-footer__direction">
                 Previous
               </span>
-              From a player's perspective
+              Region vs. Weather
             </div>
 </div>
 </a>
-<a class="md-footer__link md-footer__link--next" href="sceneInfos.html" rel="next">
+<a class="md-footer__link md-footer__link--next" href="area.html" rel="next">
 <div class="md-footer__title">
 <div class="md-ellipsis">
 <span class="md-footer__direction">
                 Next
               </span>
-              Getting Scene Infos
+              (todo) Areas and Masks
             </div>
 </div>
 <div class="md-footer__button md-icon">

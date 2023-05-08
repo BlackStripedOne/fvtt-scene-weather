@@ -7,10 +7,10 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Documentation for the SceneWeather FoundryVTT module" name="description"/>
 <meta content="BlackStripedOne" name="author"/>
-<link href="https://blackstripedone.github.io/fvtt-scene-weather/api/index.html" rel="canonical"/>
+<link href="https://blackstripedone.github.io/fvtt-scene-weather/api/tokenAmbience.html" rel="canonical"/>
 <link href="../assets/favicon.ico" rel="icon"/>
 <meta content="mkdocs-1.2.3, mkdocs-material-8.1.4" name="generator"/>
-<title>Using the API - SceneWeather</title>
+<title>Token Ambience - SceneWeather</title>
 <link href="../assets/stylesheets/main.bb3983ee.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.e6a45f82.min.css" rel="stylesheet"/>
 <meta content="#ff6e42" name="theme-color"/>
@@ -27,7 +27,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#using-the-api">
+<a class="md-skip" href="#token-ambience">
           Skip to content
         </a>
 </div>
@@ -51,7 +51,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Using the API
+              Token Ambience
             
           </span>
 </div>
@@ -245,38 +245,10 @@
           SceneWeather API
         </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-          Using the API
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="index.html">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
         Using the API
       </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
-  </a>
-</li>
-</ul>
-</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="sceneInfos.html">
@@ -288,10 +260,62 @@
         Configuring a Scene
       </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="tokenAmbience.html">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Token Ambience
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="tokenAmbience.html">
         Token Ambience
       </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gettokenambiencetoken">
+    getTokenAmbience(token)
+  </a>
+<nav aria-label="getTokenAmbience(token)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters">
+    Parameters:
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#return-value">
+    Return Value:
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#errors">
+    Errors:
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example">
+    Example:
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ambience-for-tokens">
+    Ambience for Tokens
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extending-ambience">
+    Extending Ambience
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="simulation.html">
@@ -411,18 +435,42 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#automation">
-    Automation
+<a class="md-nav__link" href="#gettokenambiencetoken">
+    getTokenAmbience(token)
+  </a>
+<nav aria-label="getTokenAmbience(token)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters">
+    Parameters:
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#macros-and-api">
-    Macros and API
+<a class="md-nav__link" href="#return-value">
+    Return Value:
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#versions">
-    Versions
+<a class="md-nav__link" href="#errors">
+    Errors:
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example">
+    Example:
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ambience-for-tokens">
+    Ambience for Tokens
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extending-ambience">
+    Extending Ambience
   </a>
 </li>
 </ul>
@@ -432,27 +480,50 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="using-the-api">Using the API<a class="headerlink" href="#using-the-api" title="Permanent link">¶</a></h1>
-<p>How to interface with the SceneWeather API...</p>
-<h2 id="automation">Automation<a class="headerlink" href="#automation" title="Permanent link">¶</a></h2>
-<h2 id="macros-and-api">Macros and API<a class="headerlink" href="#macros-and-api" title="Permanent link">¶</a></h2>
+<h1 id="token-ambience">Token Ambience<a class="headerlink" href="#token-ambience" title="Permanent link">¶</a></h1>
+<h2 id="gettokenambiencetoken"><code>getTokenAmbience(token)</code><a class="headerlink" href="#gettokenambiencetoken" title="Permanent link">¶</a></h2>
+<p>This SceneWeather API function returns the ambience that a specified token is currently perceiving in a given scene at the token's position. It checks if the token is controlled by the calling user, and if the scene weather is enabled for this scene. The returned data structure contains the token's perceived temperature, humidity, cloud cover, precipitation, wind speed and direction, amount of sunshine, and whether the ambience is outside or inside.</p>
+<h3 id="parameters">Parameters:<a class="headerlink" href="#parameters" title="Permanent link">¶</a></h3>
+<p><code>token</code> - A Token object representing the token for which the ambience needs to be determined.</p>
+<h3 id="return-value">Return Value:<a class="headerlink" href="#return-value" title="Permanent link">¶</a></h3>
+<p>The function returns an object representing the ambience perceived by the token. The object has the following structure:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  <span class="nx">temp</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">actual</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="c1">// real temperature in degrees celsius</span>
+    <span class="nx">percieved</span><span class="o">:</span> <span class="mf">0</span> <span class="c1">// apparent or percieved temperature in degrees celsius</span>
+  <span class="p">},</span>
+  <span class="nx">humidity</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="c1">// relative humidity in percent</span>
+  <span class="nx">clouds</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">CLOUD_TYPE</span><span class="p">,</span> <span class="c1">// string enumeration representing the kind of clouds</span>
+    <span class="nx">amount</span><span class="o">:</span> <span class="mf">0</span> <span class="c1">// the cloud coverage in percent</span>
+  <span class="p">},</span>
+  <span class="nx">precipitation</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">PRECIPITATION_TYPE</span><span class="p">,</span> <span class="c1">// string enumeration representing the kind of precipitation</span>
+    <span class="nx">amount</span><span class="o">:</span> <span class="mf">0</span> <span class="c1">// the precipitation amount in percent</span>
+  <span class="p">},</span>
+  <span class="nx">wind</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">speed</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="c1">// windspeed in km/h</span>
+    <span class="nx">direction</span><span class="o">:</span> <span class="mf">0</span> <span class="c1">// wind direction in degrees 0, north up</span>
+  <span class="p">},</span>
+  <span class="nx">sun</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">amount</span><span class="o">:</span> <span class="mf">0</span> <span class="c1">// direct sunshine amonut in percent</span>
+  <span class="p">},</span>
+  <span class="nx">condition</span><span class="o">:</span> <span class="nx">AMBIENCE_TYPE</span> <span class="c1">// string enumeration representing the ambience condition</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="errors">Errors:<a class="headerlink" href="#errors" title="Permanent link">¶</a></h3>
+<p>If the token is not defined or is not an instance of Token, or if the canvas or the canvas ready state is not available, the function will not execute and will return <code>undefined</code>. If the user does not have permission to control the token, a warning message will be logged, and the function will return <code>undefined</code>. If the scene weather is not enabled, the function will return <code>undefined</code>.</p>
+<h3 id="example">Example:<a class="headerlink" href="#example" title="Permanent link">¶</a></h3>
+<p>```javascript
+await SceneWeather.updateWeatherConfig(weatherConfig);
+```` </p>
+<h2 id="ambience-for-tokens">Ambience for Tokens<a class="headerlink" href="#ambience-for-tokens" title="Permanent link">¶</a></h2>
 <ul>
-<li>In your own module</li>
-<li>Via Macros</li>
+<li>ambience is automatically present on each token object the player owns or can control on the current scene.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="c1">// To get the version of the SceneWeather API, simple get the parameter</span>
-<span class="kd">const</span> <span class="nx">apiVersion</span> <span class="o">=</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">version</span>
-</code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Make sure that an api function you want to use is available in the version of the module you are using.</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c1">// Set the generator seed of the current scene.</span>
-<span class="k">await</span> <span class="nx">SceneWeather</span><span class="p">.</span><span class="nx">setSeed</span><span class="p">(</span><span class="s1">'the quick fox jumps over the wooden fence'</span><span class="p">);</span>
-</code></pre></div>
-<h2 id="versions">Versions<a class="headerlink" href="#versions" title="Permanent link">¶</a></h2>
+<h2 id="extending-ambience">Extending Ambience<a class="headerlink" href="#extending-ambience" title="Permanent link">¶</a></h2>
 <ul>
-<li>Module Versions 1-2: Api Version 1.0</li>
+<li>How to extend the ambience structure on tokens, which hooks to use.</li>
 </ul>
 </article>
 </div>
@@ -464,7 +535,7 @@
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a class="md-footer__link md-footer__link--prev" href="../usage/playerview.html" rel="prev">
+<a class="md-footer__link md-footer__link--prev" href="sceneSettings.html" rel="prev">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -473,17 +544,17 @@
 <span class="md-footer__direction">
                 Previous
               </span>
-              From a player's perspective
+              Configuring a Scene
             </div>
 </div>
 </a>
-<a class="md-footer__link md-footer__link--next" href="sceneInfos.html" rel="next">
+<a class="md-footer__link md-footer__link--next" href="simulation.html" rel="next">
 <div class="md-footer__title">
 <div class="md-ellipsis">
 <span class="md-footer__direction">
                 Next
               </span>
-              Getting Scene Infos
+              Simulation and procedural generation
             </div>
 </div>
 <div class="md-footer__button md-icon">

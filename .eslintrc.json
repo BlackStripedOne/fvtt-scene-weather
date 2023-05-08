@@ -61,10 +61,10 @@
         ],
         "unicorn/prevent-abbreviations": "off",
         "unicorn/prefer-ternary": "off",
-        "unicorn/numeric-separators-style": "error",
-        "unicorn/no-negated-condition": "error",
+        "unicorn/numeric-separators-style": "off",
+        "unicorn/no-negated-condition": "off",
         "unicorn/no-zero-fractions": "off",
-        "unicorn/no-lonely-if": "error",
+        "unicorn/no-lonely-if": "off",
         "unicorn/filename-case": [
             "error",
             {
@@ -74,8 +74,8 @@
         "unicorn/prefer-type-error": "off",
         "unicorn/switch-case-braces": "off",
         "unicorn/prefer-query-selector": "off",
-        "unicorn/no-array-reduce": "error",
-        "unicorn/no-useless-switch-case": "error",
+        "unicorn/no-array-reduce": "off",
+        "unicorn/no-useless-switch-case": "off",
         "unicorn/prefer-dom-node-remove": "off"
     }
   }

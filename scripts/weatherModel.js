@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from './utils.js'
-import { MODULE } from './constants.js'
+import { MODULE, WIND_MODES } from './constants.js'
 import { TimeProvider } from './time/timeProvider.js'
 import { SceneWeatherState } from './state.js'
 import { Noise } from './noise.js'
@@ -38,19 +38,28 @@ export class WeatherModel {
 
   weatherData = undefined
 
+  /**
+   * Weather cache for the weathermodel based on the current timehash.
+   * @type {<key:timeHash>:<weatherModel>}
+   */
   _cache = {}
 
   /**
-     * TODO
-     * @param {*} param0
-     */
+   * A class constructor that initializes a SceneWeatherState object.
+   * @param {Object} options - An object that contains options for initializing the SceneWeatherState object.
+   * @param {string} options.regionMeteo - The region code for the weather generator mode. Optional.
+   * @param {string} options.templateId - The ID of the weather template for the weather generator mode. Optional.
+   * @param {string} options.useWeatherConfig - The ID of the weather configuration for the weather generator mode. Optional.
+   * @property {string} regionMeteo - The region code for the weather generator mode.
+   * @property {string} useConfigSceneId - The ID of the weather configuration for the weather generator mode.
+   * @property {Object} weatherData - An object that contains weather data for the weather generator mode.
+   * @property {Object} _cache - An object that contains cached data for the SceneWeatherState object.
+   * @returns {SceneWeatherState} A SceneWeatherState object.
+   */
   constructor({ regionMeteo, templateId, useWeatherConfig }) {
-    Logger.debug('WeatherModel:constrctor', {
-      regionMeteo: regionMeteo,
-      templateId: templateId,
-      useWeatherConfig: useWeatherConfig
-    })
+    // initialize cache
     this._cache = {}
+
     if (regionMeteo !== undefined) {
       // weatherMode -> GENERATOR_MODES.REGION_*
       this.regionMeteo = regionMeteo
@@ -119,11 +128,10 @@ export class WeatherModel {
   }
 
   /**
-   * TODO
-   * @returns - array of dictionaries containing 'id' and 'name'
+   * Retrieves an array of weather templates with their ids and names.
+   * @returns {Array.<{id: string, name: string}>} An array of objects containing the template id and name.
    */
-  static getTemplates() {
-    Logger.debug('getTemplates', { t: Object.entries(SceneWeatherState._weatherTemplates) })
+  static getTemplates() {    
     return Object.entries(SceneWeatherState._weatherTemplates).map((template) => {
       return {
         id: template[0],
@@ -132,23 +140,28 @@ export class WeatherModel {
     })
   }
 
+  /**
+   * Creates a new WeatherModel instance from a scene configuration ID.
+   * @param {string} sceneId - The ID of the scene configuration to use for the weather model.
+   * @returns {WeatherModel} A new WeatherModel instance.
+   */
   static fromSceneConfig(sceneId) {
     return new WeatherModel({ useWeatherConfig: sceneId })
   }
 
   /**
-   * TODO Builder pattern
-   * @param {*} id
-   * @returns
+   * Creates a new WeatherModel instance from a template ID.
+   * @param {string} id - The ID of the template to use for the weather model.
+   * @returns {WeatherModel} A new WeatherModel instance.
    */
   static fromTemplate(id) {
     return new WeatherModel({ templateId: id })
   }
 
   /**
-   * TODO Builder pattern
-   * @param {*} regionMeteo
-   * @returns
+   * Creates a new WeatherModel instance from a region's weather information.
+   * @param {string} regionMeteo - The weather information for a specific region.
+   * @returns {WeatherModel} A new WeatherModel instance.
    */
   static fromRegion(regionMeteo) {
     return new WeatherModel({ regionMeteo: regionMeteo })
@@ -205,7 +218,7 @@ export class WeatherModel {
 
       const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
       const windDirection = Math.trunc(
-        weatherConfig.wind.directionType == 1
+        weatherConfig.wind.directionType == WIND_MODES.procedural
           ? this._getNoisedWindDirection(
             TimeProvider.getCurrentTimeHash(),
             windGusts
@@ -277,17 +290,9 @@ export class WeatherModel {
     }
   }
 
-  /**
-   * TODO
-   *
-   * @param {*} dayOffset
-   * @param {*} hourOffset
-   * @returns
-   */
-  getWeatherData(dayOffset = 0, hourOffset = 0) {
-    if (this.regionMeteo !== undefined) {
-      // weatherMode -> GENERATOR_MODES.REGION_*
-      const regionBaseValues = this.regionMeteo.getRegionBase(dayOffset, hourOffset)
+  // weatherMode -> GENERATOR_MODES.REGION_*
+  _getWeatherDataFromRegion(regionMeteo, dayOffset = 0, hourOffset = 0) {
+      const regionBaseValues = regionMeteo.getRegionBase(dayOffset, hourOffset)
 
       // implement caching for already calculated regionBaseValues.timeHash
       if (this._cache[regionBaseValues.timeHash] !== undefined) {
@@ -342,7 +347,7 @@ export class WeatherModel {
       this.weatherData.clouds.top = Meteo.calcCloudTops(tempCoefficient, this.weatherData.clouds.bottom, regionBaseValues.vegetation, regionBaseValues.sunAmount, regionBaseValues.wind, regionBaseValues.waterAmount)
 
       // calculate coverage based on layer thickness and cloud type
-      this.weatherData.clouds.coverage = Meteo.calcCloudCoverate(this.weatherData.clouds.bottom, this.weatherData.clouds.top)
+      this.weatherData.clouds.coverage = Meteo.calcCloudCoverage(this.weatherData.clouds.bottom, this.weatherData.clouds.top)
 
       this.weatherData.clouds.type = Meteo.getCloudType(regionBaseValues.elevation, this.weatherData.clouds.bottom, this.weatherData.clouds.top, this.weatherData.clouds.coverage, tempCoefficient)
 
@@ -350,13 +355,13 @@ export class WeatherModel {
       this.weatherData.precipitation.amount =
         Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1) *
         Noise.getNoisedValue(
-          this.regionMeteo._noise,
+          regionMeteo._noise,
           regionBaseValues.timeHash + 321,
           8,
           0.8,
           0.2
         ) *
-        Noise.getNoisedValue(this.regionMeteo._noise, regionBaseValues.timeHash + 321, 32, 1, 0.5)
+        Noise.getNoisedValue(regionMeteo._noise, regionBaseValues.timeHash + 321, 32, 1, 0.5)
 
       // Recalculate gusts depending on rain amount
       this.weatherData.wind.gusts =
@@ -395,16 +400,18 @@ export class WeatherModel {
       this.weatherData.wind.direction = this._getNoisedWindDirection(
         regionBaseValues.timeHash,
         this.weatherData.wind.gusts,
-        this.regionMeteo._noise
+        regionMeteo._noise
       )
 
       // Store in cache
       this._cache[regionBaseValues.timeHash] = this.weatherData
       return this.weatherData
-    } else if (this.useConfigSceneId !== undefined) {
-      // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE
+  }
+
+  // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE
+  _getWeatherDataFromScene(dayOffset = 0, hourOffset = 0) {    
       // Just update the wind direction
-      if (this.weatherData.wind.directionType == 1) {
+      if (this.weatherData.wind.directionType == WIND_MODES.procedural) {
         // TODO use constant for winddirection
         this.weatherData.wind.direction = this._getNoisedWindDirection(
           TimeProvider.getCurrentTimeHash(dayOffset, hourOffset),
@@ -412,14 +419,31 @@ export class WeatherModel {
         )
       }
       return this.weatherData
+  }
+
+  /**
+   * Generates weather data based on region and time.
+   * @param {number} dayOffset - Number of days from current day.
+   * @param {number} hourOffset - Number of hours from current hour.
+   * @returns {Object} - Weather data object containing various properties.
+   */
+  getWeatherData(dayOffset = 0, hourOffset = 0) {
+    if (this.regionMeteo !== undefined) {
+      return this._getWeatherDataFromRegion(this.regionMeteo, dayOffset, hourOffset)
+    } else if (this.useConfigSceneId !== undefined) {
+      return this._getWeatherDataFromScene(dayOffset, hourOffset)
     } else {
       return this.weatherData
     }
   }
 
   /**
-     * TODO
-     */
+   * Returns a noised wind direction value, based on the given parameters.
+   * @param {number} timeHash - A unique value used to generate the noise.
+   * @param {number} gusts - The gusts value to use in the calculation.
+   * @param {function} [noiseFunction=this._noise] - The noise function to use. Defaults to the internal noise function.
+   * @returns {number} - The noised wind direction value.
+   */
   _getNoisedWindDirection(timeHash, gusts, noiseFunction = this._noise) {
     let windDirection =
       Noise.getNoisedValue(noiseFunction, timeHash + 1277, 512, 180, 180) +
@@ -430,15 +454,12 @@ export class WeatherModel {
   }
 
   /**
-   * TODO
-   *
-   * @param {*} steps
-   * @param {*} stepWidth
-   * @param {*} dayOffset
-   * @param {*} hourOffset
-   * @returns
-   *
-   * @private
+   * Calculates the ground temperature using a logarithmically weighted average of the base temperatures of a meteorological region.
+   * @param {number} steps - The number of steps to include in the weighted average.
+   * @param {number} stepWidth - The time interval between each step in hours.
+   * @param {number} [dayOffset=0] - The number of days to offset the starting day from the current day.
+   * @param {number} [hourOffset=0] - The number of hours to offset the starting hour from the current hour.
+   * @returns {number} - The calculated average ground temperature.
    */
   _groundTemp(steps, stepWidth, dayOffset = 0, hourOffset = 0) {
     let total = 0

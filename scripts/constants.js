@@ -162,7 +162,7 @@ export const CLOUD_TYPE = {
   fog: 1,
   stratus: 2,
   cumulus: 3,
-  cumulunimbus: 4
+  cumulunimbus: 4 // TODO cumulonimbus
 }
 
 // percent 0..100

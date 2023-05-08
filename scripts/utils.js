@@ -117,6 +117,8 @@ export const Utils = {
    * @returns {*} The nested leaf of the object's tree that is denoted by the names in the string, or undefined if the path is not valid.
    */
   getNestedLeaf(obj, str) {
+    if (!obj) return
+    if (!str) return obj
     const keys = str.split('.')
     let value = obj
 
@@ -293,9 +295,9 @@ export const Utils = {
     }
     // Special handling at depth 0
     if (_d === 0) {
-      if (expand && Object.keys(other).some((k) => /\./.test(k))) other = expandObject(other) // TODO Utils.expandObject
+      if (expand && Object.keys(other).some((k) => /\./.test(k))) other = Utils.expandObject(other)
       if (Object.keys(original).some((k) => /\./.test(k))) {
-        const expanded = expand ? expandObject(original) : original // TODO Utils.expandObject
+        const expanded = expand ? Utils.expandObject(original) : original
         if (inplace && expand) {
           for (const k of Object.keys(original)) delete original[k]
           Object.assign(original, expanded)
@@ -388,6 +390,64 @@ export const Utils = {
    */
   flattenObject(obj, _d = 0) {
     return flattenObject(obj, _d)
+  },
+
+  /**
+   * Expand a flattened object to be a standard nested Object by converting all dot-notation keys to inner objects.
+   * @param {object} obj      The object to expand
+   * @param {number} [_d=0]   Track the recursion depth to prevent overflow
+   * @return {object}         An expanded object
+   */
+  expandObject(obj, _d=0) {
+    if ( _d > 100 ) throw new Error("Maximum object expansion depth exceeded")
+
+    // Recursive expansion function
+    function _expand(value) {
+      if ( value instanceof Object ) {
+        if ( Array.isArray(value) ) return value.map(_expand)
+        else return Utils.expandObject(value, _d+1)
+      }
+      return value
+    }
+
+    // Expand all object keys
+    const expanded = {}
+    for ( let [k, v] of Object.entries(obj) ) {
+      Utils.setProperty(expanded, k, _expand(v))
+    }
+    return expanded
+  },
+
+  /**
+   * A helper function which searches through an object to assign a value using a string key
+   * This string key supports the notation a.b.c which would target object[a][b][c]
+   * @param {object} object   The object to update
+   * @param {string} key      The string key
+   * @param {*} value         The value to be assigned
+   * @return {boolean}        Whether the value was changed from its previous value
+   */
+  setProperty(object, key, value) {
+    let target = object
+    let changed = false
+
+    // Convert the key to an object reference if it contains dot notation
+    if ( key.indexOf('.') !== -1 ) {
+      let parts = key.split('.')
+      key = parts.pop()
+      target = parts.reduce((o, i) => {
+        if ( !o.hasOwnProperty(i) ) o[i] = {}
+        return o[i]
+      }, object)
+    }
+
+    // Update the target
+    if ( target[key] !== value ) {
+      changed = true;
+      target[key] = value
+    }
+
+    // Return changed status
+    return changed
   },
 
   /**
@@ -531,13 +591,36 @@ export const Utils = {
   },
 
   /**
-   * Foundry VTT's deepClone function wrapped here to avoid code error highlighting due to missing definition.
-   *
-   * @param {*} original
-   * @param {*} options
+   * Quickly clone a simple piece of data, returning a copy which can be mutated safely.
+   * This method DOES support recursive data structures containing inner objects or arrays.
+   * This method DOES NOT support advanced object types like Set, Map, or other specialized classes.
+   * @param {*} original                     Some sort of data
+   * @param {object} [options]               Options to configure the behaviour of deepClone
+   * @param {boolean} [options.strict=false] Throw an Error if deepClone is unable to clone something instead of returning the original
+   * @return {*}                             The clone of that data
    */
-  deepClone(original, options) {
-    // eslint-disable-next-line no-undef
-    return deepClone(original, options)
+  deepClone(original, {strict=false}={}) {
+
+    // Simple types
+    if ( (typeof original !== "object") || (original === null) ) return original
+
+    // Arrays
+    if ( original instanceof Array ) return original.map(Utils.deepClone)
+
+    // Dates
+    if ( original instanceof Date ) return new Date(original)
+
+    // Unsupported advanced objects
+    if ( original.constructor && (original.constructor !== Object) ) {
+      if ( strict ) throw new Error("deepClone cannot clone advanced objects")
+      return original
+    }
+
+    // Other objects
+    const clone = {}
+    for ( let k of Object.keys(original) ) {
+      clone[k] = Utils.deepClone(original[k])
+    }
+    return clone
   }
 }

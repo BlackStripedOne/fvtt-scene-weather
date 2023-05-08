@@ -17,41 +17,43 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
+import { Logger } from './utils.js'
+
 /**
  *  Todo
  */
-export class Noise {
-  static F2 = 0.5 * (Math.sqrt(3.0) - 1.0)
-  static G2 = (3.0 - Math.sqrt(3.0)) / 6.0
-  static F3 = 1.0 / 3.0
-  static G3 = 1.0 / 6.0
-  static F4 = (Math.sqrt(5.0) - 1.0) / 4.0
-  static G4 = (5.0 - Math.sqrt(5.0)) / 20.0
+export const Noise = {
+  F2: 0.5 * (Math.sqrt(3.0) - 1.0),
+  G2: (3.0 - Math.sqrt(3.0)) / 6.0,
+  F3: 1.0 / 3.0,
+  G3: 1.0 / 6.0,
+  F4: (Math.sqrt(5.0) - 1.0) / 4.0,
+  G4: (5.0 - Math.sqrt(5.0)) / 20.0,
 
   /**
    * Is making this faster but I get ~5 million ops/sec more on the benchmarks across the board or a ~10% speedup.
    * @param {*} x
    * @returns
    */
-  static fastFloor(x) {
+  fastFloor(x) {
     return Math.floor(x) | 0
-  }
+  },
 
   /**
    * Get default mulberry rom implementation of unified perlin noise
    * @param {*} seed
    * @returns
    */
-  static getMulberry32(seed) {
+  getMulberry32(seed) {
     return function () {
-      var t = (seed += 0x6d2b79f5)
+      var t = (seed += 0x6D2B79F5)
       t = Math.imul(t ^ (t >>> 15), t | 1)
       t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296
     }
-  }
+  },
 
-  static grad2 = new Float64Array([
+  grad2: new Float64Array([
     1, 1, -1, 1, 1, -1,
 
     -1, -1, 1, 0, -1, 0,
@@ -59,7 +61,7 @@ export class Noise {
     1, 0, -1, 0, 0, 1,
 
     0, -1, 0, 1, 0, -1
-  ])
+  ]),
 
   /**
    * TODO
@@ -70,17 +72,18 @@ export class Noise {
    * @param {*} baseValue
    * @param {*} variation
    * @returns
-   *
+   * TODO range changed after fix. Range was -1..1 for n, now is 0..1 for n
+   * [-3*variation..baseValue..variation]
    */
-  static getNoisedValue(noiseFunction, timeHash, mainAmpli, baseValue, variation) {
+  getNoisedValue(noiseFunction, timeHash, mainAmpli, baseValue, variation) {
     timeHash = timeHash / mainAmpli
-    let e =
+    const e =
       1 * noiseFunction(1 * timeHash, 1 * timeHash) +
       0.5 * noiseFunction(2 * timeHash, 2 * timeHash) +
       0.25 * noiseFunction(4 * timeHash, 4 * timeHash)
-    let n = e / (1 + 0.5 + 0.25)
+    const n = (e / (1 + 0.5 + 0.25) + 1)/2
     return baseValue + (variation * n * 2 - variation)
-  }
+  },
 
   /**
    * Samples the noise field in two dimensions and creates a 2D noise function
@@ -91,7 +94,7 @@ export class Noise {
    * @param random the random function that will be used to build the permutation table
    * @returns {TODO}
    */
-  static createNoise2D(seed) {
+  createNoise2D(seed) {
     const perm = Noise._buildPermutationTable(seed)
     // precalculating this yields a little ~3% performance improvement.
     const permGrad2x = new Float64Array(perm).map((v) => Noise.grad2[(v % 12) * 2])
@@ -166,7 +169,7 @@ export class Noise {
       // The result is scaled to return values in the interval [-1,1].
       return 70.0 * (n0 + n1 + n2)
     }
-  }
+  },
 
   /**
    * Builds a random permutation table.
@@ -175,7 +178,7 @@ export class Noise {
    *
    * @private
    */
-  static _buildPermutationTable(seed) {
+  _buildPermutationTable(seed) {
     const rng = Noise.getMulberry32(seed)
     const tableSize = 512
     const p = new Uint8Array(tableSize)
@@ -183,7 +186,7 @@ export class Noise {
       p[i] = i
     }
     for (let i = 0; i < tableSize / 2 - 1; i++) {
-      const r = i + ~~(rng() * (256 - i))
+      const r = i + Math.trunc(rng() * (256 - i))
       const aux = p[i]
       p[i] = p[r]
       p[r] = aux

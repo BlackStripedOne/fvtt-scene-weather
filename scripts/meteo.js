@@ -25,22 +25,23 @@ import { METEO, CLOUD_TYPE, PRECI_TYPE } from './constants.js'
  */
 export class Meteo {
 
-  /**
-   * Precalculated cache of height (meter) to pressure (hPa)
-   */
-  //_heightToPressureTable = {}
+ static _apparentTemperatureTable = {}
+
+  static _getApparentTemperatureTable(t,v,h) {
+    return Meteo._apparentTemperatureTable?.[t]?.[v]?.[h]
+  }
+
+  static _setApparentTemperatureTable(t,v,h, value) {
+    Meteo._apparentTemperatureTable[t] ??= {}
+    Meteo._apparentTemperatureTable[t][v] ??= {}
+    Meteo._apparentTemperatureTable[t][v][h] = value
+  }
+
 
   static init() {
     Logger.trace("Meteo -> precalculating pressure tables")
-    // Meteo._precalcPressureTable()
+   
   }
-
-  /*static _precalcPressureTable() {
-    Meteo._heightToPressureTable = {}
-    for (let altMeters = 0; altMeters <= 3000; altMeters += 100) {
-      Meteo._heightToPressureTable[altMeters] = Meteo._heightToPressure(altMeters)
-    }
-  }*/
 
   /**
    * TODO
@@ -101,36 +102,15 @@ export class Meteo {
    * TODO
    */
   static getCloudType(elevation, bottom, top, coverage, tempCoefficient) {
-    /* if (bottom < elevation) {
-       // In clouds
-       return CLOUD_TYPE.fog // Fog
-     } else {
-       // below clouds
-       let cloudType = CLOUD_TYPE.none
-       if (tempCoefficient < 0) {
-         if (top - bottom > 1000) {
-           cloudType = CLOUD_TYPE.cumulus // Cumulus
-         }
-         if (top - bottom > 3000) {
-           cloudType = CLOUD_TYPE.cumulunimbus // Cumulu Numbus Extremis
-         }
-       }
-       if (cloudType < CLOUD_TYPE.cumulus) {
-         if (coverage > 0.3) {
-           cloudType = CLOUD_TYPE.stratus // Stratus
-         }
-       }
-       return cloudType
-     }*/
     if (bottom < elevation) {
       // In clouds
       return CLOUD_TYPE.fog // Fog
     }
     if (tempCoefficient < 0) {
-      if (top - bottom > 1000) {
+      if (top - bottom > 3000) {
+        return CLOUD_TYPE.cumulunimbus // Cumulonimbus Extremis
+      } else if (top - bottom > 1000) {
         return CLOUD_TYPE.cumulus // Cumulus
-      } else if (top - bottom > 3000) {
-        return CLOUD_TYPE.cumulonimbus // Cumulonimbus Extremis
       }
     }
     if (coverage > 0.3) {
@@ -144,7 +124,7 @@ export class Meteo {
   /**
    * TODO
    */
-  static calcCloudCoverate(bottom, top) {
+  static calcCloudCoverage(bottom, top) {
     const cloudLayerThinckness = (top - bottom) / 100
     return Utils.clamp(cloudLayerThinckness, 0, 1)
   }
@@ -221,7 +201,7 @@ export class Meteo {
   /**
    * Get apparent temperature. Use wind chill or heat index.
    *
-   * @param {number} temperature - temperature in celsius [-30,50]
+   * @param {number} temperature - temperature in celsius [METEO.Tmin,METEO.Tmax]
    * @param {number} windSpeed - wind speed in km/h [0,]
    * @param {number} humidity - relative humidity [0,100]
    * @returns {number} the apparent temperature in degrees celsius
@@ -229,10 +209,18 @@ export class Meteo {
    * @private
    */
   static apparentTemperature(temperature, windSpeed, humidity) {
-    if (temperature < 10) {
-      return Meteo.windChill(temperature, windSpeed)
+    const tQuant = Math.round(temperature / 2) * 2
+    const vQuant = Math.round(windSpeed / 4) * 4
+    const hQuant = Math.round(humidity / 5) * 5
+    const cache = Meteo._getApparentTemperatureTable(tQuant, vQuant, hQuant)
+    if (cache) {      
+      return cache
     } else {
-      return Meteo.heatIndex(temperature, humidity)
+      const cooling = tQuant - Meteo.windChill(tQuant, vQuant)
+      const heating = (Meteo._dewPoint(tQuant, hQuant) < 12) ? 0.0 : Meteo.heatIndex(tQuant, hQuant) - tQuant      
+      const cache = tQuant - cooling + heating
+      Meteo._setApparentTemperatureTable(tQuant, vQuant, hQuant, cache)
+      return cache
     }
   }
 
@@ -246,27 +234,25 @@ export class Meteo {
    *
    * @private
    */
-  static windChill(temperature, windSpeed) {
-    if (temperature >= 10) return temperature
-    if (windSpeed >= 4.8 && windSpeed <= 177) {
+  static windChill(tempAirC, vWindKmh) {
+    if (vWindKmh >= 4.8 && vWindKmh <= 177) {
       // stronger wind cooling with more precise polynomial approximation
       return (
-        13.12 + 0.6215 * temperature + (0.3965 * temperature - 11.37) * Math.pow(windSpeed, 0.16)
+        13.12 + 0.6215 * tempAirC + (0.3965 * tempAirC - 11.37) * Math.pow(vWindKmh, 0.16)
       )
-    } else if (windSpeed < 4.8) {
+    } else if (vWindKmh < 4.8) {
       // less wind cooling with faster polynomial approximation
-      return temperature + 0.2 * (0.1345 * temperature - 1.59) * windSpeed
+      return tempAirC + 0.2 * (0.1345 * tempAirC - 1.59) * vWindKmh
     } else {
-      return temperature
+      return tempAirC
     }
   }
-
-
+  
   /**
    * Heat index calculation.
    * @see https://en.wikipedia.org/wiki/Heat_index
    *
-   * @param {number} temperature - temperature in celsius [-30, 50]
+   * @param {number} temperature - temperature in celsius [METEO.Tmin, METEO.Tmax]
    * @param {number} humidity - relative humidity [0,100]
    * @returns {number}
    *
@@ -283,19 +269,16 @@ export class Meteo {
     const c8 = 7.2546 * 0.0001
     const c9 = -3.582 * 0.000001
 
-    const temperatureSqr = temperature ** 2
-    const humiditySqr = humidity ** 2
-
     return (
       c1 +
       c2 * temperature +
       c3 * humidity +
       c4 * temperature * humidity +
-      c5 * temperatureSqr +
-      c6 * humiditySqr +
-      c7 * temperatureSqr * humidity +
-      c8 * temperature * humiditySqr +
-      c9 * temperatureSqr * humiditySqr
+      c5 * temperature * temperature +
+      c6 * humidity * humidity +
+      c7 * temperature * temperature * humidity +
+      c8 * temperature * humidity * humidity +
+      c9 * temperature * temperature * humidity * humidity
     )
   }
 
@@ -309,8 +292,7 @@ export class Meteo {
    *
    * @private
    */
-  /*static dewPoint(temperature, humidity) {
-    Logger.trace('Meteo.dewPoint(...)', {'temperature':temperature, 'humidity':humidity})
+  static _dewPoint(temperature, humidity) {
     humidity = humidity / 100
     if (temperature < 0 || temperature > 60) return temperature
     if (humidity < 0.01 || humidity > 1) return temperature
@@ -319,7 +301,7 @@ export class Meteo {
     let relativeTemperature = (METEO.Tzero * alphaTR) / (a - alphaTR)
     if (relativeTemperature < 0 || relativeTemperature > 50) return temperature
     return relativeTemperature
-  }*/
+  }
 
   /**
    * Determin wether we have positive cooling coefficient or negative one based on geopotential and temperature gradient
@@ -349,6 +331,7 @@ export class Meteo {
      * @private
      */
   static liftedCondensationLevel(temperature, humidity) {
+    if (humidity < 0 || humidity > 100) throw new Error('humidity needs to be in range 0..100')
     let Td = temperature - (100 - humidity) / 5
     return 125 * (temperature - Td)
   }

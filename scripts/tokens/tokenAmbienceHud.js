@@ -172,6 +172,7 @@ export class TokenAmbienceHud extends Application {
 
   /** @override */
   setPosition(options = {}) {
+    if (!this.token) return
     const { x, y, h, w } = this.token
     const topBottom = (Fal.getSetting('ambienceTokenHudPosition', 'top') === 'top')
     if (topBottom) {

@@ -1,0 +1,1 @@
+export const DEFAULT_FOUNDRY_10_VERSION = '10.285'

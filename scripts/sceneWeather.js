@@ -82,7 +82,7 @@ export class SceneWeather {
       case GENERATOR_MODES.DISABLED:
       case undefined:
       default:
-        return undefined // throw new Error('Unable to instantiate new SceneWeather, while being disabled.')
+        return // throw new Error('Unable to instantiate new SceneWeather, while being disabled.')
     }
   }
 
@@ -133,14 +133,14 @@ export class SceneWeather {
    *
    * @returns {SceneWeather|undefined} - The new SceneWeather instance, or undefined if an error occurred.
    */
-  static fromConfig({ sceneId = null } = {}) {
-    if (sceneId == null) {
+  static fromConfig({ sceneId } = {}) {
+    if (sceneId == undefined) {
       sceneId = canvas.scene._id
     }
     const scene = Fal.getScene(sceneId)
     if (scene === undefined) {
       Logger.error('Unable to instantiate SceneWeather for non existing Scene with id ' + sceneId)
-      return undefined
+      return
     }
     //try {
     return new SceneWeather(scene)
@@ -201,7 +201,7 @@ export class SceneWeather {
    * TODO
    */
   getWeatherModel(dayOffset = 0, hourOffset = 0) {
-    if (this.weatherModel === undefined) return undefined
+    if (this.weatherModel === undefined) return
     return this.weatherModel.getWeatherData(dayOffset, hourOffset)
   }
 
@@ -209,7 +209,7 @@ export class SceneWeather {
    * TODO
    */
   getWeatherSettings() {
-    if (this.weatherModel === undefined) return undefined
+    if (this.weatherModel === undefined) return
     let settings = {
       generator: {
         seed: Fal.getSceneFlag('seed', '', this.sceneId),

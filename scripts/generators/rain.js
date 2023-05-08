@@ -26,7 +26,7 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   SceneWeather.registerWeatherFxGenerator('rain', function (modelData) {
     if (Fal.getSetting('precipitationAlpha', 100) < 2) {
-      return undefined
+      return
     }
 
     if (

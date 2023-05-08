@@ -30,7 +30,7 @@ export class EmitterWeatherNode extends AbstractWeatherNode {
    *
    */
   static createEmitterNodeAt(origin) {
-    throw Error('Creating an Emitter Weather Node is not implemented yet.')
+    throw new Error('Creating an Emitter Weather Node is not implemented yet.')
   }
 
   /*--------------------- Private functions --------------------- */

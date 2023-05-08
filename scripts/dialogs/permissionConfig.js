@@ -68,14 +68,14 @@ export class PermissionConfigDialog extends FormApplication {
         type: 'role'
       }
     ]
-    game.users.forEach((user) => {
+    for (const user of game.users) {
       userIds.push({
         id: user._id,
         name: user.name,
         type: 'user',
         color: user.color || '#ffffff'
       })
-    })
+    }
     return userIds
   }
 
@@ -123,23 +123,23 @@ export class PermissionConfigDialog extends FormApplication {
     }
 
     const permissionIds = Permissions.getPermissionIds()
-    permissionIds.forEach((permissionId) => {
+    for (const permissionId of permissionIds) {
       let userPermissions = []
-      userIds.forEach((userId) => {
+      for (const userId of userIds) {
         userPermissions.push({
           id: userId.id,
           name: userId.name,
           check: Permissions.hasPermission(userId.id, permissionId, false),
           checkId: permissionId + '::' + userId.id
         })
-      })
+      }
       additionalData.matrix.push({
         permissionId: permissionId,
         permissionName: Permissions.getPermissionNameI18n(permissionId),
         permissionHint: Permissions.getPermissionHintI18n(permissionId),
         users: userPermissions
       })
-    })
+    }
 
     // Sort for consistency
     additionalData.matrix.sort((a, b) => a.permissionName.localeCompare(b.permissionName))
@@ -153,19 +153,17 @@ export class PermissionConfigDialog extends FormApplication {
    */
   _updateObject(event, formData) {
     let permissions = {}
-    Object.keys(formData)
-      .filter((key) => formData[key])
-      .forEach((key) => {
-        const [permissionId, userId] = key.split('::')
-        if (!(permissionId in permissions)) {
-          permissions[permissionId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
-        }
-        if (['player', 'trustedPlayer', 'assistantGameMaster'].includes(userId)) {
-          permissions[permissionId][userId] = true
-        } else {
-          permissions[permissionId].users.push(userId)
-        }
-      })
+    for (const key of Object.keys(formData).filter((key) => formData[key])) {
+      const [permissionId, userId] = key.split('::')
+      if (!(permissionId in permissions)) {
+        permissions[permissionId] = Utils.deepClone(Permissions.DEFAULT_PERMISSION_STRUCT)
+      }
+      if (['player', 'trustedPlayer', 'assistantGameMaster'].includes(userId)) {
+        permissions[permissionId][userId] = true
+      } else {
+        permissions[permissionId].users.push(userId)
+      }
+    }
     Permissions.updatePermissions(permissions)
   }
 }

@@ -1,30 +1,29 @@
 #scene-weather-macro-config code {
-    float: left;
-     clear: left;
-     width: 100%;
-     border: 1px solid black;
-     background-color: #bbb;
-     padding: 5px;
-     margin-top: 4px;
-     margin-bottom: 10px;
-  }
-  
-  #scene-weather-macro-config .notes {
-   max-width: 500px;
-   font-size: var(--font-size-14);
-   line-height: var(--line-height-12);
-   color: var(--color-text-dark-secondary);
-   margin: 3px 0;
-   flex: 1;
-  }
-  
-  #scene-weather-macro-config .hint {
-   max-width: 500px;
-   line-height: var(--line-height-12);
-   color: var(--color-text-dark-secondary);
-   margin: 3px 0;
-   font-size: var(--font-size-11);
-   font-style: italic;
-   flex: 1;
-  }
-  
+  float: left;
+   clear: left;
+   width: 100%;
+   border: 1px solid black;
+   background-color: #bbb;
+   padding: 5px;
+   margin-top: 4px;
+   margin-bottom: 10px;
+}
+
+#scene-weather-macro-config .notes {
+ max-width: 500px;
+ font-size: var(--font-size-14);
+ line-height: var(--line-height-12);
+ color: var(--color-text-dark-secondary);
+ margin: 3px 0;
+ flex: 1;
+}
+
+#scene-weather-macro-config .hint {
+ max-width: 500px;
+ line-height: var(--line-height-12);
+ color: var(--color-text-dark-secondary);
+ margin: 3px 0;
+ font-size: var(--font-size-11);
+ font-style: italic;
+ flex: 1;
+}

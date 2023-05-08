@@ -17,7 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { MODULE, WIND_SPEED, CLOUD_TYPE, PRECI_TYPE } from '../constants.js'
+import { MODULE, WIND_SPEED, CLOUD_TYPE, PRECI_TYPE, METEO } from '../constants.js'
 import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
@@ -115,6 +115,10 @@ export class WeatherConfigDialog extends FormApplication {
    */
   getData() {
     let additionalData = {
+      'const': {
+        'tmin': METEO.Tmin,
+        'tmax': METEO.Tmax
+      },      
       windSpeeds: Object.entries(WIND_SPEED).map(([name, id]) => {
         if (name === 'hurricane') {
           return { id: 120, name: 'dialogs.weatherConfig.wind.speeds.hurricane' }

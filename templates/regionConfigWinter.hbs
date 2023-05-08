@@ -1,9 +1,9 @@
 <fieldset class="sceneWeather-fieldSet">
-  <legend><i class="fas fa-solid fa-temperature-smowflake"></i> {{localize 'dialogs.regionConfig.temperature.title'}}
+  <legend><i class="fas fa-solid fa-temperature-snow"></i> {{localize 'dialogs.regionConfig.temperature.title'}}
   </legend>
   <div class="form-group">
     <div class="sceneweather-slider" data-min="winter.temperature.night" data-max="winter.temperature.day"
-      data-range="-30,50" data-unit="°C"></div>
+      data-range="{{const.tmin}},{{const.tmax}}" data-unit="°C"></div>
     <input type="number" data-dtype="Number" name="winter.temperature.day" value="{{winter.temperature.day}}"
       style="display:none;">
     <input type="number" data-dtype="Number" name="winter.temperature.night" value="{{winter.temperature.night}}"

@@ -477,7 +477,6 @@ export class SceneWeatherLayer extends InteractionLayer {
       zIndex: 479,
       canControl: Permissions.hasPermission(Fal.userID(), 'sceneSettings')
     })
-    Logger.trace('LAYER_OPTIONS', { 'layerOptions': layerOptions })
     return layerOptions
   }
 

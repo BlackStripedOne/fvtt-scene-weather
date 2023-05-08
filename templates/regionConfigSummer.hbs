@@ -2,7 +2,7 @@
   <legend><i class="fas fa-solid fa-temperature-sun"></i> {{localize 'dialogs.regionConfig.temperature.title'}}</legend>
   <div class="form-group">
     <div class="sceneweather-slider" data-min="summer.temperature.night" data-max="summer.temperature.day"
-      data-range="-30,50" data-unit="°C"></div>
+      data-range="{{const.tmin}},{{const.tmax}}" data-unit="°C"></div>
     <input type="number" data-dtype="Number" name="summer.temperature.day" value="{{summer.temperature.day}}"
       style="display:none;">
     <input type="number" data-dtype="Number" name="summer.temperature.night" value="{{summer.temperature.night}}"

@@ -23,25 +23,25 @@ import { Logger, Utils } from './utils.js'
 /**
  * Scene Weather's public API functions, attached to the foundry game object.
  */
-export class SceneWeatherState {
-  static _lastUpdate = 0 // last update in timeHash
+export const SceneWeatherState = {
+  _lastUpdate: 0, // last update in timeHash
 
-  static _sceneWeather = {} // cached instances of sceneWeather by scene ID
+  _sceneWeather: {}, // cached instances of sceneWeather by scene ID
 
   // all region templates
   // templates can be registered via the api call SceneWeather.registerRegionTemplate(moduleId, templateId, weatherData)
-  static _regionTemplates = {}
+  _regionTemplates: {},
 
   // all static weather templates
   // templates can be registered via the api call SceneWeather.registerWeatherTemplate(moduleId, templateId, weatherData)
-  static _weatherTemplates = {}
+  _weatherTemplates: {},
 
   // all registered generators
   // TODO change to object with unique ids
-  static _generators = []
+  _generators: [],
 
   // all registered filters
-  static _filters = []
+  _filters: [],
 
   /**
    * This private function is used to get the SceneWeather provider instance for the specified scene ID, or for the
@@ -57,8 +57,8 @@ export class SceneWeatherState {
    * @param {boolean} [ignoreCache=false] - Flag indicating whether to ignore the cache and generate a new instance of SceneWeather provider.
    * @returns {SceneWeather|undefined} The SceneWeather provider instance for the specified scene ID, or undefined if the canvas is not ready.
    */
-  static getSceneWeatherProvider(forSceneId = undefined, ignoreCache = false) {
-    if (!canvas || !canvas.ready) return undefined
+  getSceneWeatherProvider(forSceneId, ignoreCache = false) {
+    if (!canvas || !canvas.ready) return
     let sceneId = canvas.scene._id
     if (forSceneId !== undefined) {
       sceneId = forSceneId

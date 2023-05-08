@@ -6,7 +6,7 @@
     <div class="form-group">
       <label for="temp.ground">{{localize 'dialogs.weatherConfig.temperature.ground'}}</label>
       <div class="form-fields">
-        <input type="range" data-dtype="Number" min="-30" max="50" step="1" value="{{temp.ground}}">
+        <input type="range" data-dtype="Number" min="{{const.tmin}}" max="{{const.tmax}}" step="1" value="{{temp.ground}}">
         <input type="number" data-dtype="Number" class="range-value unit small" name="temp.ground"
           placeholder="{{temp.ground}}" value="{{temp.ground}}"><span>{{localize 'dialogs.degCelsius'}}</span>
       </div>
@@ -14,7 +14,7 @@
     <div class="form-group">
       <label for="temp.air">{{localize 'dialogs.weatherConfig.temperature.air'}}</label>
       <div class="form-fields">
-        <input type="range" data-dtype="Number" min="-30" max="50" step="1" value="{{temp.air}}">
+        <input type="range" data-dtype="Number" min="{{const.tmin}}" max="{{const.tmax}}" step="1" value="{{temp.air}}">
         <input type="number" data-dtype="Number" class="range-value unit small" name="temp.air"
           placeholder="{{temp.air}}" value="{{temp.air}}"><span>{{localize 'dialogs.degCelsius'}}</span>
       </div>
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div id="windTypeGrp" class="form-group disabled">
+    <div id="windTypeGrp" class="form-group {{#if (eq wind.directionType '1')}}disabled{{/if}}">
       <label for="wind.direction">{{localize 'dialogs.weatherConfig.wind.direction'}}</label>
       <div class="form-fields">
         <input type="range" data-dtype="Number" min="0" max="359" step="1" value="{{wind.direction}}">

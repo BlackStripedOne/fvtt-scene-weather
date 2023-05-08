@@ -25,7 +25,7 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
 Hooks.on(MODULE.LCCNAME + 'RegisterGenerators', async () => {
   SceneWeather.registerWeatherFxGenerator('nimbus', function (modelData) {
     if (Fal.getSetting('cloudsAlpha', 100) < 2) {
-      return undefined
+      return
     }
 
     if (modelData.clouds.type != CLOUD_TYPE.cumulunimbus) return null

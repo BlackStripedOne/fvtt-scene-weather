@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from '../utils.js'
-import { MODULE } from '../constants.js'
+import { MODULE, METEO } from '../constants.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 /**
@@ -134,6 +134,10 @@ export class RegionConfigDialog extends FormApplication {
    */
   getData() {
     let additionalData = {
+      'const': {
+        'tmin': METEO.Tmin,
+        'tmax': METEO.Tmax
+      },
       waterAmounts: Array.from({ length: 5 }, (_, i) => ({
         id: i * 25,
         name: `dialogs.regionConfig.waterAmounts_${i * 25}`

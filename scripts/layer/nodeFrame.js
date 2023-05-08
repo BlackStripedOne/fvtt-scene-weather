@@ -72,7 +72,7 @@ export class NodeFrame extends PIXI.Container {
    * Refresh the boundary frame which outlines the WeatherNode
    */
   refresh() {
-    if (!canvas.sceneweather.controlled.length) {
+    if (canvas.sceneweather.controlled.length === 0) {
       this.visible = false
       return
     }
@@ -189,7 +189,7 @@ export class NodeFrame extends PIXI.Container {
       }
       : {}
     // scale all controlled weatherNodes
-    canvas.sceneweather.controlled.forEach((weatherNode) => {
+    for (const weatherNode of canvas.sceneweather.controlled) {
       if (weatherNode._original) {
         const testData = new WeatherNodeData(weatherNode.data.toObject())
         for (let i = 0; i < weatherNode.data.borderNodes.length; i++) {
@@ -242,7 +242,7 @@ export class NodeFrame extends PIXI.Container {
         }
         weatherNode.refresh()
       }
-    })
+    }
   }
 
   /**
@@ -312,9 +312,9 @@ export class NodeFrame extends PIXI.Container {
 
     if (!this.allControlledLocked) {
       this._dragHandle = true
-      canvas.sceneweather.controlled.forEach((weatherNode) => {
+      for (const weatherNode of canvas.sceneweather.controlled) {
         weatherNode._original = weatherNode.data.toObject()
-      })
+      }
     }
     event.data.origin = this._getControlledBounds()
   }
@@ -405,9 +405,9 @@ export class NodeFrame extends PIXI.Container {
     // RESET TO ORIGINAL this.document.updateSource(this._original);
     this._dragHandle = false
     // delete this._original
-    canvas.sceneweather.controlled.forEach((weatherNode) => {
+    for (const weatherNode of canvas.sceneweather.controlled) {
       delete weatherNode._original
-    })
+    }
     this.refresh()
   }
 

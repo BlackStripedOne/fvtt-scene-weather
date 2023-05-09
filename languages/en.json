@@ -108,6 +108,10 @@
     "meteogramUi": {
       "name": "Meteogram UI usage",
       "hint": "Allows use of the Meteogram UI for a finer overview of weather formation and evolution over time."
+    },
+    "ambienceHud": {
+      "name": "Token Ambience HUD display",
+      "hint": "Allows use of the Token Ambience HUD to see the perceived ambience of an individual token via mouse-over."
     }
   },
   "configTab": {

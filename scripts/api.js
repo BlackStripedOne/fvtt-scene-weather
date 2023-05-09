@@ -23,7 +23,7 @@ import { WeatherPerception } from './percievers/weatherPerception.js'
 import { FoundryAbstractionLayer as Fal } from './fal.js'
 import { SceneWeatherState } from './state.js'
 import { MacroConfigDialog } from './macros/macroConfig.js'
-import { GENERATOR_MODES, CLOUD_TYPE, PRECI_TYPE, WIND_MODES } from './constants.js'
+import { GENERATOR_MODES, CLOUD_TYPE, PRECI_TYPE, WIND_MODES, METEO } from './constants.js'
 import { Permissions } from './permissions.js'
 import { TokenAmbience } from './tokens/ambience.js'
 
@@ -154,7 +154,7 @@ export function getSceneWeatherAPIv1() {
    * // Update the weather configuration for a specific scene, forcing a refresh of the internal caches
    * await SceneWeather.updateWeatherConfig({ forSceneId: 'myScene', force: true });
    */
-  async function updateWeatherConfig({ forSceneId = undefined, force = false } = {}) {
+  async function updateWeatherConfig({ forSceneId, force = false } = {}) {
     Logger.debug('updateWeatherConfig', { forSceneId: forSceneId, force: force })
     // Update from configs
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider(forSceneId, force)
@@ -185,7 +185,7 @@ export function getSceneWeatherAPIv1() {
    * // Update weather for a specific scene and force recalculation
    * await SceneWeather.updateWeather({ force: true, sceneId: "abc123" });
    */
-  async function updateWeather({ force = false, sceneId = undefined } = {}) {
+  async function updateWeather({ force = false, sceneId } = {}) {
     Logger.debug('updateWeather(...)', {
       sceneId: sceneId,
       force: force,
@@ -348,18 +348,36 @@ export function getSceneWeatherAPIv1() {
   }
 
   /**
-   * TODO
+   * Returns the ambience data structure for a given token, based on its position and current weather conditions.
+   * @param {Token} token - The token for which to retrieve the ambience data.
+   * @returns {object} [ambience={}] - The ambience data structure for the token.
+   * @returns {object} [ambience.temp={}] - Information about the current temperature at the token.
+   * @returns {number} [ambience.temp.actual] - Real temperature in degrees celsius
+   * @returns {number} [ambience.temp.percieved] - Apparent or percieved temperature in degrees celsius
+   * @returns {number} [ambience.humidity] - Relative humidity in percent
+   * @returns {object} [ambience.clouds={}] - Information about clouds at the tokens' location
+   * @returns {string} [ambience.clouds.type] - String enumeration representing the kind of clouds, any of [none, fog, stratus, cumulus, cumulunimbus, unknown]
+   * @returns {number} [ambience.clouds.amount] - The cloud coverage in percent
+   * @returns {object} [ambience.precipitation={}] - Information about precipitation at the tokens' location
+   * @returns {string} [ambience.precipitation.type] - String enumeration representing the kind of precipitation, any of [none, drizzle, rain, downpour, hail, snow, blizzard, unknown]
+   * @returns {number} [ambience.precipitation.amount] - The precipitation amount in percent
+   * @returns {object} [ambience.wind={}] - Information about wind at the tokens' location
+   * @returns {number} [ambience.wind.speed] - Windspeed in km/h
+   * @returns {number} [ambience.wind.direction] - Wind direction in degrees 0, north up
+   * @returns {object} [ambience.sun={}] - Information about sunshine at the tokens' location
+   * @returns {number} [ambience.sun.amount] - Direct sunshine amonut in percent
+   * @returns {string} [ambience.condition] - String enumeration representing the location condition, any of [outside, lightroof, roof, inside, underground, unknown]
    */
   function getTokenAmbience(token) {
-    if (!token || !token instanceof Token) return undefined
-    if (!token || !canvas || !canvas.ready) return undefined
+    if (!token || !token instanceof Token) return
+    if (!token || !canvas || !canvas.ready) return
     if (!Fal.getControlledTokens().includes(token)) {
       Logger.warn('getTokenAmbience | No permission to get for non controlled tokens.')
-      return undefined
+      return
     }
     // no SceneWeather enabled, no ambience
     const weatherProvider = SceneWeatherState.getSceneWeatherProvider()
-    if (!weatherProvider) return undefined
+    if (!weatherProvider) return
     return TokenAmbience.getAmbienceForPosition(token.center || { x: -1, y: -1 }, weatherProvider)
   }
 
@@ -459,10 +477,10 @@ export function getSceneWeatherAPIv1() {
       const safeWeatherData = {
         temp: {
           ground: _checkParam(weatherSettings, 'temp.ground', 'number', (v) => {
-            return Math.round(Utils.clamp(v, -30, 50))
+            return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
           }),
           air: _checkParam(weatherSettings, 'temp.air', 'number', (v) => {
-            return Math.round(Utils.clamp(v, -30, 50))
+            return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
           })
         },
         humidity: _checkParam(weatherSettings, 'humidity', 'number', (v) => {
@@ -593,8 +611,8 @@ export function getSceneWeatherAPIv1() {
    * @param {number} regionSettings.waterAmount - The water amount value to set for the scene (between 0 and 100).
    * @param {Object} regionSettings.summer - The summer settings to set for the scene.
    * @param {Object} regionSettings.summer.temperature - The summer temperature settings to set for the scene.
-   * @param {number} regionSettings.summer.temperature.day - The day temperature value to set for the summer (between -30 and 50).
-   * @param {number} regionSettings.summer.temperature.night - The night temperature value to set for the summer (between -30 and 50).
+   * @param {number} regionSettings.summer.temperature.day - The day temperature value to set for the summer (between METEO.Tmin and METEO.Tmax).
+   * @param {number} regionSettings.summer.temperature.night - The night temperature value to set for the summer (between METEO.Tmin and METEO.Tmax).
    * @param {number} regionSettings.summer.temperature.var - The temperature variation value to set for the summer (between 0 and 20).
    * @param {Object} regionSettings.summer.humidity - The summer humidity settings to set for the scene.
    * @param {number} regionSettings.summer.humidity.day - The day humidity value to set for the summer (between 0 and 100).
@@ -607,8 +625,8 @@ export function getSceneWeatherAPIv1() {
    * @param {number} regionSettings.summer.sun.hours - The sun hours value to set for the summer (between 1 and 23).
    * @param {Object} regionSettings.winter - The winter settings to set for the scene.
    * @param {Object} regionSettings.winter.temperature - The winter temperature settings to set for the scene.
-   * @param {number} regionSettings.winter.temperature.day - The day temperature value to set for the winter (between -30 and 50).
-   * @param {number} regionSettings.winter.temperature.night - The night temperature value to set for the winter (between -30 and 50).
+   * @param {number} regionSettings.winter.temperature.day - The day temperature value to set for the winter (between METEO.Tmin and METEO.Tmax).
+   * @param {number} regionSettings.winter.temperature.night - The night temperature value to set for the winter (between METEO.Tmin and METEO.Tmax).
    * @param {number} regionSettings.winter.temperature.var - The temperature variation value to set for the winter (between 0 and 20).
    * @param {Object} regionSettings.winter.humidity - The winter humidity settings to set for the scene.
    * @param {number} regionSettings.winter.humidity.day - The day humidity value to set for the winter (between 0 and 100).
@@ -644,10 +662,10 @@ export function getSceneWeatherAPIv1() {
         summer: {
           temperature: {
             day: _checkParam(regionSettings, 'summer.temperature.day', 'number', (v) => {
-              return Math.round(Utils.clamp(v, -30, 50))
+              return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
             }),
             night: _checkParam(regionSettings, 'summer.temperature.night', 'number', (v) => {
-              return Math.round(Utils.clamp(v, -30, 50))
+              return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
             }),
             var: _checkParam(regionSettings, 'summer.temperature.var', 'number', (v) => {
               return Math.round(Utils.clamp(v, 0, 20))
@@ -681,10 +699,10 @@ export function getSceneWeatherAPIv1() {
         winter: {
           temperature: {
             day: _checkParam(regionSettings, 'winter.temperature.day', 'number', (v) => {
-              return Math.round(Utils.clamp(v, -30, 50))
+              return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
             }),
             night: _checkParam(regionSettings, 'winter.temperature.night', 'number', (v) => {
-              return Math.round(Utils.clamp(v, -30, 50))
+              return Math.round(Utils.clamp(v, METEO.Tmin, METEO.Tmax))
             }),
             var: _checkParam(regionSettings, 'winter.temperature.var', 'number', (v) => {
               return Math.round(Utils.clamp(v, 0, 20))
@@ -825,7 +843,7 @@ export function getSceneWeatherAPIv1() {
     } else {
       if (keyName in input) {
         const value = input[keyName]
-        if (type != null) {
+        if (type != undefined) {
           // type check
           const vType = getType(value)
           if (vType != type) {

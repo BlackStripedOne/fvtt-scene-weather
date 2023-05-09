@@ -17,21 +17,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger, Utils } from '../utils.js'
-import { EVENTS, MODULE } from '../constants.js'
+import { EVENTS } from '../constants.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
-
 
 Hooks.on(EVENTS.MODULE_READY, () => {
   // Show debugging toast only on log levels trace and debug
   if (Fal.isGm() && ['trace', 'debug'].includes(Fal.getSetting('loglevel', 'info'))) {
     canvas.sceneweather.debugToast = new DebugToast()
   }
-  canvas.sceneweather.debugToast = new DebugToast()
 })
 
 /**
- * TODO
+ * Debugging only, TOOD remove from module
  */
 export class DebugToast {
 

@@ -31,12 +31,6 @@ import { SceneWeatherState } from '../state.js'
  * @param {string} id - The id of the token being updated.
  */
 Hooks.on('updateToken', async (doc, change, flags, id) => {
-  Logger.trace('TokenAmbience:updateToken  -> (...)', {
-    doc: doc,
-    change: change,
-    flags: flags,
-    id: id
-  })
   for (const token of Fal.getControlledTokens()) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
     Logger.trace('updateToken', { token: token, ambienceModel: ambienceModel })
@@ -56,7 +50,6 @@ Hooks.on('updateToken', async (doc, change, flags, id) => {
  * @param {Function} async (data) => {...} - The function to be called when the event is triggered.
  */
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
-  Logger.trace('TokenAmbience:weatherUpdated', { data: data })
   for (const token of Fal.getOwnedTokens()) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
     Logger.trace('weatherUpdated', { token: token, ambienceModel: ambienceModel })
@@ -79,7 +72,6 @@ Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
 Hooks.on('refreshToken', async (token, options) => {
   if (token.isOwner && !('ambience' in token)) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('createToken', { token: token, ambienceModel: ambienceModel })
     if (ambienceModel) {
       // set ambience to token
       TokenAmbience.injectAmbienceToToken(token, ambienceModel)
@@ -100,10 +92,8 @@ Hooks.on('refreshToken', async (token, options) => {
  * @param {boolean} tokenControl - A boolean indicating whether the Token is currently under the control of a player.
  */
 Hooks.on('controlToken', async (token, tokenControl) => {
-  Logger.trace('TokenAmbience:controlToken', { token: token, tokenControl: tokenControl })
   if (tokenControl) {
     const ambienceModel = TokenAmbience.getAmbienceModelForToken(token)
-    Logger.trace('controlToken', { token: token, ambienceModel: ambienceModel })
     if (!ambienceModel) return
     if (canvas.sceneweather.sfxHandler) {
       canvas.sceneweather.sfxHandler.updateSounds(ambienceModel, false)

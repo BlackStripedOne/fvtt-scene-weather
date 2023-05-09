@@ -47,12 +47,12 @@ export class WeatherEffect extends ParticleEffect {
   static _getFxEmittersForModel(modelData) {
     // TODO check for correct modelData content
     let emitterConfigs = []
-    SceneWeatherState._generators.forEach((generator) => {
+    for (const generator of SceneWeatherState._generators) {
       let config = generator.getEmitter(modelData)
       if (config) {
         emitterConfigs.push(config)
       }
-    })
+    }
     Logger.debug('WeatherEffect._getFxEmittersForModel()', {
       model: modelData,
       gen: SceneWeatherState._generators,
@@ -76,8 +76,7 @@ export class WeatherEffect extends ParticleEffect {
     let totalWeights = 0
 
     // Calculate the total number of particles and the total weight of all emitter configurations.
-    for (let i = 0; i < emitterConfigs.length; i++) {
-      const emitterConfig = emitterConfigs[i]
+    for (const emitterConfig of emitterConfigs) {
       totalParticles += emitterConfig.maxParticles
       totalWeights += emitterConfig.weight
     }
@@ -90,15 +89,13 @@ export class WeatherEffect extends ParticleEffect {
 
     // Calculate the reduction factor for the number of particles based on the weight of each emitter configuration.
     let reductionFactor = 0
-    for (let i = 0; i < emitterConfigs.length; i++) {
-      const emitterConfig = emitterConfigs[i]
+    for (const emitterConfig of emitterConfigs) {
       reductionFactor += emitterConfig.maxParticles * (emitterConfig.weight / totalWeights)
     }
     reductionFactor = maxParticles / reductionFactor
 
     // Update the maxParticles property of each emitter configuration based on the reduction factor and weight.
-    for (let i = 0; i < emitterConfigs.length; i++) {
-      const emitterConfig = emitterConfigs[i]
+    for (const emitterConfig of emitterConfigs) {
       emitterConfig.maxParticles *= reductionFactor * (emitterConfig.weight / totalWeights)
     }
     Logger.debug('WeatherEffect._equalizeMaxParticles()', {
@@ -115,12 +112,12 @@ export class WeatherEffect extends ParticleEffect {
    */
   play({ easeIn = true } = {}) {
     if (!easeIn) {
-      this.emitters.forEach((emitter) => {
+      for (const emitter of this.emitters) {
         emitter.autoUpdate = false
         emitter.emit = true
         emitter.update(emitter.maxLifetime)
         emitter.autoUpdate = true
-      })
+      }
     }
     super.play()
   }
@@ -147,9 +144,9 @@ export class WeatherEffect extends ParticleEffect {
 
     let emitters = []
     // TODO order of effects ( z-ordering )
-    emitterConfigs.forEach((emitterConfig) => {
+    for (const emitterConfig of emitterConfigs) {
       emitters.push(this.createEmitter(emitterConfig))
-    })
+    }
     return emitters
   }
 

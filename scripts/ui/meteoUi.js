@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { Logger, Utils } from '../utils.js'
-import { EVENTS, MODULE } from '../constants.js'
+import { EVENTS, MODULE, METEO } from '../constants.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 
 Hooks.on(EVENTS.WEATHER_UPDATED, async (data) => {
@@ -339,8 +339,8 @@ export class MeteoUi extends FormApplication {
             display: true,
             position: 'left',
             type: 'linear',
-            min: -30,
-            max: 70,
+            min: METEO.Tmin,
+            max: METEO.Tmax,
             title: {
               display: true,
               text: '°C'

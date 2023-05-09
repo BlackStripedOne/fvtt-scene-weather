@@ -4,8 +4,8 @@
     "useTabs": false,
     "semi": false,
     "singleQuote": true,
-    "printWidth": 100,
+    "printWidth": 160,
     "quoteProps": "as-needed",
     "bracketSpacing": true,
     "arrowParens": "always"
-}
+  }

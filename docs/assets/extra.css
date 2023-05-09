@@ -22,6 +22,7 @@ header {
 .admonition {
   background-color: #555 !important;
   color: #eee !important;
+  box-shadow: 0 0.2rem 0.7rem rgb(0 0 0 / 70%), 0 0 0.1rem rgb(0 0 0 / 90%) !important;
 }
 
 p {
@@ -37,6 +38,14 @@ p {
 .md-footer-meta {
     background: transparent;
 }
+
+@media screen and (max-width: 76.1875em) {
+
+  .md-nav--primary .md-nav__title~.md-nav__list {
+    background-color: #888;
+  }
+
+} 
 
 /* change link colors for grey theme */
 .md-header-nav__button:hover {
@@ -158,6 +167,7 @@ code block background
 */
 .highlight {
   background-color: #313439 !important;
+  box-shadow: 0 0.2rem 0.7rem rgb(0 0 0 / 70%), 0 0 0.1rem rgb(0 0 0 / 90%) !important;
 }
 
 /*

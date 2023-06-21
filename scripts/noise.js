@@ -17,8 +17,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import { Logger } from './utils.js'
-
 /**
  *  Todo
  */
@@ -36,6 +34,7 @@ export const Noise = {
    * @returns
    */
   fastFloor(x) {
+    // eslint-disable-next-line unicorn/prefer-math-trunc
     return Math.floor(x) | 0
   },
 
@@ -46,7 +45,7 @@ export const Noise = {
    */
   getMulberry32(seed) {
     return function () {
-      var t = (seed += 0x6D2B79F5)
+      var t = (seed += 0x6d2b79f5)
       t = Math.imul(t ^ (t >>> 15), t | 1)
       t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296
@@ -77,12 +76,13 @@ export const Noise = {
    */
   getNoisedValue(noiseFunction, timeHash, mainAmpli, baseValue, variation) {
     timeHash = timeHash / mainAmpli
-    const e =
-      1 * noiseFunction(1 * timeHash, 1 * timeHash) +
-      0.5 * noiseFunction(2 * timeHash, 2 * timeHash) +
-      0.25 * noiseFunction(4 * timeHash, 4 * timeHash)
-    const n = (e / (1 + 0.5 + 0.25) + 1)/2
+    const e = 1 * noiseFunction(1 * timeHash, 1 * timeHash) + 0.5 * noiseFunction(2 * timeHash, 2 * timeHash) + 0.25 * noiseFunction(4 * timeHash, 4 * timeHash)
+    // TODO here: wrong implementation, yet good weather
+    let n = e / (1 + 0.5 + 0.25)
     return baseValue + (variation * n * 2 - variation)
+    // TODO below: correct version, yet bad weather
+    // const n = (e / (1 + 0.5 + 0.25) + 1)/2
+    // return baseValue + (variation * n * 2 - variation)
   },
 
   /**

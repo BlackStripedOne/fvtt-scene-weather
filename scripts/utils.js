@@ -23,6 +23,7 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
 /**
  * Foundry and console logging
  */
+// eslint-disable-next-line unicorn/no-static-only-class
 export class Logger {
   static info(message, notify = false) {
     if (notify) {
@@ -36,10 +37,7 @@ export class Logger {
     if (notify) {
       ui.notifications.warn(message, { permanent: permanent })
     } else {
-      console.error(
-        '%c' + MODULE.NAME + ' | ' + message,
-        'color: gold; background-color: darkgoldenrod;'
-      )
+      console.error('%c' + MODULE.NAME + ' | ' + message, 'color: gold; background-color: darkgoldenrod;')
     }
   }
 
@@ -47,21 +45,18 @@ export class Logger {
     if (notify) {
       ui.notifications.error(message, { permanent: permanent })
     } else {
-      console.error(
-        '%c' + MODULE.NAME + ' | ' + message,
-        'color: orangered; background-color: darkred;'
-      )
+      console.error('%c' + MODULE.NAME + ' | ' + message, 'color: orangered; background-color: darkred;')
     }
   }
 
   static _dereferencer = {
     info: {
-      debug: () => { },
-      trace: () => { }
+      debug: () => {},
+      trace: () => {}
     },
     debug: {
       debug: Logger._debug,
-      trace: () => { }
+      trace: () => {}
     },
     trace: {
       debug: Logger._debug,
@@ -89,11 +84,7 @@ export class Logger {
   static _trace(message, data) {
     if (data) {
       const dataClone = Utils.deepClone(data)
-      console.log(
-        '%c' + MODULE.NAME + ' | ' + message,
-        'color: lime; background-color: darkgreen;',
-        dataClone
-      )
+      console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;', dataClone)
     } else {
       console.log('%c' + MODULE.NAME + ' | ' + message, 'color: lime; background-color: darkgreen;')
     }
@@ -104,9 +95,73 @@ export class Logger {
  * Utilit class for generic fvtt ease-of-uses
  */
 export const Utils = {
+  getSplinePoints(pts, tension = 0.5, isClosed = false, numOfSegments = 16) {
+    let _pts = [],
+      res = [], // clone array
+      x,
+      y, // our x,y coords
+      t1x,
+      t2x,
+      t1y,
+      t2y, // tension vectors
+      c1,
+      c2,
+      c3,
+      c4, // cardinal points
+      st // clone array so we don't change the original
+    // eslint-disable-next-line unicorn/prefer-spread
+    _pts = pts.slice(0)
 
+    // The algorithm require a previous and next point to the actual point array.
+    // Check if we will draw closed or open curve.
+    // If closed, copy end points to beginning and first points to end
+    // If open, duplicate first points to befinning, end points to end
+    if (isClosed) {
+      _pts.unshift(pts[pts.length - 1])
+      _pts.unshift(pts[pts.length - 2])
+      _pts.unshift(pts[pts.length - 1])
+      _pts.unshift(pts[pts.length - 2])
+      _pts.push(pts[0], pts[1])
+    } else {
+      _pts.unshift(pts[1]) //copy 1. point and insert at beginning
+      _pts.unshift(pts[0])
+      _pts.push(pts[pts.length - 2], pts[pts.length - 1])
+    }
+
+    // 1. loop goes through point array
+    // 2. loop goes through each segment between the 2 pts + 1e point before and after
+    for (let i = 2; i < _pts.length - 4; i += 2) {
+      for (let t = 0; t <= numOfSegments; t++) {
+        // calc tension vectors
+        t1x = (_pts[i + 2] - _pts[i - 2]) * tension
+        t2x = (_pts[i + 4] - _pts[i]) * tension
+
+        t1y = (_pts[i + 3] - _pts[i - 1]) * tension
+        t2y = (_pts[i + 5] - _pts[i + 1]) * tension
+
+        // calc step
+        st = t / numOfSegments
+
+        // calc cardinals
+        c1 = 2 * Math.pow(st, 3) - 3 * Math.pow(st, 2) + 1
+        c2 = -(2 * Math.pow(st, 3)) + 3 * Math.pow(st, 2)
+        c3 = Math.pow(st, 3) - 2 * Math.pow(st, 2) + st
+        c4 = Math.pow(st, 3) - Math.pow(st, 2)
+
+        // calc x and y cords with common control vectors
+        x = c1 * _pts[i] + c2 * _pts[i + 2] + c3 * t1x + c4 * t2x
+        y = c1 * _pts[i + 1] + c2 * _pts[i + 3] + c3 * t1y + c4 * t2y
+
+        //store points in array
+        res.push(x, y)
+      }
+    }
+    return res
+  },
+
+  // eslint-disable-next-line unicorn/no-null
   getKeyByValue(obj, value, defaultValue = null) {
-    const key = Object.keys(obj).find(key => obj[key] === value)
+    const key = Object.keys(obj).find((key) => obj[key] === value)
     return key !== undefined ? key : defaultValue
   },
 
@@ -123,6 +178,7 @@ export const Utils = {
     let value = obj
 
     for (let key of keys) {
+      // eslint-disable-next-line no-prototype-builtins
       if (!value.hasOwnProperty(key)) {
         return
       }
@@ -162,6 +218,7 @@ export const Utils = {
    *  longPress: () => { return true; }
    * });
    */
+  // eslint-disable-next-line unicorn/no-null
   createInteractionManager(instance, handlers = {}, permissions = {}, target = null) {
     const options = { target: target }
     // merge manually set permissions with default perimssions for all given handlers
@@ -203,7 +260,7 @@ export const Utils = {
     let hash = 0
     if (string.length === 0) return hash
     for (let i = 0; i < string.length; i++) {
-      const char = string.charCodeAt(i)
+      const char = string.codePointAt(i)
       hash = (hash << 5) - hash + char
       hash = Math.trunc(hash) // Convert to 32bit integer
     }
@@ -218,6 +275,7 @@ export const Utils = {
    */
   objectsEqual(a, b) {
     if (a === undefined || b === undefined) return false
+    // eslint-disable-next-line unicorn/no-null
     if (a == null || b == null) return a === b
     if (getType(a) !== 'Object' || getType(b) !== 'Object') return a === b
     if (Object.keys(a).length !== Object.keys(b).length) return false
@@ -307,6 +365,7 @@ export const Utils = {
     // Iterate over the other object
     for (let k of Object.keys(other)) {
       const v = other[k]
+      // eslint-disable-next-line no-prototype-builtins
       if (original.hasOwnProperty(k)) {
         Utils._mergeUpdate(original, k, v, options, _d + 1)
       } else {
@@ -346,13 +405,7 @@ export const Utils = {
    * A helper function for merging objects when the target key exists in the original
    * @private
    */
-  _mergeUpdate(
-    original,
-    k,
-    v,
-    { insertKeys, insertValues, enforceTypes, overwrite, recursive, performDeletions, expand } = {},
-    _d
-  ) {
+  _mergeUpdate(original, k, v, { insertKeys, insertValues, enforceTypes, overwrite, recursive, performDeletions, expand } = {}, _d) {
     const x = original[k]
     const tv = getType(v)
     const tx = getType(x)
@@ -389,6 +442,8 @@ export const Utils = {
    * @return {object}           A flattened object
    */
   flattenObject(obj, _d = 0) {
+    // TODO use Fal?
+    // eslint-disable-next-line no-undef
     return flattenObject(obj, _d)
   },
 
@@ -398,21 +453,22 @@ export const Utils = {
    * @param {number} [_d=0]   Track the recursion depth to prevent overflow
    * @return {object}         An expanded object
    */
-  expandObject(obj, _d=0) {
-    if ( _d > 100 ) throw new Error("Maximum object expansion depth exceeded")
+  expandObject(obj, _d = 0) {
+    if (_d > 100) throw new Error('Maximum object expansion depth exceeded')
 
     // Recursive expansion function
     function _expand(value) {
-      if ( value instanceof Object ) {
-        if ( Array.isArray(value) ) return value.map(_expand)
-        else return Utils.expandObject(value, _d+1)
+      if (value instanceof Object) {
+        // eslint-disable-next-line unicorn/no-array-callback-reference
+        if (Array.isArray(value)) return value.map(_expand)
+        else return Utils.expandObject(value, _d + 1)
       }
       return value
     }
 
     // Expand all object keys
     const expanded = {}
-    for ( let [k, v] of Object.entries(obj) ) {
+    for (let [k, v] of Object.entries(obj)) {
       Utils.setProperty(expanded, k, _expand(v))
     }
     return expanded
@@ -431,18 +487,19 @@ export const Utils = {
     let changed = false
 
     // Convert the key to an object reference if it contains dot notation
-    if ( key.indexOf('.') !== -1 ) {
+    if (key.includes('.')) {
       let parts = key.split('.')
       key = parts.pop()
       target = parts.reduce((o, i) => {
-        if ( !o.hasOwnProperty(i) ) o[i] = {}
+        // eslint-disable-next-line no-prototype-builtins
+        if (!o.hasOwnProperty(i)) o[i] = {}
         return o[i]
       }, object)
     }
 
     // Update the target
-    if ( target[key] !== value ) {
-      changed = true;
+    if (target[key] !== value) {
+      changed = true
       target[key] = value
     }
 
@@ -575,6 +632,7 @@ export const Utils = {
    * @returns {object} The object without the given key.
    */
   omit(object, key) {
+    // eslint-disable-next-line no-unused-vars
     const { [key]: _omitted, ...rest } = object
     return rest
   },
@@ -599,26 +657,26 @@ export const Utils = {
    * @param {boolean} [options.strict=false] Throw an Error if deepClone is unable to clone something instead of returning the original
    * @return {*}                             The clone of that data
    */
-  deepClone(original, {strict=false}={}) {
-
+  deepClone(original, { strict = false } = {}) {
     // Simple types
-    if ( (typeof original !== "object") || (original === null) ) return original
+    if (typeof original !== 'object' || original === null) return original
 
     // Arrays
-    if ( original instanceof Array ) return original.map(Utils.deepClone)
+    // eslint-disable-next-line unicorn/no-array-callback-reference
+    if (Array.isArray(original)) return original.map(Utils.deepClone)
 
     // Dates
-    if ( original instanceof Date ) return new Date(original)
+    if (original instanceof Date) return new Date(original)
 
     // Unsupported advanced objects
-    if ( original.constructor && (original.constructor !== Object) ) {
-      if ( strict ) throw new Error("deepClone cannot clone advanced objects")
+    if (original.constructor && original.constructor !== Object) {
+      if (strict) throw new Error('deepClone cannot clone advanced objects')
       return original
     }
 
     // Other objects
     const clone = {}
-    for ( let k of Object.keys(original) ) {
+    for (let k of Object.keys(original)) {
       clone[k] = Utils.deepClone(original[k])
     }
     return clone

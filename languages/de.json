@@ -338,6 +338,7 @@
       "actionClipboard": "In die Zwischenablage kopieren"
     },
     "meteoUi": {
+      "title": "Meteogram",
       "toggleName": "Meteogram UI Anzeigen/Verbergen",
       "toggleTitle": "Meteogram UI Anzeigen/Verbergen",
       "tempCanvas": {

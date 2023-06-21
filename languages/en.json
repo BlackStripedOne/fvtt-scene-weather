@@ -338,6 +338,7 @@
       "actionClipboard": "Copy to clipboard"
     },
     "meteoUi": {
+      "title": "Meteogram",
       "toggleName": "Toggle Meteogram UI",
       "toggleTitle": "Toggle Meteogram UI",
       "tempCanvas": {

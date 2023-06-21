@@ -1,7 +1,11 @@
-<form class="flexcol">
+<div id="wrapper">
   <div id="displayContainer">
-    <div id="dragHandle">Meteogram</div>
-    <div id="meteoInfo">
-      <canvas id="meteogramCanvas" width="550" height="300"></canvas>
+    <div id="meteoHeadline">{{localize 'dialogs.meteoUi.title'}}</div>
+    <div class="meteoContainer">
+      <canvas id="meteogramCanvas" width="600" height="300"></canvas>
+      <div id="controls">
+        <div class="sceneweather-slider"></div>
+      </div>
     </div>
-</form>
+  </div>
+</div>

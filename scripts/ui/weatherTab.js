@@ -30,6 +30,7 @@ import { TimeProvider } from '../time/timeProvider.js'
 /**
  * Helper clsss for the weather configuration tab on the scene settings dialog.
  */
+// eslint-disable-next-line unicorn/no-static-only-class
 export class WeatherTab {
   /**
    * Injects the control tab to the scene configuration dialog
@@ -73,10 +74,7 @@ export class WeatherTab {
       regionTemplates: RegionMeteo.getTemplates()
     }
 
-    const tabHtml = await renderTemplate(
-      'modules/' + MODULE.ID + '/templates/weatherTab.hbs',
-      tabData
-    )
+    const tabHtml = await renderTemplate('modules/' + MODULE.ID + '/templates/weatherTab.hbs', tabData)
 
     // inject the weather tab
     $('.sheet-tabs', jQ).append(
@@ -85,10 +83,7 @@ export class WeatherTab {
         .attr('data-tab', 'weather')
         .html('<i class="fas fa-solid fa-cloud-bolt-sun"></i> ' + Fal.i18n('configTab.title'))
     )
-    let tab = $('<div>')
-      .addClass('tab')
-      .attr('data-tab', 'weather')
-      .insertAfter($('div[data-tab="ambience"]', jQ))
+    let tab = $('<div>').addClass('tab').attr('data-tab', 'weather').insertAfter($('div[data-tab="ambience"]', jQ))
     tab.append(tabHtml)
 
     // activate listeners
@@ -124,11 +119,11 @@ export class WeatherTab {
     jQ.find('#randomSeed').on('click', async function () {
       const field = jQ.find('input[name="flags.scene-weather.seed"]')
       let words = []
-      Object.values(Utils.flattenObject(game.i18n.translations)).forEach((line) => {
-        line.split(/(\s+)/).forEach((word) => {
+      for (const line of Object.values(Utils.flattenObject(game.i18n.translations))) {
+        for (const word of line.split(/(\s+)/)) {
           if (word && word.length > 5 && word.length < 13 && /^\w+$/.test(word)) words.push(word)
-        })
-      })
+        }
+      }
       let sentence = []
       for (var i = 0; i < 3; i++) {
         sentence.push(words[Math.floor(Math.random() * words.length)])

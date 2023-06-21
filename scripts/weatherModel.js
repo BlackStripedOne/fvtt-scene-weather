@@ -29,7 +29,6 @@ import { FoundryAbstractionLayer as Fal } from './fal.js'
  *  WeatherModel produces SceneWeather (which also can be set via Weather Template option)
  */
 export class WeatherModel {
-
   /* --------------------- Properties ----------------------- */
 
   useConfigSceneId = undefined
@@ -81,12 +80,12 @@ export class WeatherModel {
         const [tId, mId] = templateId.split('.')
         Logger.error(
           'Unable to set weather template with id [' +
-          tId +
-          '], registered by module [' +
-          mId +
-          ']. Reverting to [' +
-          Fal.i18n(this.weatherData.name) +
-          ']. Maybe you removed a SceneWeather plugin after configuring your scene.',
+            tId +
+            '], registered by module [' +
+            mId +
+            ']. Reverting to [' +
+            Fal.i18n(this.weatherData.name) +
+            ']. Maybe you removed a SceneWeather plugin after configuring your scene.',
           true
         )
       }
@@ -131,7 +130,7 @@ export class WeatherModel {
    * Retrieves an array of weather templates with their ids and names.
    * @returns {Array.<{id: string, name: string}>} An array of objects containing the template id and name.
    */
-  static getTemplates() {    
+  static getTemplates() {
     return Object.entries(SceneWeatherState._weatherTemplates).map((template) => {
       return {
         id: template[0],
@@ -219,10 +218,7 @@ export class WeatherModel {
       const windGusts = weatherConfig.wind.speed + weatherConfig.wind.gusts
       const windDirection = Math.trunc(
         weatherConfig.wind.directionType == WIND_MODES.procedural
-          ? this._getNoisedWindDirection(
-            TimeProvider.getCurrentTimeHash(),
-            windGusts
-          )
+          ? this._getNoisedWindDirection(TimeProvider.getCurrentTimeHash(), windGusts)
           : weatherConfig.wind.direction
       )
 
@@ -232,13 +228,7 @@ export class WeatherModel {
         temp: {
           ground: weatherConfig.temp.ground,
           air: weatherConfig.temp.air,
-          percieved: Math.round(
-            Meteo.apparentTemperature(
-              weatherConfig.temp.air,
-              weatherConfig.wind.speed,
-              weatherConfig.humidity
-            )
-          )
+          percieved: Math.round(Meteo.apparentTemperature(weatherConfig.temp.air, weatherConfig.wind.speed, weatherConfig.humidity))
         },
         wind: {
           speed: weatherConfig.wind.speed,
@@ -292,133 +282,118 @@ export class WeatherModel {
 
   // weatherMode -> GENERATOR_MODES.REGION_*
   _getWeatherDataFromRegion(regionMeteo, dayOffset = 0, hourOffset = 0) {
-      const regionBaseValues = regionMeteo.getRegionBase(dayOffset, hourOffset)
+    const regionBaseValues = regionMeteo.getRegionBase(dayOffset, hourOffset)
 
-      // implement caching for already calculated regionBaseValues.timeHash
-      if (this._cache[regionBaseValues.timeHash] !== undefined) {
-        this.weatherData = this._cache[regionBaseValues.timeHash]
-        return this._cache[regionBaseValues.timeHash]
-      }
+    // implement caching for already calculated regionBaseValues.timeHash
+    if (this._cache[regionBaseValues.timeHash] !== undefined) {
+      this.weatherData = this._cache[regionBaseValues.timeHash]
+      return this._cache[regionBaseValues.timeHash]
+    }
 
-      this.weatherData = Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), {
-        source: '_REGION_',
-        name: regionBaseValues.name,
-        temp: {
-          ground: this._groundTemp(3, 3, dayOffset, hourOffset),
-          air: regionBaseValues.baseTemp, // will be adjusted based on wind.speed, sun.amount and temp.ground
-          percieved: 0  // deferred calculation, dependant on temp.air, wind.speed and humidity
-        },
-        wind: {
-          speed: regionBaseValues.wind, // will be adjusted based on precipitation.amount
-          gusts: regionBaseValues.gusts + regionBaseValues.wind,  // will be adjusted based on precipitation.amount
-          direction: 0 // direct calculation, dependant on wind.gusts
-        },
-        clouds: {
-          coverage: 0,  // deferred calculation, dependant on clouds.top and clouds.bottom
-          bottom: Utils.clamp(
-            Math.abs(
-              Meteo.liftedCondensationLevel(
-                regionBaseValues.baseTemp,
-                regionBaseValues.baseHumidity
-              )
-            ),
-            0,
-            20000
-          ), // LCL in altitude meters above sea level on ICAO standard atmosphere up to 20km
-          top: 0,
-          type: 0 // 0: none, 1:groundfog, 2:stratus, 3:cumulus, 4:cumulunimbus
-        },
-        precipitation: {
-          amount: 0,
-          type: 0, // 0: none, 1:drizzle, 2:rain, 3:downpour, 4:hail, 5:snow, 6:blizzard
-          mode: Fal.getSceneFlag('rainMode', 'winddir') // default to mode:winddir
-        },
-        sun: {
-          amount: regionBaseValues.sunAmount
-        },
-        humidity: regionBaseValues.baseHumidity
-      })
+    this.weatherData = Utils.mergeObject(Utils.deepClone(WeatherModel.DEFAULT_MODEL_STRUCT), {
+      source: '_REGION_',
+      name: regionBaseValues.name,
+      temp: {
+        ground: this._groundTemp(9, 3, dayOffset, hourOffset),
+        air: regionBaseValues.baseTemp, // will be adjusted based on wind.speed, sun.amount and temp.ground
+        percieved: 0 // deferred calculation, dependant on temp.air, wind.speed and humidity
+      },
+      wind: {
+        speed: regionBaseValues.wind, // will be adjusted based on precipitation.amount
+        gusts: regionBaseValues.gusts + regionBaseValues.wind, // will be adjusted based on precipitation.amount
+        direction: 0 // direct calculation, dependant on wind.gusts
+      },
+      clouds: {
+        coverage: 0, // deferred calculation, dependant on clouds.top and clouds.bottom
+        bottom: Utils.clamp(Math.abs(Meteo.liftedCondensationLevel(regionBaseValues.baseTemp, regionBaseValues.baseHumidity)), 0, 20000), // LCL in altitude meters above sea level on ICAO standard atmosphere up to 20km
+        top: 0,
+        type: 0 // 0: none, 1:groundfog, 2:stratus, 3:cumulus, 4:cumulunimbus
+      },
+      precipitation: {
+        amount: 0,
+        type: 0, // 0: none, 1:drizzle, 2:rain, 3:downpour, 4:hail, 5:snow, 6:blizzard
+        mode: Fal.getSceneFlag('rainMode', 'winddir') // default to mode:winddir
+      },
+      sun: {
+        available: regionBaseValues.sunAmount,
+        amount: regionBaseValues.sunAmount
+      },
+      humidity: regionBaseValues.baseHumidity
+    })
 
-      // Determin cloud hight
-      // temperature coefficient at cloud bottom altitude
-      const tempCoefficient = Meteo.calcAdiCloudBottomCoeff(this.weatherData.clouds.bottom, regionBaseValues.elevation, regionBaseValues.baseTemp)
+    // Determin cloud hight
+    // temperature coefficient at cloud bottom altitude
+    const tempCoefficient = Meteo.calcAdiCloudBottomCoeff(this.weatherData.clouds.bottom, regionBaseValues.elevation, regionBaseValues.baseTemp)
 
-      // geopotential based on evaporation and hydration
-      this.weatherData.clouds.top = Meteo.calcCloudTops(tempCoefficient, this.weatherData.clouds.bottom, regionBaseValues.vegetation, regionBaseValues.sunAmount, regionBaseValues.wind, regionBaseValues.waterAmount)
+    // geopotential based on evaporation and hydration
+    this.weatherData.clouds.top = Meteo.calcCloudTops(
+      tempCoefficient,
+      this.weatherData.clouds.bottom,
+      regionBaseValues.vegetation,
+      regionBaseValues.sunAmount,
+      regionBaseValues.wind,
+      regionBaseValues.waterAmount
+    )
 
-      // calculate coverage based on layer thickness and cloud type
-      this.weatherData.clouds.coverage = Meteo.calcCloudCoverage(this.weatherData.clouds.bottom, this.weatherData.clouds.top)
+    // calculate coverage based on layer thickness and cloud type
+    this.weatherData.clouds.coverage = Meteo.calcCloudCoverage(this.weatherData.clouds.bottom, this.weatherData.clouds.top)
 
-      this.weatherData.clouds.type = Meteo.getCloudType(regionBaseValues.elevation, this.weatherData.clouds.bottom, this.weatherData.clouds.top, this.weatherData.clouds.coverage, tempCoefficient)
+    this.weatherData.clouds.type = Meteo.getCloudType(
+      regionBaseValues.elevation,
+      this.weatherData.clouds.bottom,
+      this.weatherData.clouds.top,
+      this.weatherData.clouds.coverage,
+      tempCoefficient
+    )
 
-      // Calculate precipitation amount
-      this.weatherData.precipitation.amount =
-        Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1) *
-        Noise.getNoisedValue(
-          regionMeteo._noise,
-          regionBaseValues.timeHash + 321,
-          8,
-          0.8,
-          0.2
-        ) *
-        Noise.getNoisedValue(regionMeteo._noise, regionBaseValues.timeHash + 321, 32, 1, 0.5)
+    // Calculate precipitation amount
+    this.weatherData.precipitation.amount =
+      Utils.clamp(this.weatherData.clouds.coverage * 1.2 - 0.4, 0, 1) *
+      Noise.getNoisedValue(regionMeteo._noise, regionBaseValues.timeHash + 321, 8, 0.8, 0.2) *
+      Noise.getNoisedValue(regionMeteo._noise, regionBaseValues.timeHash + 321, 32, 1, 0.5)
 
-      // Recalculate gusts depending on rain amount
-      this.weatherData.wind.gusts =
-        this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 2.5 + 0.5)
+    // Recalculate gusts depending on rain amount
+    this.weatherData.wind.gusts = this.weatherData.wind.gusts * (this.weatherData.precipitation.amount * 2.5 + 0.5)
 
-      // Recalculate wind speed depending on rain amount
-      this.weatherData.wind.speed =
-        this.weatherData.wind.speed +
-        this.weatherData.precipitation.amount * 2.2 * this.weatherData.wind.speed
+    // Recalculate wind speed depending on rain amount
+    this.weatherData.wind.speed = this.weatherData.wind.speed + this.weatherData.precipitation.amount * 2.2 * this.weatherData.wind.speed
 
-      // Recalculate sun amount based on cloud coverage
-      this.weatherData.sun.amount =
-        this.weatherData.sun.amount * Utils.clamp(1 - this.weatherData.clouds.coverage, 0.2, 1.0)
+    // Recalculate sun amount based on cloud coverage
+    this.weatherData.sun.amount = this.weatherData.sun.amount * Utils.clamp(1 - this.weatherData.clouds.coverage, 0.2, 1.0)
 
-      // Recalculate ground temperature based on sun, rain and wind
-      this.weatherData.temp.air =
-        this.weatherData.temp.air -
-        this.weatherData.wind.speed * 0.03 +
-        this.weatherData.sun.amount * Math.max(2, this.weatherData.temp.ground * 0.6)
-      this.weatherData.temp.percieved = Meteo.apparentTemperature(
-        this.weatherData.temp.air,
-        this.weatherData.wind.speed,
-        this.weatherData.humidity
-      )
+    // Recalculate ground temperature based on sun, rain and wind
+    this.weatherData.temp.air =
+      this.weatherData.temp.air - this.weatherData.wind.speed * 0.03 + this.weatherData.sun.amount * Math.max(2, this.weatherData.temp.ground * 0.6)
+    this.weatherData.temp.percieved = Meteo.apparentTemperature(this.weatherData.temp.air, this.weatherData.wind.speed, this.weatherData.humidity)
 
-      // set cloud altitudes to hight in meters based on the scene's elevation
-      this.weatherData.clouds.top =
-        Math.max(0, this.weatherData.clouds.top - regionBaseValues.elevation) * 3
-      this.weatherData.clouds.bottom =
-        Math.max(0, this.weatherData.clouds.bottom - regionBaseValues.elevation) * 3
+    // set cloud altitudes to hight in meters based on the scene's elevation
+    this.weatherData.clouds.top = Math.max(0, this.weatherData.clouds.top - regionBaseValues.elevation) * 3
+    this.weatherData.clouds.bottom = Math.max(0, this.weatherData.clouds.bottom - regionBaseValues.elevation) * 3
 
-      // Calculate ptecipitation type
-      this.weatherData.precipitation.type = Meteo.getPrecipitationType(this.weatherData.precipitation.amount, this.weatherData.clouds.type, this.weatherData.temp.air, this.weatherData.wind.speed)
+    // Calculate ptecipitation type
+    this.weatherData.precipitation.type = Meteo.getPrecipitationType(
+      this.weatherData.precipitation.amount,
+      this.weatherData.clouds.type,
+      this.weatherData.temp.air,
+      this.weatherData.wind.speed
+    )
 
-      // Calculate wind direction just for fancyness
-      this.weatherData.wind.direction = this._getNoisedWindDirection(
-        regionBaseValues.timeHash,
-        this.weatherData.wind.gusts,
-        regionMeteo._noise
-      )
+    // Calculate wind direction just for fancyness
+    this.weatherData.wind.direction = this._getNoisedWindDirection(regionBaseValues.timeHash, this.weatherData.wind.gusts, regionMeteo._noise)
 
-      // Store in cache
-      this._cache[regionBaseValues.timeHash] = this.weatherData
-      return this.weatherData
+    // Store in cache
+    this._cache[regionBaseValues.timeHash] = this.weatherData
+    return this.weatherData
   }
 
   // weatherMode -> GENERATOR_MODES.WEATHER_GENERATE
-  _getWeatherDataFromScene(dayOffset = 0, hourOffset = 0) {    
-      // Just update the wind direction
-      if (this.weatherData.wind.directionType == WIND_MODES.procedural) {
-        // TODO use constant for winddirection
-        this.weatherData.wind.direction = this._getNoisedWindDirection(
-          TimeProvider.getCurrentTimeHash(dayOffset, hourOffset),
-          this.weatherData.wind.gusts
-        )
-      }
-      return this.weatherData
+  _getWeatherDataFromScene(dayOffset = 0, hourOffset = 0) {
+    // Just update the wind direction
+    if (this.weatherData.wind.directionType == WIND_MODES.procedural) {
+      // TODO use constant for winddirection
+      this.weatherData.wind.direction = this._getNoisedWindDirection(TimeProvider.getCurrentTimeHash(dayOffset, hourOffset), this.weatherData.wind.gusts)
+    }
+    return this.weatherData
   }
 
   /**
@@ -446,8 +421,7 @@ export class WeatherModel {
    */
   _getNoisedWindDirection(timeHash, gusts, noiseFunction = this._noise) {
     let windDirection =
-      Noise.getNoisedValue(noiseFunction, timeHash + 1277, 512, 180, 180) +
-      Noise.getNoisedValue(noiseFunction, timeHash + 1277, 8, 16, 16) * (gusts * 0.2)
+      Noise.getNoisedValue(noiseFunction, timeHash + 1277, 512, 180, 180) + Noise.getNoisedValue(noiseFunction, timeHash + 1277, 8, 16, 16) * (gusts * 0.2)
     if (windDirection < 0) windDirection += 360
     if (windDirection >= 360) windDirection -= 360
     return windDirection
@@ -468,14 +442,11 @@ export class WeatherModel {
     for (let n = 0; n <= steps; n++) {
       // Calculate the value of X(A-n) with logarithmically decreasing weight
       let weight = 1 / Math.log2(n + 2)
-      total +=
-        this.regionMeteo.getRegionBase(dayOffset, hourOffset - n * stepWidth).baseTemp * weight
+      total += this.regionMeteo.getRegionBase(dayOffset, hourOffset - n * stepWidth).baseTemp * weight
       count += weight
     }
 
     // Divide the total by the count to get the average
     return total / count
   }
-
-
 }

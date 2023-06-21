@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and limitations 
 
 import { EVENTS } from '../constants.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
+import { Utils } from '../utils.js'
 
 Hooks.on(EVENTS.MODULE_READY, () => {
   // Show debugging toast only on log levels trace and debug
@@ -31,7 +32,6 @@ Hooks.on(EVENTS.MODULE_READY, () => {
  * Debugging only, TOOD remove from module
  */
 export class DebugToast {
-
   _debugToast = undefined
 
   _sections = {}
@@ -39,6 +39,7 @@ export class DebugToast {
   constructor() {
     const sidebar = $('#sidebar')
     if (sidebar) {
+      // eslint-disable-next-line quotes
       sidebar.after("<div id='sceneweatherdebug'></div>")
       this._debugToast = $('#sceneweatherdebug')
       this._debugToast.css({
@@ -55,7 +56,7 @@ export class DebugToast {
         'pointer-events': 'all'
       })
       this.setPosition(sidebar[0])
-      Hooks.on('collapseSidebar', (sidebar, collapsed) => {
+      Hooks.on('collapseSidebar', (sidebar) => {
         this.setPosition(sidebar.element[0])
       })
     }
@@ -91,20 +92,20 @@ export class DebugToast {
     html += '</br>v:' + data.globalVolume
     html += '</br>s:' + data.sfxVolume
     html += '<ul>'
-    Object.keys(data.sfx).forEach((sfxId) => {
+    for (const sfxId of Object.keys(data.sfx)) {
       const sfx = data.sfx[sfxId]
       const offset = sfx.sound.currentTime || 0
       html += '<li>' + sfxId + ' / ' + sfx.gain.toFixed(3) + ' / ' + offset.toFixed(1) + '</li>'
-    })
+    }
     html += '</ul>'
     html += '<hr>'
 
     html += '<ul>'
-    const ambience = flattenObject(this._sections['ambience'] || {})
-    Object.keys(ambience).forEach((ambienceKey) => {
+    const ambience = Utils.flattenObject(this._sections['ambience'] || {})
+    for (const ambienceKey of Object.keys(ambience)) {
       const ambienceValue = ambience[ambienceKey]
       html += '<li>' + ambienceKey + ' / ' + ambienceValue + '</li>'
-    })
+    }
     html += '</ul>'
 
     this._debugToast.html(html)

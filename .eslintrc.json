@@ -43,9 +43,18 @@
         "Tabs": true
     },
     "rules": {
+        "no-unused-vars": [
+            "error", {
+                "vars": "local",
+                "args": "after-used",
+                "ignoreRestSiblings": false,
+                "argsIgnorePattern": "^__"
+            }
+        ],
         "indent": [
             "error",
-            2
+            2,
+            { "SwitchCase": 1 }
         ],
         "linebreak-style": [
             "error",
@@ -76,7 +85,9 @@
         "unicorn/prefer-query-selector": "off",
         "unicorn/no-array-reduce": "off",
         "unicorn/no-useless-switch-case": "off",
-        "unicorn/prefer-dom-node-remove": "off"
+        "unicorn/prefer-dom-node-remove": "off",
+        "unicorn/number-literal-case": "off",
+        "unicorn/prefer-dom-node-append": "off"
     }
   }
   

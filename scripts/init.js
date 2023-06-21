@@ -95,10 +95,7 @@ Hooks.on(MODULE.LCCNAME + 'Initialized', async () => {
         Logger.trace('updateScene-> Disabled SceneWeather...', { scene: scene, sceneId: id })
         Hooks.callAll(MODULE.LCCNAME + 'WeatherDisabled', { scene: scene, sceneId: id })
       }
-      if (
-        deltaData.flags[MODULE.ID]['weatherMode'] !== undefined ||
-        deltaData.flags[MODULE.ID]['timeProvider'] !== undefined
-      ) {
+      if (deltaData.flags[MODULE.ID]['weatherMode'] !== undefined || deltaData.flags[MODULE.ID]['timeProvider'] !== undefined) {
         // redraw potentially changed button sidebar
         // Re-render Scene controls
         // TODO if ( ui.controls ) ui.controls.initialize({layer: this.constructor.layerOptions.name, tool});
@@ -178,11 +175,7 @@ Hooks.on('updateWorldTime', (worldTime, delta, options, userId) => {
     options: options,
     userId: userId
   })
-  if (
-    [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
-      Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-    )
-  ) {
+  if ([GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))) {
     // Only update dynamic weathers
     SceneWeather.updateWeather()
   }

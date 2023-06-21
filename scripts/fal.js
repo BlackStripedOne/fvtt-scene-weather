@@ -55,6 +55,7 @@ export const FoundryAbstractionLayer = {
    * @return {boolean}            Is v1 a more advanced version than v0?
    */
   isNewerVersion(v1, v0) {
+    // eslint-disable-next-line no-undef
     return isNewerVersion(v1, v0)
   },
 
@@ -72,6 +73,7 @@ export const FoundryAbstractionLayer = {
    * TODO
    * @return {Boolean}
    */
+  // eslint-disable-next-line unicorn/no-null
   isGm(userId = null) {
     const user = userId ? FoundryAbstractionLayer.getUser(userId) : game.user
     return user ? user.isGM : false
@@ -84,7 +86,7 @@ export const FoundryAbstractionLayer = {
    */
   userName() {
     const u = game.user
-    return u ? (u.name ? u.name : '') : ''
+    return u ? u.name ?? '' : ''
   },
 
   /**
@@ -94,7 +96,7 @@ export const FoundryAbstractionLayer = {
    */
   userID() {
     const u = game.user
-    return u ? (u.id ? u.id : '') : ''
+    return u ? u.id ?? '' : ''
   },
 
   /**
@@ -214,7 +216,9 @@ export const FoundryAbstractionLayer = {
    * @param {string=null} defaultValue The setting default value
    * @returns {*}                      The setting value
    */
+  // eslint-disable-next-line unicorn/no-null
   getSetting(key, defaultValue = null) {
+    // eslint-disable-next-line unicorn/no-null
     let value = defaultValue ?? null
     try {
       value = game.settings.get(MODULE.ID, key)
@@ -261,24 +265,6 @@ export const FoundryAbstractionLayer = {
   },
 
   /**
-   * Get controlled tokens
-   *
-   * @returns {array} The controlled tokens
-   */
-  getControlledTokens() {
-    return game.canvas.tokens.controlled
-  },
-
-  /**
-   * Get one controlled tokens
-   *
-   * @returns {object} The first controlled token
-   */
-  getControlledToken() {
-    return game.canvas.tokens.controlled[0]
-  },
-
-  /**
    * Get actor from the token or actor object
    *
    * @param {string} actorId The actor id
@@ -286,6 +272,7 @@ export const FoundryAbstractionLayer = {
    * @returns {object}       The actor
    */
   getActor(actorId, tokenId) {
+    // eslint-disable-next-line unicorn/no-null
     let token = null
     if (tokenId) token = canvas.tokens.placeables.find((token) => token.id === tokenId)
     if (token) return token.actor
@@ -325,7 +312,9 @@ export const FoundryAbstractionLayer = {
    * @param {string=null} defaultValue The scene flag default value
    * @returns {any}                      The scene flag value or defaultValue, null as fallback
    */
+  // eslint-disable-next-line unicorn/no-null
   getSceneFlag(key, defaultValue = null, sceneId) {
+    // eslint-disable-next-line unicorn/no-null
     let value = defaultValue ?? null
     try {
       value = FoundryAbstractionLayer.getScene(sceneId).getFlag(MODULE.ID, key) ?? defaultValue
@@ -411,6 +400,7 @@ export const FoundryAbstractionLayer = {
    * @param {String} toTranslate The value to translate
    * @returns {String} The translated value
    */
+  // eslint-disable-next-line unicorn/no-null
   i18n(toTranslate, defaultValue = null) {
     let translation = game.i18n.localize(toTranslate)
     if (translation == toTranslate) {

@@ -32,6 +32,7 @@ import { FoundryAbstractionLayer as Fal } from '../fal.js'
  * into SceneWeather, look at the sample implementations in the classes InternalTimeProvider or for the integration of SimpleCalendar that is already
  * provided with this module in the ScTimeProvider class.
  */
+// eslint-disable-next-line unicorn/no-static-only-class
 export class TimeProvider {
   static _instances = {}
 
@@ -70,6 +71,16 @@ export class TimeProvider {
    */
   static getHoursInDay() {
     return TimeProvider._getProviderInstance().getHoursInDay()
+  }
+
+  /**
+   * Returns the fraction of an hour, where 0.0 mean on the current our, like 0 minutes, 0 seconds past
+   * and 0.9997 like 59 minudes, 59 seconds.
+   *
+   * @returns {number} The fraction of the current hour to the next hour.
+   */
+  static getHourFraction() {
+    return TimeProvider._getProviderInstance().getHourFraction()
   }
 
   /**
@@ -261,10 +272,7 @@ export class TimeProvider {
    * @returns {number} A unique number, representing the point in time over the course of a year. Used for cache keys.
    */
   static getCurrentTimeHash(dayOfYearOffset = 0, hourOfDayOffset = 0) {
-    return TimeProvider.getTimeHash(
-      TimeProvider.getDayOfYear() + dayOfYearOffset,
-      TimeProvider.getHourOfDay() + hourOfDayOffset
-    )
+    return TimeProvider.getTimeHash(TimeProvider.getDayOfYear() + dayOfYearOffset, TimeProvider.getHourOfDay() + hourOfDayOffset)
   }
 
   /**
@@ -313,9 +321,7 @@ export class TimeProvider {
    */
   static getDayOfMonthFromTimeHash(timeHash) {
     let monthOfYear = TimeProvider.getMonthOfYearFromTimeHash(timeHash)
-    return (
-      TimeProvider.getDayOfYearFromTimeHash(timeHash) - TimeProvider.getMonthOffset(monthOfYear - 1)
-    )
+    return TimeProvider.getDayOfYearFromTimeHash(timeHash) - TimeProvider.getMonthOffset(monthOfYear - 1)
   }
 
   /**
@@ -346,14 +352,8 @@ export class TimeProvider {
    */
   static _getProviderId() {
     let providerId = Fal.getSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
-    if (
-      providerId == TIME_PROVIDERS.SIMPLE_CALENDAR &&
-      !Fal.isModuleEnabled('foundryvtt-simple-calendar')
-    ) {
-      Logger.info(
-        'Module [simple-calendar] is not installed or disabled. Reverting time provider to internal for this scene.',
-        true
-      )
+    if (providerId == TIME_PROVIDERS.SIMPLE_CALENDAR && !Fal.isModuleEnabled('foundryvtt-simple-calendar')) {
+      Logger.info('Module [simple-calendar] is not installed or disabled. Reverting time provider to internal for this scene.', true)
       Fal.setSceneFlag('timeProvider', TIME_PROVIDERS.INTERNAL)
       providerId = TIME_PROVIDERS.INTERNAL
     }

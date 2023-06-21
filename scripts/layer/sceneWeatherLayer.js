@@ -17,14 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 */
 
-import {
-  MODULE,
-  GENERATOR_MODES,
-  CREATION_STATES,
-  EVENTS,
-  NODE_TYPE,
-  SWCONFIG
-} from '../constants.js'
+import { MODULE, GENERATOR_MODES, CREATION_STATES, EVENTS, NODE_TYPE, SWCONFIG } from '../constants.js'
 import { Logger, Utils } from '../utils.js'
 import { WeatherUi } from '../ui/weatherUi.js'
 import { MeteoUi } from '../ui/meteoUi.js'
@@ -47,28 +40,15 @@ Hooks.on(EVENTS.MODULE_READY, () => {
       if (!canvas.sceneweather.options.canControl) return
       const nodeBtn = $('li[data-tool="weatherNode"]', html)
       const activeTool = game.activeTool
-      let nodeTypes = $('<ol>')
-        .addClass('control-tools')
-        .appendTo($('<div>').attr('id', 'node-types').appendTo(nodeBtn))
+      let nodeTypes = $('<ol>').addClass('control-tools').appendTo($('<div>').attr('id', 'node-types').appendTo(nodeBtn))
       for (let type of Object.keys(SceneWeatherLayer.nodeTypes)) {
         $('li[data-tool="' + type + '"]', html).appendTo(nodeTypes)
-        if (activeTool == 'weatherNode')
-          $('li[data-tool="' + type + '"]', html).toggleClass(
-            'active',
-            type === canvas.sceneweather.selectedTool
-          )
+        if (activeTool == 'weatherNode') $('li[data-tool="' + type + '"]', html).toggleClass('active', type === canvas.sceneweather.selectedTool)
       }
       //const sceneWeatherControl = controls.controls.find(e => e.name == 'sceneweather')
-      nodeBtn.toggleClass(
-        'active',
-        Object.keys(SceneWeatherLayer.nodeTypes).includes(controls.activeTool) ||
-        controls.activeTool == 'weatherNode'
-      )
+      nodeBtn.toggleClass('active', Object.keys(SceneWeatherLayer.nodeTypes).includes(controls.activeTool) || controls.activeTool == 'weatherNode')
       nodeBtn.attr('data-tooltip', 'layer.controls.' + canvas.sceneweather.selectedTool)
-      nodeBtn
-        .children('i')
-        .first()
-        .attr('class', SceneWeatherLayer.nodeTypes[canvas.sceneweather.selectedTool].icon)
+      nodeBtn.children('i').first().attr('class', SceneWeatherLayer.nodeTypes[canvas.sceneweather.selectedTool].icon)
       const pos = nodeBtn.position()
       nodeTypes.parent().css({ top: pos.top, left: pos.left + nodeBtn.width() })
     } else {
@@ -98,9 +78,7 @@ Hooks.once('setup', () => {
         name: 'dialogs.weatherUi.toggleName',
         title: 'dialogs.weatherUi.toggleTitle',
         icon: 'fas fa-solid fa-window-maximize',
-        visible:
-          WeatherPerception.getAllowedIds(userId).length > 0 &&
-          Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
+        visible: WeatherPerception.getAllowedIds(userId).length > 0 && Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
         toggle: true,
         active: WeatherUi._isOpen,
         onClick: () => {
@@ -113,9 +91,7 @@ Hooks.once('setup', () => {
         icon: 'fas fa-solid fa-chart-line',
         visible:
           Permissions.hasPermission(userId, 'meteogramUi') &&
-          [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(
-            Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-          ),
+          [GENERATOR_MODES.REGION_TEMPLATE, GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         toggle: true,
         active: MeteoUi._isOpen,
         onClick: () => {
@@ -128,16 +104,12 @@ Hooks.once('setup', () => {
         icon: 'fas fa-solid fa-sliders',
         visible:
           Permissions.hasPermission(userId, 'sceneSettings') &&
-          [GENERATOR_MODES.WEATHER_GENERATE].includes(
-            Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-          ),
+          [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         button: true,
         onClick: () => {
           if (
             Permissions.hasPermission(userId, 'sceneSettings') &&
-            [GENERATOR_MODES.WEATHER_GENERATE].includes(
-              Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-            )
+            [GENERATOR_MODES.WEATHER_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
           ) {
             const dia = new WeatherConfigDialog(canvas.scene._id)
             dia.render(true)
@@ -150,16 +122,12 @@ Hooks.once('setup', () => {
         icon: 'fas fa-solid fa-sliders',
         visible:
           Permissions.hasPermission(userId, 'sceneSettings') &&
-          [GENERATOR_MODES.REGION_GENERATE].includes(
-            Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-          ),
+          [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)),
         button: true,
         onClick: () => {
           if (
             Permissions.hasPermission(userId, 'sceneSettings') &&
-            [GENERATOR_MODES.REGION_GENERATE].includes(
-              Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED)
-            )
+            [GENERATOR_MODES.REGION_GENERATE].includes(Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED))
           ) {
             const dia = new RegionConfigDialog(canvas.scene._id)
             dia.render(true)
@@ -170,15 +138,10 @@ Hooks.once('setup', () => {
         name: 'dialogs.macroConfig.toggleName',
         title: 'dialogs.macroConfig.toggleTitle',
         icon: 'fas fa-solid fa-scroll',
-        visible:
-          Permissions.hasPermission(userId, 'sceneSettings') &&
-          Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
+        visible: Permissions.hasPermission(userId, 'sceneSettings') && Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
         button: true,
         onClick: () => {
-          if (
-            Permissions.hasPermission(userId, 'sceneSettings') &&
-            Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED
-          ) {
+          if (Permissions.hasPermission(userId, 'sceneSettings') && Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED) {
             MacroConfigDialog._app = new MacroConfigDialog()
             MacroConfigDialog._app.render(true)
           }
@@ -188,8 +151,7 @@ Hooks.once('setup', () => {
         name: 'settings.enableFx.toggleName',
         title: 'settings.enableFx.toggleTitle',
         icon: 'fas fa-solid fa-eye',
-        visible:
-          Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
+        visible: Fal.getSceneFlag('weatherMode', GENERATOR_MODES.DISABLED) != GENERATOR_MODES.DISABLED,
         toggle: true,
         active: Fal.getSetting('enableFx', true),
         onClick: () => {
@@ -312,6 +274,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    *
    * @type {PIXI.Container|null}
    */
+  // eslint-disable-next-line unicorn/no-null
   weatherNodesContainer = null
 
   /**
@@ -319,6 +282,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * The children are of @type{WeatherNode}
    * @type {PIXI.Container|null}
    */
+  // eslint-disable-next-line unicorn/no-null
   preview = null
 
   /**
@@ -347,6 +311,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @type {object} id - WeatherNode.id
    * @type {object} nodeNr - number
    */
+  // eslint-disable-next-line unicorn/no-null
   borderNodeControl = null
 
   /**
@@ -498,14 +463,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    */
   async createWeatherNodes(
     nodeDatas,
-    {
-      forceId = false,
-      addToContainer = this.weatherNodesContainer,
-      control = false,
-      controlOptions = {},
-      storeHistory = true,
-      fireEvent = true
-    } = {}
+    { forceId = false, addToContainer = this.weatherNodesContainer, control = false, controlOptions = {}, storeHistory = true, fireEvent = true } = {}
   ) {
     if (!this.options.canControl) return
     const newWeatherNodes = []
@@ -624,8 +582,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       storeHistory: storeHistory,
       fireEvent: fireEvent
     })
-    if (fireEvent)
-      Hooks.callAll(EVENTS.UPDATE_WEATHER_NODES, { update: matches, deletion: [], addition: [] })
+    if (fireEvent) Hooks.callAll(EVENTS.UPDATE_WEATHER_NODES, { update: matches, deletion: [], addition: [] })
   }
 
   /**
@@ -639,10 +596,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {boolean} [options.fireEvent=true] - Whether to trigger the deletion event.
    * @returns {string[]} - Array of deleted WeatherNode IDs.
    */
-  async deleteWeatherNodes(
-    deletableNodes,
-    { removeFromContainer = this.weatherNodesContainer, storeHistory = true, fireEvent = true } = {}
-  ) {
+  async deleteWeatherNodes(deletableNodes, { removeFromContainer = this.weatherNodesContainer, storeHistory = true, fireEvent = true } = {}) {
     if (!this.options.canControl) return
     if (storeHistory) {
       // add event to the history
@@ -713,10 +667,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {boolean} [options.releaseOthers=true]  Whether to release other selected nodes.
    * @returns {boolean}       A boolean for whether the controlled set was changed in the operation
    */
-  selectObjects(
-    { x, y, width, height, releaseOptions = {}, controlOptions = {} } = {},
-    { releaseOthers = true } = {}
-  ) {
+  selectObjects({ x, y, width, height, releaseOptions = {}, controlOptions = {} } = {}, { releaseOthers = true } = {}) {
     if (!this.options.canControl) return
     const oldSet = this.controlled
 
@@ -724,9 +675,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     const controllable = this.nodes.filter((weatherNode) => weatherNode.visible)
     const newSet = controllable.filter((weatherNode) => {
       const nodeCenter = weatherNode.center
-      return (
-        Number.between(nodeCenter.x, x, x + width) && Number.between(nodeCenter.y, y, y + height)
-      )
+      return Number.between(nodeCenter.x, x, x + width) && Number.between(nodeCenter.y, y, y + height)
     })
 
     // maybe release WeatherNodes no longer controlled
@@ -745,7 +694,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     }
 
     // return a boolean for whether the control set was changed
-    return (releaseOthers && toRelease.length) || toControl.length > 0
+    return (releaseOthers && toRelease.length > 0) || toControl.length > 0
   }
 
   /**
@@ -809,6 +758,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       yes: async () => {
         this.weatherNodesContainer.removeChildren()
         this.controlledNodes.clear()
+        // eslint-disable-next-line unicorn/no-null
         this.borderNodeControl = null
         this._nodeFrame.refresh()
         const deletedIds = (await WeatherNodeData.deleteAll()).map((id) => 'WeatherNode.' + id)
@@ -847,10 +797,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @returns {Object|undefined} - Returns a new node object based on the selected tool or undefined if the active tool is not a weather or node tool
    */
   _startNewNodeAt(origin) {
-    if (
-      Object.keys(SceneWeatherLayer.nodeTypes).includes(game.activeTool) ||
-      game.activeTool == 'weatherNode'
-    ) {
+    if (Object.keys(SceneWeatherLayer.nodeTypes).includes(game.activeTool) || game.activeTool == 'weatherNode') {
       Logger.trace('SceneWeatherLayer._startNewNodeAt(...)', { selectedTool: this.selectedTool })
       if (Object.keys(SceneWeatherLayer.nodeTypes).includes(this.selectedTool)) {
         return SceneWeatherLayer.nodeTypes[this.selectedTool].builder(origin)
@@ -862,7 +809,8 @@ export class SceneWeatherLayer extends InteractionLayer {
   /* --------------------- Private functions ----------------------- */
 
   /** @override */
-  async _draw(options) {
+  async _draw(__options) {
+    // eslint-disable-next-line unicorn/no-null
     this.borderNodeControl = null // this.actionState = ACTION_STATES.NONE
 
     // create the WeatherNodes container which can be sorted
@@ -876,9 +824,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     // set the sort function
     // Sorts children by zIndex. Previous order is maintained for 2 children with the same zIndex.
     // See https://pixijs.download/dev/docs/PIXI.Container.html
-    this.weatherNodesContainer.sortChildren = this._sortObjectsByElevation.bind(
-      this.weatherNodesContainer
-    )
+    this.weatherNodesContainer.sortChildren = this._sortObjectsByElevation.bind(this.weatherNodesContainer)
 
     // create preview container which is always above weatherNodesContainer
     this.preview = this.addChild(new PIXI.Container())
@@ -898,7 +844,7 @@ export class SceneWeatherLayer extends InteractionLayer {
   }
 
   /** @override */
-  async _tearDown(options) {
+  async _tearDown(__options) {
     // clear history data
     this._history = []
     // release all WeatherNodes currently controlled
@@ -906,6 +852,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       weatherNode.release()
     }
     this.controlledNodes.clear()
+    // eslint-disable-next-line unicorn/no-null
     this.borderNodeControl = null
     // clear all huds
     if (this.hud) this.hud.clear()
@@ -915,6 +862,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     })
     await Promise.all(promises)
     // remove the container for the WeatherNodes
+    // eslint-disable-next-line unicorn/no-null
     this.weatherNodesContainer = null
     return super._tearDown()
   }
@@ -942,6 +890,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     for (const weatherNode of this.nodes) {
       weatherNode.refresh()
     }
+    // eslint-disable-next-line unicorn/no-null
     this.borderNodeControl = null
     if (this.options.canControl) {
       // Assign key handlers
@@ -967,13 +916,16 @@ export class SceneWeatherLayer extends InteractionLayer {
     // reset key handlers
     if (this._onkeydown) {
       document.removeEventListener('keydown', this._onkeydown)
+      // eslint-disable-next-line unicorn/no-null
       this._onkeydown = null
     }
     if (this._onkeyup) {
       document.removeEventListener('keyup', this._onkeyup)
+      // eslint-disable-next-line unicorn/no-null
       this._onkeyup = null
     }
 
+    // eslint-disable-next-line unicorn/no-null
     this.borderNodeControl = null
     this.weatherNodesContainer.visible = false
     this.releaseAll()
@@ -990,7 +942,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {PIXI.InteractionEvent} event      The PIXI InteractionEvent which wraps a PointerEvent
    * @protected
    */
-  _onClickLeft(event) {
+  _onClickLeft(__event) {
     if (this.hud) this.hud.clear()
     if (game.settings.get('core', 'leftClickRelease')) this.releaseAll()
   }
@@ -1005,6 +957,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     this.createState = CREATION_STATES.NONE
     // clear any existing preview
     this.clearPreviewContainer()
+    // eslint-disable-next-line unicorn/no-null
     event.data.preview = null
     // Snap the origin to the grid
     const { origin, originalEvent } = event.data
@@ -1013,6 +966,7 @@ export class SceneWeatherLayer extends InteractionLayer {
     }
 
     // start new weatherNode, type depending on selected tool
+    // eslint-disable-next-line unicorn/consistent-destructuring
     const newWeatherNode = this._startNewNodeAt(event.data.origin)
     if (newWeatherNode) {
       // Register the ongoing creation
@@ -1040,16 +994,8 @@ export class SceneWeatherLayer extends InteractionLayer {
 
       // Snap the origin to the grid
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
-        origin = canvas.grid.getSnappedPosition(
-          origin.x,
-          origin.y,
-          canvas.sceneweather.gridPrecision
-        )
-        destination = canvas.grid.getSnappedPosition(
-          destination.x,
-          destination.y,
-          canvas.sceneweather.gridPrecision
-        )
+        event.data.origin = canvas.grid.getSnappedPosition(origin.x, origin.y, canvas.sceneweather.gridPrecision)
+        destination = canvas.grid.getSnappedPosition(destination.x, destination.y, canvas.sceneweather.gridPrecision)
       }
 
       // placing the second border point for the polygon mask
@@ -1076,16 +1022,10 @@ export class SceneWeatherLayer extends InteractionLayer {
       // Snap the origin to the grid
       const { destination, originalEvent } = event.data
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
-        event.data.destination = canvas.grid.getSnappedPosition(
-          destination.x,
-          destination.y,
-          this.gridPrecision
-        )
+        event.data.destination = canvas.grid.getSnappedPosition(destination.x, destination.y, this.gridPrecision)
       }
-      this.createState = await preview.creationDragLeftDrop(
-        this.createState,
-        event.data.destination
-      )
+      // eslint-disable-next-line unicorn/consistent-destructuring
+      this.createState = await preview.creationDragLeftDrop(this.createState, event.data.destination)
       // end creation
       if (this.createState == CREATION_STATES.NONE) {
         // clear the preview
@@ -1105,13 +1045,10 @@ export class SceneWeatherLayer extends InteractionLayer {
       // Snap the origin to the grid
       const { destination, originalEvent } = event.data
       if (canvas.sceneweather.snapToGrid && !originalEvent.ctrlKey) {
-        event.data.destination = canvas.grid.getSnappedPosition(
-          destination.x,
-          destination.y,
-          this.gridPrecision
-        )
+        event.data.destination = canvas.grid.getSnappedPosition(destination.x, destination.y, this.gridPrecision)
       }
 
+      // eslint-disable-next-line unicorn/consistent-destructuring
       this.createState = await preview.creationClickLeft2(this.createState, event.data.destination)
       // end creation
       if (this.createState == CREATION_STATES.NONE) {
@@ -1127,7 +1064,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {PointerEvent} event              A right-click pointer event on the document.
    * @protected
    */
-  _onDragLeftCancel(event) {
+  _onDragLeftCancel(__event) {
     this.clearPreviewContainer()
   }
 
@@ -1143,6 +1080,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       event.data.originalEvent.preventDefault()
       // cancel new mask
       this._onDragLeftCancel(event)
+      // eslint-disable-next-line unicorn/no-null
       event.data.preview = null
       this.createState = CREATION_STATES.NONE
       return
@@ -1192,7 +1130,7 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {KeyboardEvent} event             The delete key press event
    * @protected
    */
-  async _onDelete(event) {
+  async _onDelete(__event) {
     // Identify nodes which are candidates for deletion
     const controlledNodes = this.controlled
     if (controlledNodes.length === 0) return
@@ -1202,6 +1140,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       resultNodes.push(weatherNode)
       // check for control release of borderNodes
       if (this.borderNodeControl && this.borderNodeControl.id === weatherNode.id) {
+        // eslint-disable-next-line unicorn/no-null
         this.borderNodeControl = null
       }
       return resultNodes
@@ -1265,12 +1204,11 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {KeyboardEventContext} context    The context data of the event
    * @private
    */
-  _onCopy(context) {
+  _onCopy(__context) {
     // don't handly copy of selected text
     if (window.getSelection().toString() !== '') return false
     this._clipboard = this.controlled
-    if (this._clipboard.length > 0)
-      Logger.info('Copied data for ' + this._clipboard.length + ' WeatherNodes', true) // TODO i18n
+    if (this._clipboard.length > 0) Logger.info('Copied data for ' + this._clipboard.length + ' WeatherNodes', true) // TODO i18n
   }
 
   /* -------------------------------------------- */
@@ -1310,12 +1248,7 @@ export class SceneWeatherLayer extends InteractionLayer {
       let dest = { x: position.x + (sourceData.x - x), y: position.y + (sourceData.y - y) }
       if (snap) dest = canvas.grid.getSnappedPosition(dest.x, dest.y)
       // only paste, if inside the canvas rectangle
-      if (
-        dest.x >= rect.x &&
-        dest.x + sourceData.width <= rect.x + rect.width &&
-        dest.y >= rect.y &&
-        dest.y + sourceData.height <= rect.y + rect.height
-      ) {
+      if (dest.x >= rect.x && dest.x + sourceData.width <= rect.x + rect.width && dest.y >= rect.y && dest.y + sourceData.height <= rect.y + rect.height) {
         // Stage the creation
         toCreate.push(
           foundry.utils.mergeObject(sourceData, {
@@ -1365,23 +1298,20 @@ export class SceneWeatherLayer extends InteractionLayer {
    * @param {KeyboardEventContext} context    The context data of the event
    * @private
    */
-  _onUndo(context) {
+  _onUndo(__context) {
     if (!canvas.ready) return false
     if (this._history.length > 0) {
       const event = this._history.pop()
       switch (event.type) {
         case 'deleteWeatherNode':
-          const weatherNodes = event.data.weatherNodes
-          this.deleteWeatherNodes(weatherNodes, { storeHistory: false })
+          this.deleteWeatherNodes(event.data.weatherNodes, { storeHistory: false })
           this._nodeFrame.refresh()
           return true
         case 'createWeatherNode':
-          const weatherNodeDatas = event.data.weatherNodeDatas
-          this.createWeatherNodes(weatherNodeDatas, { forceId: true, storeHistory: false })
+          this.createWeatherNodes(event.data.weatherNodeDatas, { forceId: true, storeHistory: false })
           return true
         case 'updateWeatherNode':
-          const weatherNodeUpdates = event.data.weatherNodeUpdates
-          this.updateNodes(weatherNodeUpdates, { storeHistory: false })
+          this.updateNodes(event.data.weatherNodeUpdates, { storeHistory: false })
           return true
       }
       return false

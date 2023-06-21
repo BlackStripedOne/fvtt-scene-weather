@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import { TIME_PROVIDERS } from '../constants.js'
-import { Logger } from '../utils.js'
+import { Logger, Utils } from '../utils.js'
 import { FoundryAbstractionLayer as Fal } from '../fal.js'
 import { TimeProvider } from './timeProvider.js'
 
@@ -95,7 +95,7 @@ export class ScTimeProvider extends TimeProvider {
   /**
    * @override
    */
-  async advanceGameTime(deltaSeconds = 0) {
+  async advanceGameTime(__deltaSeconds = 0) {
     Logger.warn('ScTimeProvider.advanceGameTime(...) -> no time authority, ignoring')
   }
 
@@ -124,9 +124,7 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   getMonthOffset(monthNr) {
-    return ScTimeProvider._config.monthOffset[
-      Utils.clamp(monthNr, 0, ScTimeProvider._config.monthOffset.length - 1)
-    ]
+    return ScTimeProvider._config.monthOffset[Utils.clamp(monthNr, 0, ScTimeProvider._config.monthOffset.length - 1)]
   }
 
   /**
@@ -159,9 +157,7 @@ export class ScTimeProvider extends TimeProvider {
     const doY = this.getDayOfYear()
     const summerWinterSolsticeDeltaDays = wsD > ssD ? wsD - ssD : ssD - wsD
     let beforeSummerSolstice = doY < ssD
-    let distancePct = beforeSummerSolstice
-      ? 1.0 - (ssD - doY) / summerWinterSolsticeDeltaDays
-      : (doY - ssD) / summerWinterSolsticeDeltaDays
+    let distancePct = beforeSummerSolstice ? 1.0 - (ssD - doY) / summerWinterSolsticeDeltaDays : (doY - ssD) / summerWinterSolsticeDeltaDays
     if (distancePct > 1.0) {
       distancePct -= 1.0
       beforeSummerSolstice = !beforeSummerSolstice
@@ -192,9 +188,7 @@ export class ScTimeProvider extends TimeProvider {
    */
   getDayOfYear(dayDelta = 0, hourDelta = 0) {
     const scInstance = SimpleCalendar.api.timestampToDate(
-      Fal.getWorldTime() +
-        hourDelta * ScTimeProvider._config.secondsInHour +
-        dayDelta * ScTimeProvider._config.secondsInDay
+      Fal.getWorldTime() + hourDelta * ScTimeProvider._config.secondsInHour + dayDelta * ScTimeProvider._config.secondsInDay
     )
     Logger.trace('ScTimeProvider.getDayOfYear()', {
       scInstance: scInstance,
@@ -207,16 +201,8 @@ export class ScTimeProvider extends TimeProvider {
    * @override
    */
   getHourOfDay(dayDelta = 0, hourDelta = 0) {
-    const currentWorldTime =
-      Fal.getWorldTime() +
-      hourDelta * ScTimeProvider._config.secondsInHour +
-      dayDelta * ScTimeProvider._config.secondsInDay
-    const dayTime = Math.abs(
-      Math.trunc(
-        (currentWorldTime % ScTimeProvider._config.secondsInDay) /
-          ScTimeProvider._config.secondsInHour
-      )
-    )
+    const currentWorldTime = Fal.getWorldTime() + hourDelta * ScTimeProvider._config.secondsInHour + dayDelta * ScTimeProvider._config.secondsInDay
+    const dayTime = Math.abs(Math.trunc((currentWorldTime % ScTimeProvider._config.secondsInDay) / ScTimeProvider._config.secondsInHour))
     Logger.trace('ScTimeProvider.getHourOfDay()', {
       currentWorldTime: currentWorldTime,
       dayTime: dayTime
@@ -224,6 +210,27 @@ export class ScTimeProvider extends TimeProvider {
     if (currentWorldTime < 0) {
       return ScTimeProvider._config.hoursInDay - dayTime
     } else return dayTime
+  }
+
+  /**
+   * @override
+   */
+  getHourFraction() {
+    const currentWorldTime = Fal.getWorldTime()
+    const dayHour = Math.abs(Math.trunc((currentWorldTime % ScTimeProvider._config.secondsInDay) / ScTimeProvider._config.secondsInHour))
+    if (currentWorldTime < 0) {
+      return (
+        (ScTimeProvider._config.hoursInDay -
+          Math.abs(currentWorldTime % ScTimeProvider._config.secondsInDay) -
+          dayHour * ScTimeProvider._config.secondsInHour) /
+        ScTimeProvider._config.secondsInHour
+      )
+    } else {
+      return (
+        (Math.abs(currentWorldTime % ScTimeProvider._config.secondsInDay) - dayHour * ScTimeProvider._config.secondsInHour) /
+        ScTimeProvider._config.secondsInHour
+      )
+    }
   }
 
   /**
@@ -333,8 +340,7 @@ export class ScTimeProvider extends TimeProvider {
       return month.numberOfDays
     })
     const startingDays = ScTimeProvider._getStartingDays(daysInMonth)
-    const totalDaysInYear =
-      startingDays[startingDays.length - 1] + daysInMonth[daysInMonth.length - 1]
+    const totalDaysInYear = startingDays[startingDays.length - 1] + daysInMonth[daysInMonth.length - 1]
 
     ScTimeProvider._config = {
       providerId: TIME_PROVIDERS.SIMPLE_CALENDAR,
@@ -395,9 +401,8 @@ export class ScTimeProvider extends TimeProvider {
     let seasons = []
     ScTimeProvider._config.summerSolstice = -1
     ScTimeProvider._config.winterSolstice = -1
-    SimpleCalendar.api.getAllSeasons().forEach((season) => {
-      const startingDay =
-        ScTimeProvider._config.monthOffset[season.startingMonth] + season.startingDay
+    for (const season of SimpleCalendar.api.getAllSeasons()) {
+      const startingDay = ScTimeProvider._config.monthOffset[season.startingMonth] + season.startingDay
       seasons.push({
         icon: season.icon,
         dayLengthSeconds: season.sunsetTime - season.sunriseTime,
@@ -409,26 +414,20 @@ export class ScTimeProvider extends TimeProvider {
       if (season.icon == 'winter') {
         ScTimeProvider._config.winterSolstice = startingDay
       }
-    })
+    }
     const sortedSeasons = seasons.sort((a, b) => a.startingDoY - b.startingDoY)
     // for summer solstice
     if (ScTimeProvider._config.summerSolstice == -1) {
       // find season with longest sunshine duration
-      const summerSeason = sortedSeasons.reduce(
-        (longest, season) =>
-          longest.dayLengthSeconds >= season.dayLengthSeconds ? longest : season,
-        null
-      )
+      // eslint-disable-next-line unicorn/no-null
+      const summerSeason = sortedSeasons.reduce((longest, season) => (longest.dayLengthSeconds >= season.dayLengthSeconds ? longest : season), null)
       ScTimeProvider._config.summerSolstice = summerSeason.startingDoY
     }
     // for winter solstice
     if (ScTimeProvider._config.winterSolstice == -1) {
       // find season with shortest sunshine duration
-      const winterSeason = sortedSeasons.reduce(
-        (shortest, season) =>
-          shortest.dayLengthSeconds <= season.dayLengthSeconds ? shortest : season,
-        null
-      )
+      // eslint-disable-next-line unicorn/no-null
+      const winterSeason = sortedSeasons.reduce((shortest, season) => (shortest.dayLengthSeconds <= season.dayLengthSeconds ? shortest : season), null)
       ScTimeProvider._config.winterSolstice = winterSeason.startingDoY
     }
     Logger.trace('ScTimeProvider._calculateSolstices()', {

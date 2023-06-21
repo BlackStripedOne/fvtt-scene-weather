@@ -153,6 +153,7 @@ export class WelcomeDialog extends FormApplication {
    */
   async _getReleaseVersions() {
     const releasesApi = this._getGitHubReleasesApi()
+    // TODO add Try/Catch block
     const response = await fetch(releasesApi)
     if (response && response.ok) {
       const data = await response.json()

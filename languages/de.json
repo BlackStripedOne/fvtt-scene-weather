@@ -339,7 +339,19 @@
     },
     "meteoUi": {
       "toggleName": "Meteogram UI Anzeigen/Verbergen",
-      "toggleTitle": "Meteogram UI Anzeigen/Verbergen"
+      "toggleTitle": "Meteogram UI Anzeigen/Verbergen",
+      "tempCanvas": {
+        "air": "Luft Temperatur",
+        "ground": "Boden Temperatur",
+        "percieved": "Gefühlte Temperatur"
+      },
+      "range": {
+        "now": "jetzt",
+        "days": "Tage",
+        "hours": "Std",
+        "agoPrep": "vor ",
+        "agoPost": ""
+      }
     },
     "weatherConfig": {
       "title": "Statische Wetter Einstellungen",

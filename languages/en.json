@@ -339,7 +339,19 @@
     },
     "meteoUi": {
       "toggleName": "Toggle Meteogram UI",
-      "toggleTitle": "Toggle Meteogram UI"
+      "toggleTitle": "Toggle Meteogram UI",
+      "tempCanvas": {
+        "air": "Air temperatur",
+        "ground": "Ground temperatur",
+        "percieved": "Percieved temperatur"
+      },
+      "range": {
+        "now": "now",
+        "days": "days",
+        "hours": "hrs",
+        "agoPrep": "",
+        "agoPost": " ago"
+      }
     },
     "weatherConfig": {
       "title": "Static weather settings",

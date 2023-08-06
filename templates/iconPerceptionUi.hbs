@@ -10,5 +10,10 @@
 </div>
 <div class="weatherIconText"><i class="fas fa-solid fa-temperature-low"></i> {{temperature.air}}{{localize
   'dialogs.degCelsius'}}</div>
+{{#if settings.uiFahrenheit}}
+<div class="weatherIconText"><i class="fas fa-regular fa-hand"></i> ({{temperature.percievedFahrenheit}}{{localize 
+	'dialogs.degFahrenheit'}})</div>
+{{#else}}
 <div class="weatherIconText"><i class="fas fa-regular fa-hand"></i> {{temperature.percieved}}{{localize
   'dialogs.degCelsius'}}</div>
+{{/if}}

@@ -3,7 +3,7 @@
   "title": "Scene Weather",
   "description": "Controling weather for scenes from weather model up to weather effects, with an API to be used for game systems.",
   "library": false,
-  "manifestPlusVersion": "1.2.0",
+  "manifestPlusVersion": "1.2.1",
   "authors": [
     {
       "name": "BlackStripedOne",

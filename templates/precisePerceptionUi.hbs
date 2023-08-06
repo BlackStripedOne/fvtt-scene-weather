@@ -13,7 +13,11 @@
   </tr>
   <tr>
     <td><i class="fa-regular fa-hand"></i> {{localize 'meteo.precise.percieved'}}</td>
+    {{#if settings.uiFahrenheit}}
+    <td>({{temperature.percievedFahrenheit}}{{localize 'dialogs.degFahrenheit'}})</td>
+    {{#else}}
     <td>{{temperature.percieved}} {{localize 'dialogs.degCelsius'}}</td>
+    {{/if}}
     <td><i class="fa-light fa-raindrops"></i> {{localize 'meteo.precise.amount'}}</td>
     <td>{{precipitation.amount}} {{localize 'dialogs.percent'}}</td>
   </tr>

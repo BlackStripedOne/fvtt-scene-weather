@@ -1,5 +1,5 @@
 <form id="{{id}}" class="{{classes}}" data-appid="{{appId}}" autocomplete="off" onsubmit="event.preventDefault();">
-  <i class="fa-solid fa-temperature-three-quarters"></i> {{temp.percieved}}°C <i class="fa-regular fa-sun-bright"></i>
+  <i class="fa-solid fa-temperature-three-quarters"></i> {{#if settings.uiFahrenheit}}{{temperature.percievedFahrenheit}}{{localize 'dialogs.degFahrenheit'}}{{#else}}{{temp.percieved}}{{localize 'dialogs.degCelsius'}}{{/if}} <i class="fa-regular fa-sun-bright"></i>
   {{sun.amount}}% {{#if (eq precipitation.type 'snow')}}<i class="fa-regular fa-snowflakes"></i>{{else}}<i
     class="fa-regular fa-raindrops"></i>{{/if}} {{precipitation.amount}}%
 </form>

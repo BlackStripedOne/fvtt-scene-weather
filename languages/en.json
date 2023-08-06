@@ -211,6 +211,7 @@
   },
   "dialogs": {
     "degCelsius": "°C",
+    "degFahrenheit": "°F",
     "meters": "m",
     "degree": "°",
     "percent": "%",
@@ -473,6 +474,12 @@
       "name": "Enable weather effects",
       "toggleName": "Toggle weather effects",
       "toggleTitle": "Toggle weather effects"
+    },
+    "uiFahrenheit": {
+      "hint": "Set UI output (perceived only) to Fahrenheit.",
+      "name": "Enable Fahrenheit",
+      "toggleName": "Toggle Fahrenheit",
+      "toggleTitle": "Toggle Fahrenheit"
     },
     "cloudsAlpha": {
       "hint": "How visible should clouds, fog or other area-wide effects be on the scene. 0% disables clouds visually.",

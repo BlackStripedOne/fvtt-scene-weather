@@ -211,6 +211,7 @@
   },
   "dialogs": {
     "degCelsius": "°C",
+    "degFahrenheit": "°F",
     "meters": "m",
     "degree": "°",
     "percent": "%",
@@ -503,6 +504,12 @@
       "name": "Wetter Effekte Aktivieren",
       "toggleName": "Wetter Effekte An-/Abschalten",
       "toggleTitle": "Wetter Effekte An-/Abschalten"
+    },    
+    "uiFahrenheit": {
+      "hint": "TODO.",
+      "name": "TODO",
+      "toggleName": "TODO",
+      "toggleTitle": "TODO"
     },
     "cloudsAlpha": {
       "hint": "Wie sichtbar sollen Wolken, Nebel oder andere Flächendeckende Effekte auf der Scene sein. 0% deaktiviert Wolken visuell.",

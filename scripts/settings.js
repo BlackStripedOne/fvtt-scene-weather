@@ -338,5 +338,14 @@ export const registerSettingsPreInit = function () {
     restricted: true
   })
 
+  game.settings.register(MODULE.ID, 'uiFahrenheit', {
+    name: 'settings.uiFahrenheit.name',
+    hint: 'settings.uiFahrenheit.hint',
+    scope: 'client',
+    config: false,
+    type: Boolean,
+    default: true
+  })
+
   Logger.debug('Settings Registered')
 }

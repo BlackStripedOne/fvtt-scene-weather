@@ -275,7 +275,8 @@ class PerceptivePerciever extends WeatherPerception {
       temperature: {
         air: Math.round(modelData.temp.air),
         ground: Math.round(modelData.temp.ground),
-        percieved: settings.uiFahrenheit ? Math.round(modelData.temp.percieved) : Math.round(modelData.temp.percieved) * 1.8 + 32,
+        percieved: Math.round(modelData.temp.percieved),
+        perceivedFahrenheit: Math.round(modelData.temp.percieved) * 1.8 + 32
         percievedId: PerceptivePerciever._getPercievedTempId(modelData.temp.percieved)
       },
       humidity: {
